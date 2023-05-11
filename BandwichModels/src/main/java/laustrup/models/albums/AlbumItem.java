@@ -94,16 +94,16 @@ public class AlbumItem extends Model {
         return _tags;
     }
 
+    @Override
+    public String toString() {
+        return "AlbumItem(" +
+                    "endpoint:" + _endpoint +
+                    ",kind:" + _kind +
+                ")";
+    }
+
     /**
      * An enum that will describe the type of Album.
      */
     public enum Kind { IMAGE,MUSIC }
-
-    @Override
-    public String toString() {
-        return "AlbumItem(" +
-                    "id:" + _primaryId +
-                    ",endpoint:" + _endpoint +
-                ")";
-    }
 }

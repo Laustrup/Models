@@ -86,8 +86,11 @@ public class Album extends Model {
             if (item.get_kind() == AlbumItem.Kind.IMAGE ||
                     (item.get_kind() == AlbumItem.Kind.MUSIC &&
                         (_author.getClass() == Band.class ||
-                        _author.getClass() == Artist.class)))
+                        _author.getClass() == Artist.class)
+                    )
+            )
                 _items.add(item);
+
         return _items;
     }
 
@@ -100,13 +103,13 @@ public class Album extends Model {
 
     /**
      * Will set an item of the Album.
-     * @param items The Items that will be replaced with its common id in items.
+     * @param items The Items that will be replaced with its common endpoint in items.
      * @return All the items.
      */
     public Liszt<AlbumItem> set(Liszt<AlbumItem> items) {
         for (AlbumItem item : items) {
             for (int i = 1; i <= _items.size(); i++) {
-                if (_items.Get(i).get_primaryId() == item.get_primaryId()) {
+                if (_items.Get(i).get_endpoint().equals(item.get_endpoint())) {
                     _items.set(i,item);
                     break;
                 }
@@ -119,10 +122,24 @@ public class Album extends Model {
     /**
      * Will remove an item of the Album.
      * @param item The item that should be removed from the Album.
-     * @return All the items.
+     * @return All the items of this Album.
      */
-    public Liszt<AlbumItem> remove(AlbumItem item) {
-        _items.remove(item);
+    public Liszt<AlbumItem> remove(AlbumItem item) { return remove(new AlbumItem[]{item}); }
+
+    /**
+     * Will remove some items of the Album.
+     * @param items The items that should be removed from the Album.
+     * @return All the items of this Album.
+     */
+    public Liszt<AlbumItem> remove(Liszt<AlbumItem> items) { return remove(items.get_data()); }
+
+    /**
+     * Will remove some items of the Album.
+     * @param items The items that should be removed from the Album.
+     * @return All the items of this Album.
+     */
+    public Liszt<AlbumItem> remove(AlbumItem[] items) {
+        _items.remove(items);
         return _items;
     }
 
@@ -130,7 +147,7 @@ public class Album extends Model {
     public String toString() {
         return "Album(id:"+_primaryId+
                     ",title:"+_title+
-                    "timestamp:"+_timestamp+
+                    ",timestamp:"+_timestamp+
                 ")";
     }
 }
