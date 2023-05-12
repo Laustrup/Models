@@ -13,7 +13,7 @@ import java.util.Arrays;
 /**
  * A Service that includes functions of actions with files.
  */
-public class FileService {
+public class FileService extends Service {
 
     /**
      * Singleton instance of the Service.

@@ -74,7 +74,7 @@ public class Venue extends User {
             _requests.add(new Request(request));
     }
     public Venue(long id) {
-        super(id);
+        super(id, Authority.VENUE);
     }
     public Venue(long id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
                  Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, String location,

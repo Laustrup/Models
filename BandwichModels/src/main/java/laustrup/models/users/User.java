@@ -190,8 +190,9 @@ public abstract class User extends Model {
 
         _authority = Authority.valueOf(user.getAuthority().toString());
     }
-    public User(long id) {
+    public User(long id, Authority authority) {
         super(id);
+        _authority = authority;
     }
     public User(long id, String username, String firstName, String lastName, String description,
                 ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,

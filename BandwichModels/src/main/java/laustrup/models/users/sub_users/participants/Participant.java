@@ -56,9 +56,10 @@ public class Participant extends User {
         for (UserDTO idol : idols)
             _idols.add(DTOService.get_instance().convertFromDTO(idol));
     }
-    public Participant(long id) {
-        super(id);
+    public Participant(long id, Authority authority) {
+        super(id,authority);
     }
+    public Participant(long id) {super(id,Authority.PARTICIPANT);}
     public Participant(long id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                        Liszt<ChatRoom> chatRooms, Subscription.Status subscriptionStatus,
@@ -108,7 +109,7 @@ public class Participant extends User {
     public Participant(String username, String firstName, String lastName, String description,
                        SubscriptionOffer subscriptionOffer, Liszt<User> idols) {
         super(username, firstName, lastName, description,
-                new Subscription(new Participant(0), Subscription.Type.FREEMIUM,
+                new Subscription(new Participant(0,Authority.PARTICIPANT), Subscription.Type.FREEMIUM,
                         Subscription.Status.ACCEPTED, subscriptionOffer, null),
                 Authority.PARTICIPANT);
         _idols = idols;

@@ -15,7 +15,7 @@ import laustrup.models.users.sub_users.bands.Band;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.sub_users.venues.Venue;
 
-public class DTOService {
+public class DTOService extends Service {
 
     /**
      * Singleton instance of the Service.

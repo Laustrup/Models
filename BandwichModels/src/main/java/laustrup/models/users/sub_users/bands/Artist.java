@@ -62,7 +62,7 @@ public class Artist extends Performer {
             _requests.add(new Request(request));
     }
     public Artist(long id) {
-        super(id);
+        super(id,Authority.ARTIST);
     }
 
     public Artist(long id, String username, String firstName, String lastName, String description,

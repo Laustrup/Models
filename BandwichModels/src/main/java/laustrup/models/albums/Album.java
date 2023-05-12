@@ -34,7 +34,7 @@ public class Album extends Model {
         super(album.getPrimaryId(), album.getTitle(), album.getTimestamp());
         _items = new Liszt<>();
         convert(album.getItems());
-        _author = DTOService.get_instance().convertFromDTO(album.getAuthor());
+        _author = album.getAuthor() != null ? DTOService.get_instance().convertFromDTO(album.getAuthor()) : null;
     }
     private Liszt<AlbumItem> convert(AlbumItemDTO[] dtos) {
         for (AlbumItemDTO item : dtos)

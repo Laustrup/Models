@@ -29,6 +29,6 @@ public class AlbumDTO extends ModelDTO {
         items = new AlbumItemDTO[album.get_items().size()];
         for (int i = 0; i < items.length; i++)
             items[i] = new AlbumItemDTO(album.get_items().Get(i+1));
-        author = DTOService.get_instance().convertToDTO(album.get_author());
+        author = album.get_author().get_primaryId() > 0 ? DTOService.get_instance().convertToDTO(album.get_author()) : null;
     }
 }

@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * An important issue is the answering time of users, which it can handle.
  * Is meant as a singleton.
  */
-public class TimeService {
+public class TimeService extends Service {
 
     /**
      * Singleton instance of the Service.

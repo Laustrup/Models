@@ -2,7 +2,7 @@ package laustrup.services;
 
 import java.util.Random;
 
-public class RandomCreatorService {
+public class RandomCreatorService extends Service {
 
     /**
      * Singleton instance of the Service.
@@ -62,7 +62,7 @@ public class RandomCreatorService {
     }
 
     /**
-     * Will generate a String containing a random password with generateString() with special characters and length of 5.
+     * Will generate a String containing a random password with generateString() with special characters and length of 13.
      * @return The generated password.
      */
     public String generatePassword() {

@@ -91,8 +91,8 @@ public abstract class Performer extends Participant {
             _fans.add(DTOService.get_instance().convertFromDTO(fan));
     }
 
-    public Performer(long id) {
-        super(id);
+    public Performer(long id, Authority authority) {
+        super(id,authority);
     }
 
     public Performer(long id, String username, String firstName, String lastName, String description,

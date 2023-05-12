@@ -51,7 +51,7 @@ public class Band extends Performer {
         _runner = band.getRunner();
     }
     public Band(long id) {
-        super(id);
+        super(id,Authority.BAND);
     }
 
     public Band(long id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,

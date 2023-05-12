@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 
 class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
-    @Test
+    AlbumTests() { super(true); }
+
+    @Test @Override
     public void dataTransportObjectTranslate() {
         test(() -> {
             Album expected = arrange(() -> {
@@ -25,11 +27,12 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
             Album actual = act(() -> new Album(_dto));
 
-            asserting(expected,actual);
+
+            asserting(expected.toString(),actual.toString());
         });
     }
 
-    @Test
+    @Test @Override
     public void canAdd() {
         AlbumItem[] items = generateItems();
 
@@ -81,7 +84,7 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
         });
     }
 
-    @Test
+    @Test @Override
     public void canSet() {
         test(() -> {
             Album arranged = arrange(() -> _items.get_albums()[0]);
@@ -95,7 +98,7 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
         });
     }
 
-    @Test
+    @Test @Override
     public void canRemove() {
         test(() -> {
             Album arranged = arrange(() -> _items.get_albums()[0]);
