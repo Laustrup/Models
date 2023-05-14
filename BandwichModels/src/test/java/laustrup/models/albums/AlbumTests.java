@@ -29,7 +29,25 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
 
             asserting(expected.toString(),actual.toString());
+
+            addToPrint("The two Albums are:\n \n" + expected + "\n" + actual);
         });
+    }
+
+    @Override @Test
+    protected void toStringTest() {
+        Album arrangement = _items.get_albums()[0];
+        String[] keys = new String[]{
+            "id",
+            "title",
+            "timestamp"
+        }, values = new String[]{
+            String.valueOf(arrangement.get_primaryId()),
+            arrangement.get_title(),
+            String.valueOf(arrangement.get_timestamp())
+        };
+
+        testToString(arrangement,keys,values);
     }
 
     @Test @Override
@@ -95,6 +113,8 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
             act(() -> arranged.set(items));
 
             asserting(items,arranged.get_items());
+
+            addToPrint("The two AlbumItems are:\n \n" + items + "\n" + arranged.get_items());
         });
     }
 

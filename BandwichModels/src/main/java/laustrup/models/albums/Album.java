@@ -13,6 +13,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Consists of items that can be music or images.
+ */
 public class Album extends Model {
 
     /**
@@ -30,25 +33,50 @@ public class Album extends Model {
     @Getter
     private User _author;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param album The transport object to be transformed.
+     */
     public Album(AlbumDTO album) {
         super(album.getPrimaryId(), album.getTitle(), album.getTimestamp());
         _items = new Liszt<>();
         convert(album.getItems());
         _author = album.getAuthor() != null ? DTOService.get_instance().convertFromDTO(album.getAuthor()) : null;
     }
-    private Liszt<AlbumItem> convert(AlbumItemDTO[] dtos) {
-        for (AlbumItemDTO item : dtos)
+
+    /**
+     * Converts an array of item transport objects into a Liszt of items.
+     * @param items The array to be converted.
+     * @return The converted items as a Liszt.
+     */
+    private Liszt<AlbumItem> convert(AlbumItemDTO[] items) {
+        for (AlbumItemDTO item : items)
             _items.add(new AlbumItem(item));
+
         return _items;
     }
-    public Album(long id, String title, Liszt<AlbumItem> items, User author,
-                 LocalDateTime timestamp) {
+
+    /**
+     * A constructor with all the values of an Album.
+     * @param id The primary id that identifies this unique Album.
+     * @param title The title of the Album.
+     * @param items The items contained on this Album.
+     * @param author The creator of the Album.
+     * @param timestamp The date this Album was created.
+     */
+    public Album(long id, String title, Liszt<AlbumItem> items, User author, LocalDateTime timestamp) {
         super(id, title, timestamp);
         _items = items;
         _author = author;
         _assembling = true;
     }
 
+    /**
+     * A limited constructor, that can be used for when it is created.
+     * @param title The title of the Album.
+     * @param items The items contained on this Album.
+     * @param author The creator of the Album.
+     */
     public Album(String title, Liszt<AlbumItem> items, User author) {
         super(title);
         _items = items;
@@ -84,10 +112,10 @@ public class Album extends Model {
     public Liszt<AlbumItem> add(AlbumItem[] items) {
         for (AlbumItem item : items)
             if (item.get_kind() == AlbumItem.Kind.IMAGE ||
-                    (item.get_kind() == AlbumItem.Kind.MUSIC &&
-                        (_author.getClass() == Band.class ||
-                        _author.getClass() == Artist.class)
-                    )
+                (item.get_kind() == AlbumItem.Kind.MUSIC &&
+                    (_author.getClass() == Band.class ||
+                    _author.getClass() == Artist.class)
+                )
             )
                 _items.add(item);
 
@@ -145,9 +173,17 @@ public class Album extends Model {
 
     @Override
     public String toString() {
-        return "Album(id:"+_primaryId+
-                    ",title:"+_title+
-                    ",timestamp:"+_timestamp+
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[]{
+                "id",
+                "title",
+                "timestamp"
+            },
+            new String[]{
+                String.valueOf(_primaryId),
+                _title,
+                String.valueOf(_timestamp)
+        });
     }
 }

@@ -43,9 +43,7 @@ public abstract class Model {
     @Getter @Setter
     protected String _title;
 
-    /**
-     * Specifies the time this entity was created.
-     */
+    /** Specifies the time this entity was created. */
     @Getter
     protected LocalDateTime _timestamp;
 
@@ -56,30 +54,64 @@ public abstract class Model {
     @Getter
     protected boolean _assembling;
 
-    /**
-     * A kind of String message, that can be used to define an incident a message.
-     */
+    /** A kind of String message, that can be used to define an incident a message. */
     @Getter @Setter
     protected String _situation = "UNDEFINED";
 
-    public Model() {
-        _timestamp = LocalDateTime.now();
-    }
+    /** I used for the defineToString of how it should be split. */
+    private final String _toStringFieldSplitter = ",\n \t",
+            _toStringKeyValueSplitter = ":\t";
+
+    /** Doesn't take any parameters, but will set the timestamp to the present time now. */
+    public Model() { _timestamp = LocalDateTime.now(); }
+
+    /**
+     * Sets the timestamp to present time now.
+     * @param id An unique id value to identify the Model.
+     */
     public Model(long id) {
         _primaryId = id;
         _timestamp = LocalDateTime.now();
     }
 
+    /**
+     * For newly created Models with a generated id.
+     * Sets the timestamp to present time now.
+     * @param title The title of the Model, either a given title or created from values.
+     */
     public Model(String title) {
         _title = title;
         _timestamp = LocalDateTime.now();
     }
 
+    /**
+     * For newly created Models with a generated id.
+     * @param title The title of the Model, either a given title or created from values.
+     * @param timestamp The time this Model was created.
+     */
+    public Model(String title, LocalDateTime timestamp) {
+        _title = title;
+        _timestamp = timestamp;
+    }
+
+    /**
+     * Only sets the values in the parameter.
+     * @param id An unique id value to identify the Model.
+     * @param title The title of the Model, either a given title or created from values.
+     * @param timestamp The time this Model was created.
+     */
     public Model(long id, String title, LocalDateTime timestamp) {
         _primaryId = id;
         _title = title;
         _timestamp = timestamp;
     }
+
+    /**
+     * Constructor for a Model with two ids, which could be a conjoint relation Model.
+     * @param primaryId The first id.
+     * @param secondaryId The second id.
+     * @param title The title of the Model, either a given title or created from values.
+     */
     public Model(long primaryId, long secondaryId, String title) {
         _primaryId = primaryId;
         _secondaryId = secondaryId;
@@ -87,14 +119,16 @@ public abstract class Model {
         _timestamp = LocalDateTime.now();
     }
 
+    /**
+     * Constructor for a Model with two ids, which could be a conjoint relation Model.
+     * @param primaryId The first id.
+     * @param secondaryId The second id.
+     * @param title The title of the Model, either a given title or created from values.
+     * @param timestamp The time this Model was created.
+     */
     public Model(long primaryId, long secondaryId, String title, LocalDateTime timestamp) {
         _primaryId = primaryId;
         _secondaryId = secondaryId;
-        _title = title;
-        _timestamp = timestamp;
-    }
-
-    public Model(String title, LocalDateTime timestamp) {
         _title = title;
         _timestamp = timestamp;
     }
@@ -112,5 +146,29 @@ public abstract class Model {
     public boolean doneAssembling() {
         _assembling = false;
         return _assembling;
+    }
+
+    /**
+     * Will generate a toString from the attributes and values.
+     * Makes it able to have the same structure for all objects.
+     * If there is more value inputs than keys, the toString will not be unique, even though it must.
+     * @param title The class name of the class Model, always use getClass().getSimpleName().
+     * @param keys The attributes of the class Model, visualized as keys.
+     * @param values The values of the attributes/keys, as Strings.
+     * @return The generated toString.
+     */
+    protected String defineToString(String title, String[] keys, String[] values) {
+        StringBuilder content = new StringBuilder();
+
+        if (values.length <= keys.length)
+            for (int i = 0; i < keys.length; i++) {
+                content.append(keys[i]).append(_toStringKeyValueSplitter).append(values[i]);
+                if (i < keys.length-1)
+                    content.append(_toStringFieldSplitter);
+            }
+        else
+            content = new StringBuilder("Content couldn't be generated, since there are less attributes than values");
+
+        return title + "(\n \t" + content + "\n)";
     }
 }
