@@ -1,6 +1,7 @@
 package laustrup.models;
 
 import laustrup.dtos.RatingDTO;
+import laustrup.dtos.users.UserDTO;
 import laustrup.models.users.User;
 
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 
 import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 /**
  * Can be added to a model to indicate the rating that the model is appreciated.
@@ -48,8 +50,8 @@ public class Rating extends Model {
         super(rating.getAppointed().getPrimaryId(), rating.getJudge().getPrimaryId(),
                 rating.getAppointed().getUsername()+"-"+rating.getJudge().getUsername(), rating.getTimestamp());
         _value = set_value(rating.getValue());
-        _appointed = convertFromDTO(rating.getAppointed());
-        _judge = convertFromDTO(rating.getJudge());
+        _appointed = (User) ifExists(rating.getAppointed(), e -> convertFromDTO((UserDTO) e));
+        _judge = (User) ifExists(rating.getJudge(), e -> convertFromDTO((UserDTO) e));
     }
     public Rating(int value) {
         _value = value;

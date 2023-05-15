@@ -134,26 +134,31 @@ public abstract class User extends Model {
         _description = description;
 
         _albums = new Liszt<>();
-        for (AlbumDTO album : albums)
-        _albums.add(new Album(album));
+        if (albums != null)
+            for (AlbumDTO album : albums)
+                _albums.add(new Album(album));
 
         _ratings = new Liszt<>();
-        for (RatingDTO rating : ratings)
-        _ratings.add(new Rating(rating));
+        if (ratings != null)
+            for (RatingDTO rating : ratings)
+                _ratings.add(new Rating(rating));
 
         _events = new Liszt<>();
-        for (EventDTO event : events)
-        _events.add(new Event(event));
+        if (events != null)
+            for (EventDTO event : events)
+                _events.add(new Event(event));
 
         _chatRooms = new Liszt<>();
-        for (ChatRoomDTO chatRoom : chatRooms)
-        _chatRooms.add(new ChatRoom(chatRoom));
+        if (chatRooms != null)
+            for (ChatRoomDTO chatRoom : chatRooms)
+                _chatRooms.add(new ChatRoom(chatRoom));
 
         _subscription = subscription;
 
         _bulletins = new Liszt<>();
-        for (BulletinDTO bulletin : bulletins)
-        _bulletins.add(new Bulletin(bulletin));
+        if (bulletins != null)
+            for (BulletinDTO bulletin : bulletins)
+                _bulletins.add(new Bulletin(bulletin));
 
         _authority = authority;
     }

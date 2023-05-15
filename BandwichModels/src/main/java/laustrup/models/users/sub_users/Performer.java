@@ -68,12 +68,14 @@ public abstract class Performer extends Participant {
         _authority = authority;
 
         _gigs = new Liszt<>();
-        for (GigDTO gig : gigs)
-            _gigs.add(new Gig(gig));
+        if (gigs != null)
+            for (GigDTO gig : gigs)
+                _gigs.add(new Gig(gig));
 
         _fans = new Liszt<>();
-        for (UserDTO fan : fans)
-            _fans.add(convertFromDTO(fan));
+        if (fans != null)
+            for (UserDTO fan : fans)
+                _fans.add(convertFromDTO(fan));
     }
     public Performer(PerformerDTO performer) {
         super(performer.getPrimaryId(), performer.getUsername(), performer.getFirstName(), performer.getLastName(),

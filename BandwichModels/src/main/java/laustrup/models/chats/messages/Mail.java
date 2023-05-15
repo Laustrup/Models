@@ -1,5 +1,6 @@
 package laustrup.models.chats.messages;
 
+import laustrup.dtos.chats.ChatRoomDTO;
 import laustrup.models.chats.ChatRoom;
 import laustrup.dtos.chats.messages.MailDTO;
 import laustrup.models.users.User;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 public class Mail extends Message {
 
@@ -19,7 +21,7 @@ public class Mail extends Message {
     public Mail(MailDTO mail) {
         super(mail.getPrimaryId(), convertFromDTO(mail.getAuthor()),
                 mail.getContent(), mail.isSent(), new Plato(mail.getIsEdited()), mail.isPublic(), mail.getTimestamp());
-        _chatRoom = new ChatRoom(mail.getChatRoom());
+        _chatRoom = (ChatRoom) ifExists(mail.getChatRoom(), e -> new ChatRoom((ChatRoomDTO) e));
     }
     public Mail(long id, ChatRoom chatRoom, User author, String content,
                 boolean isSent, Plato isEdited, boolean isPublic,

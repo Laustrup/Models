@@ -58,6 +58,8 @@ public class ChatRoom extends Model {
      * @param chatRoom The Data Transport Object that will be converted.
      */
     public ChatRoom(ChatRoomDTO chatRoom) {
+        super(chatRoom.getPrimaryId(), chatRoom.getSecondaryId() != null ? chatRoom.getSecondaryId() : 0,
+                chatRoom.getTitle(), chatRoom.getTimestamp() != null ? chatRoom.getTimestamp() : LocalDateTime.now());
         _mails = new Liszt<>();
         convert(chatRoom.getMails());
         _chatters = new Liszt<>();

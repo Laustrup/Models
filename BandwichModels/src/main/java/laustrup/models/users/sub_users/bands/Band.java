@@ -1,6 +1,7 @@
 package laustrup.models.users.sub_users.bands;
 
 import laustrup.dtos.users.contact_infos.ContactInfoDTO;
+import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -45,12 +46,14 @@ public class Band extends Performer {
         super(band.getPrimaryId(), band.getUsername(), band.getDescription(),
                 (ContactInfo) ifExists(band.getContactInfo(), e -> new ContactInfo((ContactInfoDTO) e)),
                 Authority.BAND, band.getAlbums(), band.getRatings(), band.getEvents(), band.getGigs(), band.getChatRooms(),
-                new Subscription(band.getSubscription()), band.getBulletins(), band.getFans(), band.getIdols(), band.getTimestamp());
+                (Subscription) ifExists(band.getSubscription(), e -> new Subscription((SubscriptionDTO) e)),
+                band.getBulletins(), band.getFans(), band.getIdols(), band.getTimestamp());
         _username = band.getUsername();
 
         _members = new Liszt<>();
-        for (ArtistDTO member : band.getMembers())
-            _members.add(new Artist(member));
+        if (band.getMembers() != null)
+            for (ArtistDTO member : band.getMembers())
+                _members.add(new Artist(member));
 
         _runner = band.getRunner();
     }

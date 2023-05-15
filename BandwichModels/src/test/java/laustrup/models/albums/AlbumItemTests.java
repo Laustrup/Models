@@ -4,7 +4,11 @@ import laustrup.ModelTester;
 import laustrup.dtos.albums.AlbumItemDTO;
 
 import laustrup.models.users.User;
+import laustrup.services.RandomCreatorService;
+import laustrup.utilities.collections.lists.Liszt;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
 
 class AlbumItemTests extends ModelTester<AlbumItem, AlbumItemDTO> {
 
@@ -60,17 +64,21 @@ class AlbumItemTests extends ModelTester<AlbumItem, AlbumItemDTO> {
     @Test @Override
     public void canRemove() {
         test(() -> {
-            test(() -> {
-                AlbumItem arranged = arrange(() -> _items.get_albums()[0].get_items().Get(1));
-                int previousSize = arranged.get_tags().size();
-                User[] tags = new User[_random.nextInt(arranged.get_tags().size())+1];
-                for (int i = 0; i < tags.length; i++)
-                    tags[i] = arranged.get_tags().get(i);
+            AlbumItem arranged = arrange(() -> new AlbumItem(
+                    RandomCreatorService.get_instance().generateString(false,10),
+                    RandomCreatorService.get_instance().generateString(false,10),
+                    _random.nextBoolean() ? AlbumItem.Kind.IMAGE : AlbumItem.Kind.MUSIC,
+                    new Liszt<>(generateTags()), _items.get_events()[0], LocalDateTime.now()
+                    )
+            );
+            int previousSize = arranged.get_tags().size();
+            User[] tags = new User[_random.nextInt(arranged.get_tags().size())];
+            for (int i = 0; i < tags.length; i++)
+                tags[i] = arranged.get_tags().get(i);
 
-                act(() -> arranged.remove(tags));
+            act(() -> arranged.remove(tags));
 
-                asserting(arranged.get_tags().size() == previousSize - tags.length);
-            });
+            asserting(arranged.get_tags().size() == previousSize - tags.length);
         });
     }
 

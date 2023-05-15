@@ -1,5 +1,7 @@
 package laustrup.models.users.sub_users.participants;
 
+import laustrup.dtos.users.contact_infos.ContactInfoDTO;
+import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -23,6 +25,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 /**
  * Defines a User, that will attend an Event as an audience.
@@ -38,14 +41,15 @@ public class Participant extends User {
     private Liszt<User> _idols;
 
     public Participant(ParticipantDTO participant) {
-        super(participant.getPrimaryId(), participant.getUsername(), participant.getFirstName(), participant.getLastName(),
-                participant.getDescription(), new ContactInfo(participant.getContactInfo()), participant.getAlbums(),
-                participant.getRatings(), participant.getEvents(), participant.getChatRooms(),
-                new Subscription(participant.getSubscription()), participant.getBulletins(), Authority.PARTICIPANT,
-                participant.getTimestamp());
+        super(participant.getPrimaryId(), participant.getUsername(), participant.getFirstName(),participant.getLastName(), participant.getDescription(),
+                (ContactInfo) ifExists(participant.getContactInfo(), e -> new ContactInfo((ContactInfoDTO) e)),
+                participant.getAlbums(), participant.getRatings(), participant.getEvents(), participant.getChatRooms(),
+                (Subscription) ifExists(participant.getSubscription(), e -> new Subscription((SubscriptionDTO) e)),
+                participant.getBulletins(), Authority.PARTICIPANT, participant.getTimestamp());
         _idols = new Liszt<>();
-        for (UserDTO idol : participant.getIdols())
-            _idols.add(convertFromDTO(idol));
+        if (participant.getIdols() != null)
+            for (UserDTO idol : participant.getIdols())
+                _idols.add(convertFromDTO(idol));
     }
     public Participant(long id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, AlbumDTO[] albums, RatingDTO[] ratings,
@@ -54,8 +58,9 @@ public class Participant extends User {
         super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events, chatRooms,
                 subscription, bulletins, Authority.PARTICIPANT, timestamp);
         _idols = new Liszt<>();
-        for (UserDTO idol : idols)
-            _idols.add(convertFromDTO(idol));
+        if (idols != null)
+            for (UserDTO idol : idols)
+                _idols.add(convertFromDTO(idol));
     }
     public Participant(long id, Authority authority) {
         super(id,authority);
