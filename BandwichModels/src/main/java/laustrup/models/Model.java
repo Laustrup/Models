@@ -153,6 +153,18 @@ public abstract class Model {
      * Makes it able to have the same structure for all objects.
      * If there is more value inputs than keys, the toString will not be unique, even though it must.
      * @param title The class name of the class Model, always use getClass().getSimpleName().
+     * @param values First array is a String array of keys and the other are its values.
+     * @return The generated toString.
+     */
+    protected String defineToString(String title, String[][] values) {
+        return defineToString(title, values[0], values[1]);
+    }
+
+    /**
+     * Will generate a toString from the attributes and values.
+     * Makes it able to have the same structure for all objects.
+     * If there is more value inputs than keys, the toString will not be unique, even though it must.
+     * @param title The class name of the class Model, always use getClass().getSimpleName().
      * @param keys The attributes of the class Model, visualized as keys.
      * @param values The values of the attributes/keys, as Strings.
      * @return The generated toString.

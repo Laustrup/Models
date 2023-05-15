@@ -34,17 +34,16 @@ class AlbumItemTests extends ModelTester<AlbumItem, AlbumItemDTO> {
     @Override
     protected void toStringTest() {
         AlbumItem arrangement = _items.get_albums()[0].get_items().Get(1);
-        String[] keys = new String[]{
-            "endpoint",
-            "kind",
-            "timestamp"
-        },values = new String[]{
-            arrangement.get_endpoint(),
-            arrangement.get_kind().toString(),
-            arrangement.get_timestamp().toString()
-        };
 
-        testToString(arrangement, keys, values);
+        testToString(arrangement, new String[]{
+                "endpoint",
+                "kind",
+                "timestamp"
+        }, new String[]{
+                arrangement.get_endpoint(),
+                arrangement.get_kind().toString(),
+                arrangement.get_timestamp().toString()
+        });
     }
 
     @Test @Override

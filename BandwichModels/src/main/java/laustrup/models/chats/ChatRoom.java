@@ -14,9 +14,9 @@ import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 /** This is used for multiple Users to communicate with each other through Mails. */
 public class ChatRoom extends Model {
@@ -177,7 +177,7 @@ public class ChatRoom extends Model {
      * Will set each Mail's ChatRoom to this object.
      * @return All Mails.
      */
-    private Liszt<Mail> setChatRoomOfMails(){
+    private Liszt<Mail> setChatRoomOfMails() {
         if (_assembling) {
             for (int i = 1; i <= _mails.size(); i++)
                 _mails.Get(i).set_chatRoom(this);
@@ -193,11 +193,24 @@ public class ChatRoom extends Model {
      * @param mail A Mail object, that is wished to be added.
      * @return All the Mails of this ChatRoom.
      */
-    public List<Mail> add(Mail mail) {
-        if (chatterExists(mail.get_author())) {
-            if (_mails.add(mail)) if (mail.doSend()) edit(mail);
-            if (!_answered) isTheChatRoomAnswered();
-        }
+    public Liszt<Mail> add(Mail mail) { return add(new Mail[]{mail}); }
+
+    /**
+     * Adds Mails to the ChatRoom, if the author of the Mails is a chatter of the ChatRoom.
+     * If the responsible haven't answered yet, it will check if it now is answered.
+     * @param mails Mail objects, that is wished to be added.
+     * @return All the Mails of this ChatRoom.
+     */
+    public Liszt<Mail> add(Mail[] mails) {
+        ifExists(mails, () -> {
+            for (Mail mail : mails)
+                if (chatterExists(mail.get_author())) {
+                    if (_mails.add(mail) && mail.doSend())
+                        edit(mail);
+                    if (!_answered)
+                        isTheChatRoomAnswered();
+                }
+        });
 
         return _mails;
     }
@@ -209,14 +222,26 @@ public class ChatRoom extends Model {
      * @param chatter A user that is wished to be added as a chatter of the ChatRoom.
      * @return All the chatters of the ChatRoom.
      */
-    public List<User> add(User chatter) {
-        if (chatter.getClass() == Band.class) {
-            for (Artist artist : ((Band) chatter).get_members()) {
-                if (!chatterExists(artist))
+    public Liszt<User> add(User chatter) { return add(new User[]{chatter}); }
+
+    /**
+     * It will add some chatters, if they aren't already added.
+     * If the chatters are of Band, it will try to add all the members of the Band,
+     * unless some already is a chatter.
+     * @param chatters A users that is wished to be added as a chatter of the ChatRoom.
+     * @return All the chatters of the ChatRoom.
+     */
+    public Liszt<User> add(User[] chatters) {
+        ifExists(chatters,() -> {
+            for (User chatter : chatters) {
+                if (chatter.getClass() == Band.class) {
+                    for (Artist artist : ((Band) chatter).get_members())
+                        _chatters.add(artist);
+                }
+                else
                     _chatters.add(chatter);
             }
-        }
-        else if (!chatterExists(chatter)) _chatters.add(chatter);
+        });
 
         return _chatters;
     }
@@ -238,7 +263,7 @@ public class ChatRoom extends Model {
      * @param mail The Mail object that is wished to be removed.
      * @return All the Mails of this ChatRoom.
      */
-    public List<Mail> remove(Mail mail) {
+    public Liszt<Mail> remove(Mail mail) {
         for (int i = 1; i <= _mails.size(); i++) {
             if (_mails.Get(i).get_primaryId() == mail.get_primaryId()) {
                 _mails.remove(_mails.Get(i));
@@ -253,7 +278,7 @@ public class ChatRoom extends Model {
      * @param chatter A user object that is wished to be removed.
      * @return All the chatters of this ChatRoom.
      */
-    public List<User> remove(User chatter) {
+    public Liszt<User> remove(User chatter) {
         for (int i = 1; i <= _chatters.size(); i++) {
             if (_chatters.Get(i).get_primaryId() == chatter.get_primaryId()) {
                 _chatters.remove(_chatters.Get(i));
@@ -314,10 +339,18 @@ public class ChatRoom extends Model {
 
     @Override
     public String toString() {
-        return "ChatRoom(" +
-                    "id:" + _primaryId +
-                    ",title:" + _title +
-                    ",timestamp:" + _timestamp +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[]{
+                "id",
+                "title",
+                "timestamp"
+            },
+            new String[]{
+                String.valueOf(_primaryId),
+                _title,
+                String.valueOf(_timestamp)
+            }
+        );
     }
 }
