@@ -56,7 +56,9 @@ public class Subscription extends Model {
 
     public Subscription(SubscriptionDTO subscription) {
         super(subscription.getPrimaryId(), subscription.getSecondaryId(),
-                subscription.getUser().getUsername()+"-Subscription: " + subscription.getUser().getPrimaryId(),
+                subscription.getUser() != null
+                        ? subscription.getUser().getUsername()+"-Subscription: " + subscription.getUser().getPrimaryId()
+                        : "Subscription:" + subscription.getPrimaryId() + "-" + subscription.getSecondaryId(),
                 subscription.getTimestamp());
         _type = defineType(Type.valueOf(subscription.getType().toString()));
         _status = Status.valueOf(subscription.getStatus().toString());

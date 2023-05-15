@@ -4,11 +4,15 @@ import laustrup.dtos.users.UserDTO;
 import laustrup.dtos.users.contact_infos.ContactInfoDTO;
 import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.models.users.User;
+import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.participants.Participant;
-import laustrup.services.DTOService;
+import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 /**
  * Defines a User, that will attend an Event as an audience.
@@ -32,19 +36,20 @@ public class ParticipantDTO extends UserDTO {
         if (idols != null) {
             idols = new UserDTO[participant.get_idols().size()];
             for (int i = 0; i < idols.length; i++)
-                idols[i] = DTOService.get_instance().convertToDTO(participant.get_idols().Get(i+1));
+                idols[i] = convertToDTO(participant.get_idols().Get(i+1));
         }
     }
 
     public ParticipantDTO(User user) {
         super(user.get_primaryId(), user.get_username(), user.get_firstName(), user.get_lastName(),
-                new ContactInfoDTO(user.get_contactInfo()), user.get_albums(), user.get_ratings(),
-                user.get_events(), user.get_chatRooms(), new SubscriptionDTO(user.get_subscription()),
+                (ContactInfoDTO) ifExists(user.get_contactInfo(),e -> new ContactInfoDTO((ContactInfo) e)),
+                user.get_albums(), user.get_ratings(), user.get_events(), user.get_chatRooms(),
+                (SubscriptionDTO) ifExists(user.get_subscription(), e -> new SubscriptionDTO((Subscription) e)),
                 user.get_bulletins(), user.get_authority(), user.get_timestamp());
-        if (user.get_authority() == User.Authority.PARTICIPANT) {
+        if (user.get_authority() == User.Authority.PARTICIPANT && idols != null) {
             idols = new UserDTO[((Participant) user).get_idols().size()];
             for (int i = 0; i < idols.length; i++)
-                idols[i] = DTOService.get_instance().convertToDTO(((Participant) user).get_idols().Get(i+1));
+                idols[i] = convertToDTO(((Participant) user).get_idols().Get(i+1));
         }
     }
 }

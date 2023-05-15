@@ -17,11 +17,12 @@ import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.subscriptions.Subscription;
 import laustrup.models.users.subscriptions.SubscriptionOffer;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * Defines a User, that will attend an Event as an audience.
@@ -44,7 +45,7 @@ public class Participant extends User {
                 participant.getTimestamp());
         _idols = new Liszt<>();
         for (UserDTO idol : participant.getIdols())
-            _idols.add(DTOService.get_instance().convertFromDTO(idol));
+            _idols.add(convertFromDTO(idol));
     }
     public Participant(long id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, AlbumDTO[] albums, RatingDTO[] ratings,
@@ -54,7 +55,7 @@ public class Participant extends User {
                 subscription, bulletins, Authority.PARTICIPANT, timestamp);
         _idols = new Liszt<>();
         for (UserDTO idol : idols)
-            _idols.add(DTOService.get_instance().convertFromDTO(idol));
+            _idols.add(convertFromDTO(idol));
     }
     public Participant(long id, Authority authority) {
         super(id,authority);
@@ -103,7 +104,8 @@ public class Participant extends User {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
                 subscription, bulletins, Authority.PARTICIPANT, timestamp);
         _idols = idols;
-        _subscription.set_user(this);
+        if (_subscription!=null)
+            _subscription.set_user(this);
     }
 
     public Participant(String username, String firstName, String lastName, String description,

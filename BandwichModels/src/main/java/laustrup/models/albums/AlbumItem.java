@@ -6,12 +6,13 @@ import laustrup.dtos.albums.AlbumItemDTO;
 import laustrup.dtos.users.UserDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * Is either music or an image.
@@ -58,7 +59,7 @@ public class AlbumItem extends Model {
      */
     private Liszt<User> convert(UserDTO[] tags) {
         for (UserDTO tag : tags)
-            _tags.add(DTOService.get_instance().convertFromDTO(tag));
+            _tags.add(convertFromDTO(tag));
 
         return _tags;
     }

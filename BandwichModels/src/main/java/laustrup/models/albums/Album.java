@@ -1,5 +1,6 @@
 package laustrup.models.albums;
 
+import laustrup.dtos.users.UserDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
 import laustrup.dtos.albums.AlbumDTO;
@@ -7,20 +8,18 @@ import laustrup.dtos.albums.AlbumItemDTO;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-/**
- * Consists of items that can be music or images.
- */
+import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
+
+/** Consists of items that can be music or images. */
 public class Album extends Model {
 
-    /**
-     * These endpoints are being used for getting the image/music file.
-     */
+    /** These endpoints are being used for getting the image/music file. */
     @Getter
     private Liszt<AlbumItem> _items;
 
@@ -41,7 +40,7 @@ public class Album extends Model {
         super(album.getPrimaryId(), album.getTitle(), album.getTimestamp());
         _items = new Liszt<>();
         convert(album.getItems());
-        _author = album.getAuthor() != null ? DTOService.get_instance().convertFromDTO(album.getAuthor()) : null;
+        _author = (User) ifExists(album.getAuthor(), e -> convertFromDTO((UserDTO) e));
     }
 
     /**

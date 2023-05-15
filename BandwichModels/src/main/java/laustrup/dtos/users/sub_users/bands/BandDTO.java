@@ -40,9 +40,11 @@ public class BandDTO extends PerformerDTO {
                 user.get_subscription(), user.get_bulletins(), ((Band) user).get_fans(), ((Band) user).get_idols(),
                 user.get_timestamp());
         if (user.get_authority() == User.Authority.BAND) {
-            members = new ArtistDTO[((Band)user).get_members().size()];
-            for (int i = 0; i < members.length; i++)
-                members[i] = new ArtistDTO(((Band)user).get_members().Get(i+1));
+            if (((Band)user).get_members() != null) {
+                members = new ArtistDTO[((Band)user).get_members().size()];
+                for (int i = 0; i < members.length; i++)
+                    members[i] = new ArtistDTO(((Band)user).get_members().Get(i+1));
+            }
 
             runner = ((Band)user).get_runner();
         }

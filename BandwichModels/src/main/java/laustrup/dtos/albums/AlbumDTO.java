@@ -3,10 +3,11 @@ package laustrup.dtos.albums;
 import laustrup.models.albums.Album;
 import laustrup.dtos.ModelDTO;
 import laustrup.dtos.users.UserDTO;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 @NoArgsConstructor @Data
 public class AlbumDTO extends ModelDTO {
@@ -29,6 +30,6 @@ public class AlbumDTO extends ModelDTO {
         items = new AlbumItemDTO[album.get_items().size()];
         for (int i = 0; i < items.length; i++)
             items[i] = new AlbumItemDTO(album.get_items().Get(i+1));
-        author = album.get_author().get_primaryId() > 0 ? DTOService.get_instance().convertToDTO(album.get_author()) : null;
+        author = album.get_author().get_primaryId() > 0 ? convertToDTO(album.get_author()) : null;
     }
 }

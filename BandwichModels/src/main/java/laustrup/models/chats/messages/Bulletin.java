@@ -4,11 +4,12 @@ import laustrup.models.Model;
 import laustrup.dtos.chats.messages.BulletinDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 public class Bulletin extends Message {
 
@@ -16,10 +17,10 @@ public class Bulletin extends Message {
     public Model _receiver;
 
     public Bulletin(BulletinDTO bulletin) {
-        super(bulletin.getPrimaryId(), DTOService.get_instance().convertFromDTO(bulletin.getAuthor()),
+        super(bulletin.getPrimaryId(), convertFromDTO(bulletin.getAuthor()),
                 bulletin.getContent(), bulletin.isSent(), new Plato(bulletin.getIsEdited()), bulletin.isPublic(),
                 bulletin.getTimestamp());
-        _receiver = DTOService.get_instance().convertFromDTO(bulletin.getReceiver());
+        _receiver = convertFromDTO(bulletin.getReceiver());
     }
     public Bulletin(long id, User author, Model receiver, String content,
                     boolean isSent, Plato isEdited, boolean isPublic,

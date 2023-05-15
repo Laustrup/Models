@@ -14,12 +14,13 @@ import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 /**
  * An abstract class object, that can be extended by classes such as Artist and Band.
@@ -50,7 +51,7 @@ public abstract class PerformerDTO extends ParticipantDTO {
             this.gigs[i] = new GigDTO(gigs.Get(i+1));
         this.fans = new UserDTO[fans.size()];
         for (int i = 0; i < this.fans.length; i++)
-            this.fans[i] = DTOService.get_instance().convertToDTO(fans.Get(i+1));
+            this.fans[i] = convertToDTO(fans.Get(i+1));
     }
 
     public PerformerDTO(long id, String username, String description, ContactInfo contactInfo, Authority authority,
@@ -60,11 +61,15 @@ public abstract class PerformerDTO extends ParticipantDTO {
         super(new Participant(id, username, description, contactInfo, albums, ratings, events,
                 chatRooms, subscription, bulletins, idols, timestamp));
         this.authority = authority;
-        this.gigs = new GigDTO[gigs.size()];
-        for (int i = 0; i < this.gigs.length; i++)
-            this.gigs[i] = new GigDTO(gigs.Get(i+1));
-        this.fans = new UserDTO[fans.size()];
-        for (int i = 0; i < this.fans.length; i++)
-            this.fans[i] = DTOService.get_instance().convertToDTO(fans.Get(i+1));
+        if (gigs!=null) {
+            this.gigs = new GigDTO[gigs.size()];
+            for (int i = 0; i < this.gigs.length; i++)
+                this.gigs[i] = new GigDTO(gigs.Get(i+1));
+        }
+        if (fans!=null) {
+            this.fans = new UserDTO[fans.size()];
+            for (int i = 0; i < this.fans.length; i++)
+                this.fans[i] = convertToDTO(fans.Get(i+1));
+        }
     }
 }

@@ -124,14 +124,14 @@ public class Artist extends Performer {
      * @param band A specific Band, that is wished to be removed.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> removeBand(Band band) { return removeBands(new Band[]{band}); }
+    public Liszt<Band> remove(Band band) { return remove(new Band[]{band}); }
 
     /**
      * Removes multiple Bands from the Liszt of bands.
      * @param bands Some specific Bands, that is wished to be removed.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> removeBands(Band[] bands) {
+    public Liszt<Band> remove(Band[] bands) {
         _bands.remove(bands);
         return _bands;
     }

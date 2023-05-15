@@ -19,11 +19,12 @@ import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * An abstract class object, that can be extended by classes such as Artist and Band.
@@ -57,7 +58,7 @@ public abstract class Performer extends Participant {
 
         _fans = new Liszt<>();
         for (UserDTO fan : fans)
-            _fans.add(DTOService.get_instance().convertFromDTO(fan));
+            _fans.add(convertFromDTO(fan));
     }
     public Performer(long id, String username, String description, ContactInfo contactInfo, Authority authority,
                      AlbumDTO[] albums, RatingDTO[] ratings, EventDTO[] events, GigDTO[] gigs, ChatRoomDTO[] chatRooms,
@@ -72,7 +73,7 @@ public abstract class Performer extends Participant {
 
         _fans = new Liszt<>();
         for (UserDTO fan : fans)
-            _fans.add(DTOService.get_instance().convertFromDTO(fan));
+            _fans.add(convertFromDTO(fan));
     }
     public Performer(PerformerDTO performer) {
         super(performer.getPrimaryId(), performer.getUsername(), performer.getFirstName(), performer.getLastName(),
@@ -88,7 +89,7 @@ public abstract class Performer extends Participant {
 
         _fans = new Liszt<>();
         for (UserDTO fan : performer.getFans())
-            _fans.add(DTOService.get_instance().convertFromDTO(fan));
+            _fans.add(convertFromDTO(fan));
     }
 
     public Performer(long id, Authority authority) {

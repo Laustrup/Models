@@ -2,10 +2,11 @@ package laustrup.dtos;
 
 import laustrup.models.Rating;
 import laustrup.dtos.users.UserDTO;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 
 /**
@@ -43,7 +44,7 @@ public class RatingDTO extends ModelDTO {
                 rating.get_appointed().get_username()+"-"+rating.get_judge().get_username(), rating.get_timestamp());
         value = rating.get_value();
         comment = rating.get_comment();
-        appointed = DTOService.get_instance().convertToDTO(rating.get_appointed());
-        judge = DTOService.get_instance().convertToDTO(rating.get_judge());
+        appointed = convertToDTO(rating.get_appointed());
+        judge = convertToDTO(rating.get_judge());
     }
 }

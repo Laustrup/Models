@@ -4,12 +4,13 @@ import laustrup.dtos.ModelDTO;
 import laustrup.dtos.users.UserDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 /**
  * An abstract class that contains common attributes for Messages.
@@ -45,7 +46,7 @@ public abstract class MessageDTO extends ModelDTO {
 
     public MessageDTO(long id, User author, String content, boolean isSent, Plato isEdited, boolean isPublic, LocalDateTime timestamp) {
         super(id, "Message-"+id,timestamp);
-        this.author = DTOService.get_instance().convertToDTO(author);
+        this.author = convertToDTO(author);
         this.content = content;
         this.isSent = isSent;
         this.isEdited = isEdited.get_argument();

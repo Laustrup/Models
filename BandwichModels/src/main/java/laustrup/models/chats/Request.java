@@ -5,12 +5,13 @@ import laustrup.dtos.chats.RequestDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * Determines if a User have approved to be a part of the Event.
@@ -45,7 +46,7 @@ public class Request extends Model {
         super(request.getPrimaryId(), request.getEvent().getPrimaryId(),
                 "Request of " + request.getUser().getUsername() + " to " + request.getEvent().getTitle(),
                 request.getTimestamp());
-        _user = DTOService.get_instance().convertFromDTO(request.getUser());
+        _user = convertFromDTO(request.getUser());
         _event = new Event(request.getEvent());
         _approved = new Plato(request.getApproved());
         _message = request.getMessage();

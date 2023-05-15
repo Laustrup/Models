@@ -4,10 +4,11 @@ import laustrup.models.Model;
 import laustrup.models.albums.AlbumItem;
 import laustrup.dtos.events.EventDTO;
 import laustrup.dtos.users.UserDTO;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 @NoArgsConstructor @Data
 public class AlbumItemDTO extends Model {
@@ -40,7 +41,7 @@ public class AlbumItemDTO extends Model {
 
         tags = new UserDTO[item.get_tags().size()];
         for (int i = 0; i < tags.length; i++)
-            tags[i] = DTOService.get_instance().convertToDTO(item.get_tags().Get(i+1));
+            tags[i] = convertToDTO(item.get_tags().Get(i+1));
         event = item.get_event() != null ? new EventDTO(item.get_event()) : null;
     }
 

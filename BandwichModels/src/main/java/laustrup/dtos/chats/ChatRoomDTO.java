@@ -4,10 +4,11 @@ import laustrup.models.chats.ChatRoom;
 import laustrup.dtos.ModelDTO;
 import laustrup.dtos.chats.messages.MailDTO;
 import laustrup.dtos.users.UserDTO;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 /**
  * This is used for multiple Users to communicate with each other through Mails.
@@ -45,14 +46,15 @@ public class ChatRoomDTO extends ModelDTO {
     public ChatRoomDTO(ChatRoom chatRoom) {
         super(chatRoom.get_primaryId(),
                 chatRoom.get_title().isEmpty() || chatRoom.get_title() == null ?
-                        "ChatRoom-"+chatRoom.get_primaryId() : chatRoom.get_title(), chatRoom.get_timestamp());
+                        "ChatRoom-"+chatRoom.get_primaryId() : chatRoom.get_title(), chatRoom.get_timestamp()
+        );
         mails = new MailDTO[chatRoom.get_mails().size()];
         for (int i = 0; i < mails.length; i++)
             mails[i] = new MailDTO(chatRoom.get_mails().Get(i+1));
         chatters = new UserDTO[chatRoom.get_chatters().size()];
         for (int i = 0; i < chatters.length; i++)
-            chatters[i] = DTOService.get_instance().convertToDTO(chatRoom.get_chatters().Get(i+1));
-        responsible = DTOService.get_instance().convertToDTO(chatRoom.get_responsible());
+            chatters[i] = convertToDTO(chatRoom.get_chatters().Get(i+1));
+        responsible = convertToDTO(chatRoom.get_responsible());
         answered = chatRoom.is_answered();
     }
 }

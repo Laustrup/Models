@@ -17,7 +17,6 @@ import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.Performer;
 import laustrup.models.users.sub_users.venues.Venue;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +24,8 @@ import lombok.Setter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * An Event is placed a gig, where a venue is having bands playing at specific times.
@@ -192,7 +193,7 @@ public class Event extends Model {
         _price = event.getPrice();
         _ticketsURL = event.getTicketsURL();
         _contactInfo = new ContactInfo(event.getContactInfo());
-        _venue = (Venue) DTOService.get_instance().convertFromDTO(event.getVenue());
+        _venue = (Venue) convertFromDTO(event.getVenue());
 
         _location = event.getLocation() == null || event.getLocation().isEmpty() ?
                 (event.getVenue() != null ? (event.getLocation() != null ? event.getLocation() : null)

@@ -4,11 +4,12 @@ import laustrup.models.chats.ChatRoom;
 import laustrup.dtos.chats.messages.MailDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 public class Mail extends Message {
 
@@ -16,7 +17,7 @@ public class Mail extends Message {
     private ChatRoom _chatRoom;
 
     public Mail(MailDTO mail) {
-        super(mail.getPrimaryId(), DTOService.get_instance().convertFromDTO(mail.getAuthor()),
+        super(mail.getPrimaryId(), convertFromDTO(mail.getAuthor()),
                 mail.getContent(), mail.isSent(), new Plato(mail.getIsEdited()), mail.isPublic(), mail.getTimestamp());
         _chatRoom = new ChatRoom(mail.getChatRoom());
     }

@@ -4,12 +4,13 @@ import laustrup.models.Model;
 import laustrup.dtos.chats.messages.MessageDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * An abstract class that contains common attributes for Messages.
@@ -49,7 +50,7 @@ public abstract class Message extends Model {
 
     public Message(MessageDTO message) {
         super(message.getPrimaryId(), "Message-"+message.getPrimaryId(), message.getTimestamp());
-        _author = DTOService.get_instance().convertFromDTO(message.getAuthor());
+        _author = convertFromDTO(message.getAuthor());
         _content = message.getContent();
         _sent = message.isSent();
         _edited = new Plato(message.getIsEdited());

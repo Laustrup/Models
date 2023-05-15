@@ -9,7 +9,6 @@ import laustrup.dtos.users.UserDTO;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 
@@ -17,9 +16,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * This is used for multiple Users to communicate with each other through Mails.
- */
+import static laustrup.services.DTOService.convertFromDTO;
+
+/** This is used for multiple Users to communicate with each other through Mails. */
 public class ChatRoom extends Model {
 
     /**
@@ -30,21 +29,15 @@ public class ChatRoom extends Model {
     @Getter
     private boolean _local;
 
-    /**
-     * All the Mails that has been sent will be stored here.
-     */
+    /** All the Mails that has been sent will be stored here. */
     @Getter
     private Liszt<Mail> _mails;
 
-    /**
-     * The Users, except the responsible, that can write with each other.
-     */
+    /** The Users, except the responsible, that can write with each other. */
     @Getter
     private Liszt<User> _chatters;
 
-    /**
-     * This responsible are being calculated for answeringTime.
-     */
+    /** This responsible are being calculated for answeringTime. */
     @Getter
     private User _responsible;
 
@@ -56,9 +49,7 @@ public class ChatRoom extends Model {
     @Getter
     private Long _answeringTime;
 
-    /**
-     * Is true if the responsible has answered with a message.
-     */
+    /** Is true if the responsible has answered with a message. */
     @Getter
     private boolean _answered;
 
@@ -71,7 +62,7 @@ public class ChatRoom extends Model {
         convert(chatRoom.getMails());
         _chatters = new Liszt<>();
         convert(chatRoom.getChatters());
-        _responsible = DTOService.get_instance().convertFromDTO(chatRoom.getResponsible());
+        _responsible = convertFromDTO(chatRoom.getResponsible());
 
         isTheChatRoomAnswered();
     }
@@ -94,7 +85,7 @@ public class ChatRoom extends Model {
      */
     private Liszt<User> convert(UserDTO[] chatters) {
         for (UserDTO chatter : chatters)
-            _chatters.add(DTOService.get_instance().convertFromDTO(chatter));
+            _chatters.add(convertFromDTO(chatter));
         return _chatters;
     }
 

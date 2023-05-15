@@ -1,5 +1,6 @@
 package laustrup.models.users.sub_users.bands;
 
+import laustrup.dtos.users.contact_infos.ContactInfoDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -21,6 +22,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 
+import static laustrup.services.ObjectService.ifExists;
+
 /**
  * Extends performer and contains Artists as members
  */
@@ -39,7 +42,8 @@ public class Band extends Performer {
     private String _runner;
 
     public Band(BandDTO band) {
-        super(band.getPrimaryId(), band.getUsername(), band.getDescription(), new ContactInfo(band.getContactInfo()),
+        super(band.getPrimaryId(), band.getUsername(), band.getDescription(),
+                (ContactInfo) ifExists(band.getContactInfo(), e -> new ContactInfo((ContactInfoDTO) e)),
                 Authority.BAND, band.getAlbums(), band.getRatings(), band.getEvents(), band.getGigs(), band.getChatRooms(),
                 new Subscription(band.getSubscription()), band.getBulletins(), band.getFans(), band.getIdols(), band.getTimestamp());
         _username = band.getUsername();
@@ -103,14 +107,14 @@ public class Band extends Performer {
      * @param artist An object of Artist, that is wished to be removed.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> removeMember(Artist artist) { return removeMembers(new Artist[]{artist}); }
+    public Liszt<Artist> remove(Artist artist) { return remove(new Artist[]{artist}); }
 
     /**
      * Removes Artists of the Liszt of members.
      * @param artists An array of artists, that is wished to be removed.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> removeMembers(Artist[] artists) {
+    public Liszt<Artist> remove(Artist[] artists) {
         _members.remove(artists);
         return _members;
     }
@@ -120,14 +124,14 @@ public class Band extends Performer {
      * @param fan An object of Fan, that is wished to be removed.
      * @return The whole Liszt of fans.
      */
-    public Liszt<User> removeFan(Participant fan) { return removeFans(new User[]{fan}); }
+    public Liszt<User> remove(Participant fan) { return remove(new User[]{fan}); }
 
     /**
      * Removes Fans of the Liszt of fans.
      * @param fans An array of fans, that is wished to be removed.
      * @return The whole Liszt of fans.
      */
-    public Liszt<User> removeFans(User[] fans) {
+    public Liszt<User> remove(User[] fans) {
         _fans.remove(fans);
         return _fans;
     }

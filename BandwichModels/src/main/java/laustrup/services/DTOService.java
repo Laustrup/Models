@@ -17,24 +17,7 @@ import laustrup.models.users.sub_users.venues.Venue;
 
 public class DTOService extends Service {
 
-    /**
-     * Singleton instance of the Service.
-     */
-    private static DTOService _instance = null;
-
-    /**
-     * Checks first if instance is null, otherwise will create a new instance of the object.
-     * Created as a lazyfetch.
-     * @return The instance of the object, as meant as a singleton.
-     */
-    public static DTOService get_instance() {
-        if (_instance == null) _instance = new DTOService();
-        return _instance;
-    }
-
-    private DTOService() {}
-
-    public User convertFromDTO(UserDTO user) {
+    public static User convertFromDTO(UserDTO user) {
         switch (user.getAuthority()) {
             case VENUE -> { return new Venue((VenueDTO) user); }
             case ARTIST -> { return new Artist((ArtistDTO) user); }
@@ -44,7 +27,7 @@ public class DTOService extends Service {
         }
     }
 
-    public Model convertFromDTO(ModelDTO model) {
+    public static Model convertFromDTO(ModelDTO model) {
         switch (model.getClass().getName()) {
             case "VENUE" -> { return new Venue((VenueDTO) model); }
             case "ARTIST" -> { return new Artist((ArtistDTO) model); }
@@ -54,7 +37,7 @@ public class DTOService extends Service {
         }
     }
 
-    public UserDTO convertToDTO(User user) {
+    public static UserDTO convertToDTO(User user) {
         if (user == null || user.get_authority() == null)
             return null;
         switch (user.get_authority()) {
@@ -66,7 +49,7 @@ public class DTOService extends Service {
         }
     }
 
-    public ModelDTO convertToDTO(Model model) {
+    public static ModelDTO convertToDTO(Model model) {
         switch (model.getClass().getName()) {
             case "VENUE" -> { return new VenueDTO((Venue) model); }
             case "ARTIST" -> { return new ArtistDTO((Artist) model); }

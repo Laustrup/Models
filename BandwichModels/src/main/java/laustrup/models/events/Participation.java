@@ -3,12 +3,13 @@ package laustrup.models.events;
 import laustrup.models.Model;
 import laustrup.dtos.events.ParticipationDTO;
 import laustrup.models.users.sub_users.participants.Participant;
-import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * Determines type of which a Participant is participating in an Event.
@@ -39,7 +40,7 @@ public class Participation extends Model {
                         participation.getParticipant().getPrimaryId() + " AND Event " +
                         participation.getEvent().getPrimaryId()
         );
-        _participant = (Participant) DTOService.get_instance().convertFromDTO(participation.getParticipant());
+        _participant = (Participant) convertFromDTO(participation.getParticipant());
         _event = new Event(participation.getEvent());
         _type = ParticipationType.valueOf(participation.getType().toString());
     }

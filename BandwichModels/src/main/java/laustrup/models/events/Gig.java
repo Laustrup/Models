@@ -4,11 +4,12 @@ import laustrup.models.Model;
 import laustrup.dtos.events.GigDTO;
 import laustrup.dtos.users.sub_users.PerformerDTO;
 import laustrup.models.users.sub_users.Performer;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 
 import java.time.LocalDateTime;
+
+import static laustrup.services.DTOService.convertFromDTO;
 
 /**
  * Determines a specific gig of one band for a specific time.
@@ -45,7 +46,7 @@ public class Gig extends Model {
     }
     private Performer[] convert(PerformerDTO[] act) {
         for (int i = 0; i < act.length; i++)
-            _act[i] = (Performer) DTOService.get_instance().convertFromDTO(act[i]);
+            _act[i] = (Performer) convertFromDTO(act[i]);
         return _act;
     }
 

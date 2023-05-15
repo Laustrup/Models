@@ -5,10 +5,11 @@ import laustrup.dtos.ModelDTO;
 import laustrup.dtos.events.EventDTO;
 import laustrup.dtos.users.UserDTO;
 import laustrup.utilities.parameters.Plato;
-import laustrup.services.DTOService;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static laustrup.services.DTOService.convertToDTO;
 
 /**
  * Determines if a User have approved to be a part of the Event.
@@ -40,7 +41,7 @@ public class RequestDTO extends ModelDTO {
         super(request.get_secondaryId(), request.get_secondaryId(),
                 "Request of " + request.get_primaryId() + " to " + request.get_secondaryId(),
                 request.get_timestamp());
-        user = DTOService.get_instance().convertToDTO(request.get_user());
+        user = convertToDTO(request.get_user());
         event = new EventDTO(request.get_event());
         approved = request.get_approved().get_argument();
         message = request.get_message();
