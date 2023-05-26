@@ -10,6 +10,7 @@ import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
 
 import laustrup.services.RandomCreatorService;
+import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 import org.junit.jupiter.api.Test;
 
@@ -154,13 +155,16 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
         test(() -> {
             arrange(() -> chatRoom);
 
-            int previousSize = chatRoom.get_chatters().size(), bandSizes = 0;
+            int previousSize = chatRoom.get_chatters().size();
+            Seszt<Artist> newMembers = new Seszt<>();
             for (Band band : bands)
-                bandSizes += band.get_members().size();
+                for (Artist artist : band.get_members())
+                    if (!chatRoom.chatterExists(artist))
+                        newMembers.add(artist);
 
             act(() -> chatRoom.add(bands));
 
-            asserting(chatRoom.get_chatters().size() == previousSize + (bands.length * bandSizes));
+            asserting(chatRoom.get_chatters().size() == previousSize + newMembers.size());
         });
     }
 

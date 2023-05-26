@@ -230,13 +230,14 @@ public class ChatRoom extends Model {
      * unless some already is a chatter.
      * @param chatters A users that is wished to be added as a chatter of the ChatRoom.
      * @return All the chatters of the ChatRoom.
-     */
+     */ //TODO Band needs to be Seszt with members, then move if contains
     public Liszt<User> add(User[] chatters) {
         ifExists(chatters,() -> {
             for (User chatter : chatters) {
                 if (chatter.getClass() == Band.class) {
                     for (Artist artist : ((Band) chatter).get_members())
-                        _chatters.add(artist);
+                        if (!_chatters.contains(artist))
+                            _chatters.add(artist);
                 }
                 else
                     _chatters.add(chatter);
@@ -252,9 +253,10 @@ public class ChatRoom extends Model {
      * @return True if the chatter exists in the ChatRoom.
      */
     public boolean chatterExists(User chatter) {
-        for (User user : _chatters) {
-            if (user.getClass() == chatter.getClass() && user.get_primaryId() == chatter.get_primaryId()) return true;
-        }
+        for (User user : _chatters)
+            if (user.getClass() == chatter.getClass() && user.get_primaryId() == chatter.get_primaryId())
+                return true;
+
         return false;
     }
 
