@@ -10,6 +10,7 @@ import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
 
 import laustrup.services.RandomCreatorService;
+import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,59 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
                 arrangement.get_title(),
                 String.valueOf(arrangement.get_timestamp())
         });
+    }
+
+    @Test
+    void canDetermineChatRoomOfEmptyTitle() {
+        emptyTitleTest(true);
+        emptyTitleTest(false);
+    }
+
+    /**
+     * Will test the title determining algorithm for a ChatRoom without a title.
+     * @param isNull Decides whether the title should be tested to be null or empty.
+     */
+    private void emptyTitleTest(boolean isNull) {
+        test(() -> {
+            ChatRoom chatRoom = arrange(() -> new ChatRoom(
+                    _random.nextBoolean(),
+                    isNull ? null : new String(),
+                    _items.get_chatRooms()[_random.nextInt(_items.get_chatRoomAmount())].get_chatters(),
+                    null
+                    )
+            );
+
+            String expected = simulateEmptyTitle(chatRoom);
+
+            asserting(expected, chatRoom.get_title());
+
+            User newChatter = _items.generateUser();
+            while (chatRoom.chatterExists(newChatter))
+                newChatter = _items.generateUser();
+
+            chatRoom.add(newChatter);
+
+            expected = simulateEmptyTitle(chatRoom);
+
+            asserting(expected, chatRoom.get_title());
+        });
+    }
+
+    /**
+     * Will try to represent how a title of ChatRoom without a title should be like.
+     * @param chatRoom The ChatRoom with a empty title.
+     * @return The represented String.
+     */
+    private String simulateEmptyTitle(ChatRoom chatRoom) {
+        StringBuilder title = new StringBuilder();
+
+        for (int i = 1; i <= chatRoom.get_chatters().size(); i++) {
+            title.append(chatRoom.get_chatters().Get(i).get_username());
+            if (i < chatRoom.get_chatters().size())
+                title.append(", ");
+        }
+
+        return title.toString();
     }
 
     @Override @Test

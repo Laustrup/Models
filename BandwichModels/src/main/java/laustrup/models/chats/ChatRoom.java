@@ -21,14 +21,6 @@ import static laustrup.services.ObjectService.ifExists;
 /** This is used for multiple Users to communicate with each other through Mails. */
 public class ChatRoom extends Model {
 
-    /**
-     * Will determine if this ChatRoom is local,
-     * meaning there will not be any responsible,
-     * but will only contain band members as chatters.
-     */
-    @Getter
-    private boolean _local;
-
     /** All the Mails that has been sent will be stored here. */
     @Getter
     private Liszt<Mail> _mails;
@@ -110,7 +102,6 @@ public class ChatRoom extends Model {
         _chatters = chatters;
         _responsible = responsible;
         _title = determineChatRoomTitle(_title);
-        _local = isLocal;
         _mails = mails;
         _assembling = true;
 
@@ -128,7 +119,6 @@ public class ChatRoom extends Model {
      */
     public ChatRoom(long id, boolean isLocal, String title, LocalDateTime timestamp) {
         super(id, title, timestamp);
-        _local = isLocal;
         _chatters = new Liszt<>();
         _title = determineChatRoomTitle(_title);
 
@@ -145,13 +135,22 @@ public class ChatRoom extends Model {
      */
     public ChatRoom(boolean isLocal, String title, Liszt<User> chatters, User responsible) {
         super(title);
-        _local = isLocal;
         _chatters = chatters;
         _responsible = responsible;
         _title = determineChatRoomTitle(_title);
         _mails = new Liszt<>();
 
         isTheChatRoomAnswered();
+    }
+
+    /**
+     * Will generate a title of the chatters of this ChatRoom
+     * but only if the title isn't default set yet.
+     * @return The generated Title.
+     */
+    private String determineChatRoomTitle() {
+        String title = determineChatRoomTitle(null);
+        return _title.equals(title) ? _title : title;
     }
 
     /**
@@ -236,11 +235,15 @@ public class ChatRoom extends Model {
             for (User chatter : chatters) {
                 if (chatter.getClass() == Band.class) {
                     for (Artist artist : ((Band) chatter).get_members())
-                        if (!_chatters.contains(artist))
+                        if (!_chatters.contains(artist)) {
                             _chatters.add(artist);
+                            _title = determineChatRoomTitle();
+                        }
                 }
-                else
+                else {
                     _chatters.add(chatter);
+                    _title = determineChatRoomTitle();
+                }
             }
         });
 

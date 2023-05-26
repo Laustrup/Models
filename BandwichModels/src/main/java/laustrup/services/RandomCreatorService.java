@@ -26,7 +26,16 @@ public class RandomCreatorService extends Service {
     private Random _random = new Random();
 
     /**
-     * Generates a random.
+     * Generates a random String with or without unique characters and
+     * a random number up with 1 as lower bound and 10 as higher bound.
+     * @return The generated String.
+     */
+    public String generateString() {
+        return generateString(_random.nextBoolean(), _random.nextInt(10)+1);
+    }
+
+    /**
+     * Generates a random String.
      * @return The generated string.
      */
     public String generateString(boolean uniqueCharacter, int length) {
