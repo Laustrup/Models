@@ -94,8 +94,6 @@ public class Venue extends User {
         _subscription.get_user().set_username(_username);
         _subscription.get_user().set_description(_description);
         _requests = requests;
-
-        _assembling = true;
     }
 
     public Venue(String username, String description, String location, String gearDescription, int size) {
@@ -114,23 +112,6 @@ public class Venue extends User {
         _size = size;
         _subscription.get_user().set_username(_username);
         _subscription.get_user().set_description(_description);
-    }
-
-    /**
-     * Sets the Users of Requests.
-     * Will only be done, if it is under assembling.
-     * @return The Requests of this Artist.
-     */
-    public Venue set_requestUsers() {
-        Liszt<Request> requests = _requests;
-        _requests = null;
-
-        if (_assembling)
-            for (int i = 1; i <= requests.size(); i++)
-                requests.Get(i).set_user(this);
-
-        _requests = requests;
-        return this;
     }
 
     /**

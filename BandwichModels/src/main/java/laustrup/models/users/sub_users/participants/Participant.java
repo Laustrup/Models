@@ -76,7 +76,6 @@ public class Participant extends User {
                 bulletins, Authority.PARTICIPANT, timestamp);
         _idols = idols;
         _subscription.set_user(this);
-        setSubscriptionUser();
     }
 
     public Participant(long id, String username, String description,
@@ -90,7 +89,6 @@ public class Participant extends User {
         _idols = idols;
         _subscription.get_user().set_username(_username);
         _subscription.get_user().set_description(_description);
-        setSubscriptionUser();
     }
 
     public Participant(long id, String username, String firstName, String lastName, String description,
@@ -120,7 +118,6 @@ public class Participant extends User {
                         Subscription.Status.ACCEPTED, subscriptionOffer, null),
                 Authority.PARTICIPANT);
         _idols = idols;
-        setSubscriptionUser();
     }
 
     public Participant(String username, String firstName, String lastName, String description,
@@ -132,17 +129,6 @@ public class Participant extends User {
     public Participant(String username, String description, Subscription subscription) {
         super(username, description, subscription, Authority.PARTICIPANT);
         _idols = new Liszt<>();
-    }
-
-    /**
-     * Sets the followings. Is only allowed under assembling.
-     * @param followings The Users that will be set to be the followings.
-     * @return All the followings.
-     */
-    public Liszt<User> set_idols(Liszt<User> followings) {
-        if (followings != null && _assembling)
-            _idols = followings;
-        return _idols;
     }
 
     /**

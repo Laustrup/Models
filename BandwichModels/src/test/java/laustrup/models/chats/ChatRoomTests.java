@@ -118,6 +118,15 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
         return title.toString();
     }
 
+    @Test
+    void canCalculateAnsweringTime() {
+        test(() -> {
+            ChatRoom chatRoom = arrange(() -> _items.get_chatRooms()[_random.nextInt(_items.get_chatRoomAmount())]);
+
+
+        });
+    }
+
     @Override @Test
     protected void canAdd() {
         ChatRoom arrangement = _items.get_chatRooms()[0];

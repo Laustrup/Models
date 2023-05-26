@@ -26,23 +26,6 @@ public class ChatRoomDTO extends ModelDTO {
      */
     private UserDTO[] chatters;
 
-    /**
-     * This responsible are being calculated for answeringTime.
-     */
-    private UserDTO responsible;
-
-    /**
-     * The amount of time it takes, before the responsible have answered the chatroom,
-     * measured from the first message.
-     * Is calculated in minutes.
-     */
-    private Long answeringTime;
-
-    /**
-     * Is true if the responsible has answered with a message.
-     */
-    private boolean answered;
-
     public ChatRoomDTO(ChatRoom chatRoom) {
         super(chatRoom.get_primaryId(),
                 chatRoom.get_title().isEmpty() || chatRoom.get_title() == null ?
@@ -54,7 +37,5 @@ public class ChatRoomDTO extends ModelDTO {
         chatters = new UserDTO[chatRoom.get_chatters().size()];
         for (int i = 0; i < chatters.length; i++)
             chatters[i] = convertToDTO(chatRoom.get_chatters().Get(i+1));
-        responsible = convertToDTO(chatRoom.get_responsible());
-        answered = chatRoom.is_answered();
     }
 }

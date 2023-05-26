@@ -12,7 +12,6 @@ import laustrup.models.users.sub_users.bands.Band;
 
 import lombok.Getter;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static laustrup.services.DTOService.convertFromDTO;
@@ -29,22 +28,6 @@ public class ChatRoom extends Model {
     @Getter
     private Liszt<User> _chatters;
 
-    /** This responsible are being calculated for answeringTime. */
-    @Getter
-    private User _responsible;
-
-    /**
-     * The amount of time it takes, before the responsible have answered the chatroom,
-     * measured from the first message.
-     * Is calculated in minutes.
-     */
-    @Getter
-    private Long _answeringTime;
-
-    /** Is true if the responsible has answered with a message. */
-    @Getter
-    private boolean _answered;
-
     /**
      * Converts a Data Transport Object into this object.
      * @param chatRoom The Data Transport Object that will be converted.
@@ -52,61 +35,63 @@ public class ChatRoom extends Model {
     public ChatRoom(ChatRoomDTO chatRoom) {
         super(chatRoom.getPrimaryId(), chatRoom.getSecondaryId() != null ? chatRoom.getSecondaryId() : 0,
                 chatRoom.getTitle(), chatRoom.getTimestamp() != null ? chatRoom.getTimestamp() : LocalDateTime.now());
-        _mails = new Liszt<>();
         convert(chatRoom.getMails());
-        _chatters = new Liszt<>();
         convert(chatRoom.getChatters());
-        _responsible = convertFromDTO(chatRoom.getResponsible());
-
-        isTheChatRoomAnswered();
     }
 
     /**
      * Converts a Data Transport Object into Mails.
      * @param mails The Data Transport Object that will be converted.
-     * @return The converted Mails.
      */
-    private Liszt<Mail> convert(MailDTO[] mails) {
+    private void convert(MailDTO[] mails) {
+        _mails = new Liszt<>();
         for (MailDTO mail : mails)
             _mails.add(new Mail(mail));
-        return _mails;
+
     }
 
     /**
      * Converts a Data Transport Object into Chatters.
      * @param chatters The Data Transport Object that will be converted.
-     * @return The converted Chatters.
      */
-    private Liszt<User> convert(UserDTO[] chatters) {
+    private void convert(UserDTO[] chatters) {
+        _chatters = new Liszt<>();
         for (UserDTO chatter : chatters)
             _chatters.add(convertFromDTO(chatter));
-        return _chatters;
+    }
+
+    public ChatRoom(long id, boolean isLocal, String title, Liszt<Mail> mails, Liszt<User> chatters,
+                    User responsible, LocalDateTime timestamp) {
+        super(id, title, timestamp);
+        _chatters = chatters;
+        _title = determineChatRoomTitle(_title);
+        _mails = mails;
     }
 
     /**
      * Containing all attributes of this object.
      * Purpose is for assembling.
      * Will set assembling to true.
-     * Checks if the ChatRoom has been answered.
      * @param id The primary id.
-     * @param isLocal Is this a Band ChatRoom without a responsible or not
      * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
      * @param mails The Mails with relations to this ChatRoom.
      * @param chatters The chatters that are members of this ChatRoom.
-     * @param responsible The intended receiver of this ChatRoom.
      * @param timestamp The time this ChatRoom was created.
      */
-    public ChatRoom(long id, boolean isLocal, String title, Liszt<Mail> mails, Liszt<User> chatters,
-                    User responsible, LocalDateTime timestamp) {
+    public ChatRoom(long id, String title, Liszt<Mail> mails, Liszt<User> chatters, LocalDateTime timestamp) {
         super(id, title, timestamp);
         _chatters = chatters;
-        _responsible = responsible;
         _title = determineChatRoomTitle(_title);
         _mails = mails;
-        _assembling = true;
 
-        setChatRoomOfMails();
-        isTheChatRoomAnswered();
+    }
+
+    public ChatRoom(long id, boolean isLocal, String title, LocalDateTime timestamp) {
+        super(id, title, timestamp);
+        _chatters = new Liszt<>();
+        _title = determineChatRoomTitle(_title);
+
+        _mails = new Liszt<>();
     }
 
     /**
@@ -117,30 +102,26 @@ public class ChatRoom extends Model {
      * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
      * @param timestamp The time this ChatRoom was created.
      */
-    public ChatRoom(long id, boolean isLocal, String title, LocalDateTime timestamp) {
+    public ChatRoom(long id, String title, LocalDateTime timestamp) {
         super(id, title, timestamp);
         _chatters = new Liszt<>();
         _title = determineChatRoomTitle(_title);
 
         _mails = new Liszt<>();
-        _assembling = true;
     }
 
-    /**
-     * Will be used for creating a new ChatRoom, without an id.
-     * Checks if the ChatRoom has been answered.
-     * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
-     * @param chatters The chatters that are members of this ChatRoom.
-     * @param responsible The intended receiver of this ChatRoom.
-     */
     public ChatRoom(boolean isLocal, String title, Liszt<User> chatters, User responsible) {
         super(title);
         _chatters = chatters;
-        _responsible = responsible;
         _title = determineChatRoomTitle(_title);
         _mails = new Liszt<>();
+    }
 
-        isTheChatRoomAnswered();
+    public ChatRoom(String title, Liszt<User> chatters) {
+        super(title);
+        _chatters = chatters;
+        _title = determineChatRoomTitle(_title);
+        _mails = new Liszt<>();
     }
 
     /**
@@ -172,21 +153,6 @@ public class ChatRoom extends Model {
     }
 
     /**
-     * Can only be used, if it is being assembled.
-     * Will set each Mail's ChatRoom to this object.
-     * @return All Mails.
-     */
-    private Liszt<Mail> setChatRoomOfMails() {
-        if (_assembling) {
-            for (int i = 1; i <= _mails.size(); i++)
-                _mails.Get(i).set_chatRoom(this);
-
-            _assembling = false;
-        }
-        return _mails;
-    }
-
-    /**
      * Adds a Mail to the ChatRoom, if the author of the Mail is a chatter of the ChatRoom.
      * If the responsible haven't answered yet, it will check if it now is answered.
      * @param mail A Mail object, that is wished to be added.
@@ -203,12 +169,9 @@ public class ChatRoom extends Model {
     public Liszt<Mail> add(Mail[] mails) {
         ifExists(mails, () -> {
             for (Mail mail : mails)
-                if (chatterExists(mail.get_author())) {
+                if (chatterExists(mail.get_author()))
                     if (_mails.add(mail) && mail.doSend())
                         edit(mail);
-                    if (!_answered)
-                        isTheChatRoomAnswered();
-                }
         });
 
         return _mails;
@@ -304,42 +267,6 @@ public class ChatRoom extends Model {
                 return mail == _mails.set(i, mail);
         }
         return false;
-    }
-
-    /**
-     * Checks if the ChatRoom is answered by the responsible, by a foreach loop through _mails.
-     * Needs to be used each time a message is added, if the ChatRoom isn't already answered by the responsible.
-     * Also use in constructor of use from database.
-     * In case return is true, it will also calculate answering time.
-     * @return The boolean answer of whether the ChatRoom has been answered or not
-     */
-    private boolean isTheChatRoomAnswered() { return findResponsibleAnswer()!=null; }
-
-    /**
-     * Calculates the time it took the responsible to answer.
-     * Should be used only in local method isTheChatRoomAnswered().
-     * @return The amount of hours it took the responsible to answer,
-     * if ChatRoom is not answered, it will return null.
-     */
-    private Long calculateAnsweringTime() {
-        if (_answered) {
-            _answeringTime = Duration.between(_mails.Get(1).get_timestamp(),
-                    findResponsibleAnswer().get_timestamp()).toMinutes();
-            return _answeringTime;
-        }
-        return null;
-    }
-
-    /**
-     * Searches through the Mails and checks if the responsible have answered,
-     * @return If the responsible have answered, it will return that Mail, otherwise null.
-     */
-    private Mail findResponsibleAnswer() {
-        for (Mail mail : _mails)
-            if (mail.get_author().get_primaryId() == _responsible.get_primaryId())
-                return mail;
-
-        return null;
     }
 
     @Override

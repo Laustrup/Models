@@ -67,7 +67,6 @@ public class Album extends Model {
         super(id, title, timestamp);
         _items = items;
         _author = author;
-        _assembling = true;
     }
 
     /**
@@ -80,18 +79,6 @@ public class Album extends Model {
         super(title);
         _items = items;
         _author = author;
-    }
-
-    /**
-     * Will set the author only if it is being assembled.
-     * @param author The author of the Album.
-     * @return The author of the Album.
-     */
-    public Model setAuthor(User author) {
-        if (_assembling)
-            _author = author;
-
-        return _author;
     }
 
     /**

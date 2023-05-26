@@ -136,37 +136,6 @@ public abstract class Performer extends Participant {
     }
 
     /**
-     * Sets the fans. Is only allowed under assembling.
-     * @param fans The Participants that will be set to be the fans.
-     * @return All the fans.
-     */
-    public Liszt<User> set_fans(Liszt<User> fans) {
-        if (_assembling)
-            _fans = fans;
-        return _fans;
-    }
-
-    /**
-     * Sets the Gigs. Is only allowed under assembling.
-     * @param gigs The Gigs that will be set to be the Gigs.
-     * @return All the Gigs.
-     */
-    public Liszt<Gig> set_gigs(Liszt<Gig> gigs) {
-        if (_assembling)
-            _gigs = gigs;
-        return _gigs;
-    }
-
-    /**
-     * Will set all the albums' author as this Performer.
-     * Only use for assembly.
-     */
-    public void setAuthorOfAlbums() {
-        for (int i = 1; i <= _albums.size(); i++)
-            _albums.Get(i).setAuthor(this);
-    }
-
-    /**
      * Sets the card id of the Subscription.
      * Purpose is to use first time card information are provided.
      * @param id The id long value of the card, that is wished to be set.

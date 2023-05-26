@@ -61,8 +61,6 @@ public class Gig extends Model {
         _act = act;
         _start = start;
         _end = end;
-
-        _assembling = true;
     }
 
     public Gig(Event event, Performer[] act, LocalDateTime start, LocalDateTime end) {

@@ -75,8 +75,6 @@ public class Artist extends Performer {
         _bands = bands;
         _runner = runner;
         _requests = requests;
-
-        _assembling = true;
     }
 
     public Artist(String username, String firstName, String lastName, String description, Subscription subscription,
@@ -86,20 +84,6 @@ public class Artist extends Performer {
         _bands = bands;
         _runner = runner;
         _requests = new Liszt<>();
-        _assembling = true;
-    }
-
-    /**
-     * Sets the Users of Requests.
-     * Will only be done, if it is under assembling.
-     * @return The Artist.
-     */
-    public Artist set_requestUsers() {
-        if (_assembling)
-            for (int i = 1; i <= _requests.size(); i++)
-                _requests.Get(i).set_user(this);
-
-        return this;
     }
 
     /**

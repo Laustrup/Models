@@ -261,8 +261,6 @@ public class Event extends Model {
         _participations = participations;
         _bulletins = bulletins;
         _albums = albums;
-
-        _assembling = true;
     }
 
     public Event(String title, User user) {
@@ -279,41 +277,6 @@ public class Event extends Model {
 
         _length = 0;
         _cancelled = new Plato();
-    }
-
-    /**
-     * Sets the Users of Requests.
-     * Will only be done, if it is under assembling.
-     * @return The Requests of this Artist.
-     */
-    public Liszt<Request> set_requestEvents() {
-        if (_assembling)
-            for (int i = 1; i <= _requests.size(); i++)
-                _requests.Get(i).set_event(this);
-        return _requests;
-    }
-
-    /**
-     * Sets the Participations.
-     * Will only be done, if it is under assembling.
-     * @param participations The Participations that will be set.
-     * @return The Participations of the Event.
-     */
-    public Liszt<Participation> set_participations(Liszt<Participation> participations) {
-        if (_assembling)
-            _participations = participations;
-        return _participations;
-    }
-
-    /**
-     * Sets the Gigs. Is only allowed under assembling.
-     * @param gigs The Gigs that will be set to be the Gigs.
-     * @return All the Gigs.
-     */
-    public Liszt<Gig> set_gigs(Liszt<Gig> gigs) {
-        if (_assembling)
-            _gigs = gigs;
-        return _gigs;
     }
 
     /**

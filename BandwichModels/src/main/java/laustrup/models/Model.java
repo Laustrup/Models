@@ -47,13 +47,6 @@ public abstract class Model {
     @Getter
     protected LocalDateTime _timestamp;
 
-    /**
-     * A status that determines if the Model is being assembled or not.
-     * Some methods require this boolean to be true.
-     */
-    @Getter
-    protected boolean _assembling;
-
     /** A kind of String message, that can be used to define an incident a message. */
     @Getter @Setter
     protected String _situation = "UNDEFINED";
@@ -138,15 +131,6 @@ public abstract class Model {
      * @return True if secondary id isn't null.
      */
     public boolean hasSecondaryId() { return _secondaryId != null; }
-
-    /**
-     * Will determine that the status of is being assembling is over by making assembling false.
-     * @return The assembling status.
-     */
-    public boolean doneAssembling() {
-        _assembling = false;
-        return _assembling;
-    }
 
     /**
      * Will generate a toString from the attributes and values.

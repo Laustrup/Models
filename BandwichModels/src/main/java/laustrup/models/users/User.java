@@ -270,61 +270,6 @@ public abstract class User extends Model {
     }
 
     /**
-     * Sets the Events.
-     * Will only be done, if it is under assembling.
-     * @return The Events of this User.
-     */
-    public Liszt<Event> set_events(Liszt<Event> events) {
-        if (_assembling)
-            _events = events;
-        return _events;
-    }
-
-    public Liszt<Bulletin> set_bulletinReceivers() {
-        if (_assembling) {
-            for (int i = 1; i <= _bulletins.size(); i++) {
-                _bulletins.Get(i).set_reciever(this);
-                _bulletins.Get(i).doneAssembling();
-            }
-        }
-        return _bulletins;
-    }
-
-    /**
-     * Sets the User of the Subscription as this User.
-     * Will only be done, if it is under assembling.
-     * @return The Subscription of this User.
-     */
-    public Subscription setSubscriptionUser() {
-        if (_assembling)
-            _subscription.set_user(this);
-        return _subscription;
-    }
-
-    /**
-     * Sets the ChatRooms.
-     * Will only be done, if it is under assembling.
-     * @return The ChatRooms of this User.
-     */
-    public Liszt<ChatRoom> set_chatRooms(Liszt<ChatRoom> chatRooms) {
-        if (_assembling)
-            _chatRooms = chatRooms;
-        return _chatRooms;
-    }
-
-    /**
-     * Sets the author of the Albums as this User.
-     * Is meant for after assembling.
-     * @return The images of this User.
-     */
-    public Liszt<Album> setAlbumsAuthor() {
-        if (_assembling)
-            for (int i = 1; i <= _albums.size(); i++)
-                _albums.Get(i).setAuthor(this);
-        return _albums;
-    }
-
-    /**
      * Sets the full name from first- and last name with a white space between.
      * @return The calculated full name.
      */
@@ -420,15 +365,6 @@ public abstract class User extends Model {
         }
 
         return _ratings;
-    }
-
-    /**
-     * Uses TimeService to calculate the total answering time of all ChatRooms from this User.
-     * @return The total answering time in seconds, that has been calculated.
-     */
-    public Long get_answeringTime() {
-        _answeringTime = TimeService.get_instance().getTotalAnswerTimes(_chatRooms);
-        return _answeringTime;
     }
 
     public enum Authority {

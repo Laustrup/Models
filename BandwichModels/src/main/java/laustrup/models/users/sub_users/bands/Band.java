@@ -72,7 +72,6 @@ public class Band extends Performer {
         _members = members;
 
         _runner = runner;
-        _assembling = true;
     }
 
     public Band(String username, String description, Subscription subscription, ContactInfo contactInfo,
@@ -84,8 +83,6 @@ public class Band extends Performer {
         _members = members;
         if (_members.isEmpty())
             throw new InputMismatchException();
-
-        _assembling = true;
     }
 
     /**

@@ -36,24 +36,6 @@ public class TimeService extends Service {
     private TimeService() {}
 
     /**
-     * Calculates the amount of minutes, that it has taken for the first message to be answered.
-     * @param chatRooms The specific ChatRooms, that is wished to be calculated.
-     * @return The amount of minutes from the first answer of ChatRooms.
-     * In case a ChatRoom is not answered, it will count from timestamp to now.
-     */
-    public Long getTotalAnswerTimes(Liszt<ChatRoom> chatRooms) {
-        ArrayList<Long> answeringTimes = new ArrayList<>();
-
-        for (ChatRoom room : chatRooms) {
-            if (room.is_answered()) answeringTimes.add(room.get_answeringTime());
-            else answeringTimes.add(Duration.between(room.get_mails().Get(1).get_timestamp(),
-                    LocalDateTime.now()).toMinutes());
-        }
-
-        return calculateAnsweringTime(answeringTimes);
-    }
-
-    /**
      * Will create a random DateTime from between 2020 -> 2030.
      * @return A LocalDateTime that has been randomly generated.
      */
