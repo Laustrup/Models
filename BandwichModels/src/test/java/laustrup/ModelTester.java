@@ -1,7 +1,7 @@
 package laustrup;
 
-import laustrup.models.albums.AlbumItem;
 import lombok.NoArgsConstructor;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,11 +56,11 @@ public abstract class ModelTester<R,T> extends ModelOrServiceTest<R> {
         });
     }
 
-    @Test protected abstract void dataTransportObjectTranslate();
-    @Test protected abstract void toStringTest();
-    @Test protected abstract void canAdd();
-    @Test protected abstract void canSet();
-    @Test protected abstract void canRemove();
+    protected abstract void dataTransportObjectTranslate();
+    protected abstract void toStringTest();
+    protected abstract void canAdd();
+    protected abstract void canSet();
+    protected abstract void canRemove();
 
     @AfterEach protected void afterEach() { _dto = null; }
 }

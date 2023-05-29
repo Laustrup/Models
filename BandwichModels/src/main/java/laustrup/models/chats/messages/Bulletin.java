@@ -47,26 +47,6 @@ public class Bulletin extends Message {
         _receiver = receiver;
     }
 
-//    /**
-//     * Without author or receiver.
-//     * @param id The unique id of this Bulletin.
-//     * @param content The message content of this Bulletin.
-//     * @param isSent Determines if it has been sent yet or is a draft.
-//     * @param isEdited Determines if it has been edited or changed after it has been changes.
-//     * @param isPublic Determines if it is allowed to be view by other than the author.
-//     * @param timestamp The date and time this Bulletin was sent.
-//     */
-//    public Bulletin(long id, String content, boolean isSent, Plato isEdited, boolean isPublic, LocalDateTime timestamp) {
-//        super(id, null, content, isSent, isEdited, isPublic, timestamp);
-//    }
-
-    public Bulletin(User author, String content) {
-        super(author);
-        _content = content;
-        _sent = false;
-        _edited = new Plato();
-    }
-
     /**
      * For when a creating a new Bulletin.
      * @param author The creator of this Bulletin.
@@ -83,12 +63,24 @@ public class Bulletin extends Message {
 
     @Override
     public String toString() {
-        return "Bulletin(" +
-                    "id:" + _primaryId +
-                    ",content:" + _content +
-                    ",isSent:" + _sent +
-                    (_edited == null ? "" : ",isEdited:" + _edited.get_argument()) +
-                    ",isPublic:" + _public +
-                ")";
+        return defineToString(
+                getClass().getSimpleName(),
+                new String[]{
+                        "id",
+                        "content",
+                        "isSent",
+                        "isEdited",
+                        "isPublic",
+                        "timestamp"
+                },
+                new String[]{
+                        String.valueOf(_primaryId),
+                        _content,
+                        String.valueOf(_sent),
+                        String.valueOf(_edited),
+                        String.valueOf(_public),
+                        String.valueOf(_timestamp)
+                }
+        );
     }
 }

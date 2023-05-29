@@ -2,6 +2,7 @@ package laustrup.models.events;
 
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.console.Printer;
+import laustrup.utilities.parameters.Plato;
 import laustrup.models.Model;
 import laustrup.models.albums.Album;
 import laustrup.models.chats.Request;
@@ -16,7 +17,6 @@ import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.Performer;
 import laustrup.models.users.sub_users.venues.Venue;
-import laustrup.utilities.parameters.Plato;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,9 +27,7 @@ import java.util.InputMismatchException;
 
 import static laustrup.services.DTOService.convertFromDTO;
 
-/**
- * An Event is placed a gig, where a venue is having bands playing at specific times.
- */
+/** An Event is a place for gigs, where a venue is having bands playing at specific times. */
 public class Event extends Model {
 
     /**
@@ -61,21 +59,15 @@ public class Event extends Model {
     @Getter
     private long _length;
 
-    /**
-     * The description of the Event, that can be edited by Performers or Venue
-     */
+    /** The description of the Event, that can be edited by Performers or Venue */
     @Getter @Setter
     private String _description;
 
-    /**
-     * This Event is paid or voluntary.
-     */
+    /** This Event is paid or voluntary. */
     @Getter @Setter
     private Plato _voluntary;
 
-    /**
-     * If this is a public Event, other Users can view and interact with it.
-     */
+    /** If this is a public Event, other Users can view and interact with it. */
     @Getter
     private Plato _public;
 
@@ -86,9 +78,7 @@ public class Event extends Model {
     @Getter
     private Plato _cancelled;
 
-    /**
-     * This is marked if there is no more tickets to sell.
-     */
+    /** This is marked if there is no more tickets to sell. */
     @Getter @Setter
     private Plato _soldOut;
 
@@ -115,15 +105,11 @@ public class Event extends Model {
     @Getter @Setter
     private String _ticketsURL;
 
-    /**
-     * Different information of contacting.
-     */
+    /** Different information of contacting. */
     @Getter
     private ContactInfo _contactInfo;
 
-    /**
-     * The gigs with times and acts of the Event.
-     */
+    /** The gigs with times and acts of the Event. */
     @Getter
     private Liszt<Gig> _gigs;
 
@@ -134,9 +120,7 @@ public class Event extends Model {
     @Getter
     private Venue _venue;
 
-    /**
-     * These requests are needed to make sure, everyone wants to be a part of the Event.
-     */
+    /** These requests are needed to make sure, everyone wants to be a part of the Event. */
     @Getter
     private Liszt<Request> _requests;
 
@@ -147,18 +131,18 @@ public class Event extends Model {
     @Getter
     private Liszt<Participation> _participations;
 
-    /**
-     * Post from different people, that will mention contents.
-     */
+    /** Post from different people, that will mention contents. */
     @Getter
     private Liszt<Bulletin> _bulletins;
 
-    /**
-     * An Album of images, that can be used to promote this Event.
-     */
+    /** An Album of images, that can be used to promote this Event. */
     @Getter @Setter
     private Liszt<Album> _albums;
 
+    /**
+     * Converts a Data Transport Object into this object.
+     * @param event The Data Transport Object that will be converted.
+     */
     public Event(EventDTO event) {
         super(event.getPrimaryId(), event.getTitle(), event.getTimestamp());
 
@@ -215,10 +199,39 @@ public class Event extends Model {
         for (AlbumDTO album : event.getAlbums())
             _albums.add(new Album(album));
     }
+
+    /**
+     * An empty Event.
+     * @param id The unique id of this Event.
+     */
     public Event(long id) {
         super(id);
     }
 
+    /**
+     * An Event with all its values as parameters, is meant for being constructed from database.
+     * Start and end times will be calculated from the Gigs.
+     * @param id The unique id of this Event.
+     * @param title The named title of the Event.
+     * @param description A typed String explaining details of this Event.
+     * @param openDoors When the Event will let people in.
+     * @param isVoluntary Determines whether this Event's workers are paid employees.
+     * @param isPublic The visibility of this Event.
+     * @param isCancelled If true this Event is cancelled.
+     * @param isSoldOut Determines the state of the sale of this Event.
+     * @param location Where this Event is being held.
+     * @param price The price it costs for participants to participate.
+     * @param ticketsURL Where people can buy tickets for this Event.
+     * @param contactInfo The information of how to contact the people in charge of this Event.
+     * @param gigs The shows that are being held in this Event.
+     * @param venue The Venue responsible for arranging this Event.
+     * @param requests The Requests between the members of the Gigs and this Event.
+     * @param participations Who are joining this Event.
+     * @param bulletins Messages that are put up on this Event.
+     * @param albums Images or Music promoting this Event.
+     * @param timestamp The date and time this Event was created.
+     * @throws InputMismatchException Will be thrown, if the times don't fit each other correctly.
+     */
     public Event(long id, String title, String description, LocalDateTime openDoors, Plato isVoluntary, Plato isPublic,
                  Plato isCancelled, Plato isSoldOut, String location, double price, String ticketsURL,
                  ContactInfo contactInfo, Liszt<Gig> gigs, Venue venue, Liszt<Request> requests,
@@ -235,8 +248,10 @@ public class Event extends Model {
             } catch (InputMismatchException e) {
                 Printer.get_instance().print("End date is before beginning date of " + _title + "...", e);
             }
-        else
+        else {
+            _openDoors = openDoors;
             _start = openDoors;
+        }
 
         if (_start != null && _end != null)
             if (Duration.between(openDoors, _start).toMinutes() >= 0)
@@ -263,6 +278,12 @@ public class Event extends Model {
         _albums = albums;
     }
 
+    /**
+     * Constructs a new Event.
+     * @param title The named title of the Event.
+     * @param user The User who created this Event,
+     *             can only be public when the Venue either creates an Event or accepts the Request.
+     */
     public Event(String title, User user) {
         super(title);
 
@@ -280,9 +301,19 @@ public class Event extends Model {
     }
 
     /**
-     * Adds the given Gig to gigs of current Event.
-     * @param gig Determines a specific Gig of one MusicalUser for a specific time.
-     * @return All the Gigs of the current Event.
+     * Adds the given Participation to participations of this Event.
+     * @param participation A User that will join this Event.
+     * @return All the Participations of this Event.
+     */
+    public Liszt<Participation> add(Participation participation) {
+        _participations.add(participation);
+        return _participations;
+    }
+
+    /**
+     * Adds the given Gig to gigs of this Event.
+     * @param gig A specific Gig of one Performer for a specific time.
+     * @return All the Gigs of this Event.
      */
     public Liszt<Gig> add(Gig gig) { return add(new Gig[]{gig}); }
 
@@ -326,15 +357,15 @@ public class Event extends Model {
                             storage[i] = gigs[i];
 
         int length = 0;
-        for (int i = 0; i < storage.length; i++)
-            if (storage[i]!=null)
+        for (Gig value : storage)
+            if (value != null)
                 length++;
 
         int index = 0;
         Gig[] filtered = new Gig[length];
-        for (int i = 0; i < storage.length; i++) {
-            if (storage[i]!=null) {
-                filtered[index] = storage[i];
+        for (Gig gig : storage) {
+            if (gig != null) {
+                filtered[index] = gig;
                 index++;
             }
         }
@@ -371,8 +402,10 @@ public class Event extends Model {
         boolean isInOtherGig = false;
         for (Gig gig : _gigs)
             for (Performer gigPerformer : gig.get_act())
-                if (gigPerformer.get_primaryId() == performer.get_primaryId())
+                if (gigPerformer.get_primaryId() == performer.get_primaryId()) {
                     isInOtherGig = true;
+                    break;
+                }
 
         return isInOtherGig;
     }
@@ -529,22 +562,29 @@ public class Event extends Model {
     }
 
     /**
-     * Adds the given Bulletin to bulletins of current Event.
-     * @param bulletin Determines a specific bulletin, that is wished to be added.
-     * @return All the bulletins of the current Event.
+     * Adds the given Bulletin to bulletins of this Event.
+     * @param bulletin A specific Bulletin, that is wished to be added.
+     * @return All the Bulletins of this Event.
      */
     public Liszt<Bulletin> add(Bulletin bulletin) {
-        return add(new Bulletin[]{bulletin});
+        _bulletins.add(bulletin);
+        return _bulletins;
     }
 
-    /**
-     * Adds some given Bulletins to the Liszt of bulletins from current Event.
-     * @param bulletins Determines some specific bulletins, that is wished to be added.
-     * @return All the bulletins of the current Event.
-     */
+    // TODO Remove when test package no longer needs this
     public Liszt<Bulletin> add(Bulletin[] bulletins) {
         _bulletins.add(bulletins);
         return _bulletins;
+    }
+
+    /**
+     * Adds the given Album to albums of this Event.
+     * @param album A specific Album, that is wished to be added.
+     * @return All the Albums of this Event.
+     */
+    public Liszt<Album> add(Album album) {
+        _albums.add(album);
+        return _albums;
     }
 
     /**
@@ -635,11 +675,21 @@ public class Event extends Model {
 
     @Override
     public String toString() {
-        return "Event(id="+_primaryId+
-                ",title="+_title+
-                ",description="+_description+
-                ",price="+_price+
-                ",timestamp="+_timestamp+
-                ")";
+        return defineToString(getClass().getSimpleName(),
+            new String[]{
+                "id",
+                "title",
+                "description",
+                "price",
+                "timestamp"
+            },
+            new String[]{
+                String.valueOf(_primaryId),
+                _title,
+                _description,
+                String.valueOf(_price),
+                String.valueOf(_timestamp)
+            }
+        );
     }
 }

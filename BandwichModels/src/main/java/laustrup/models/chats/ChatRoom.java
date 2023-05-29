@@ -170,8 +170,7 @@ public class ChatRoom extends Model {
         ifExists(mails, () -> {
             for (Mail mail : mails)
                 if (chatterExists(mail.get_author()))
-                    if (_mails.add(mail) && mail.doSend())
-                        edit(mail);
+                    _mails.add(mail);
         });
 
         return _mails;
