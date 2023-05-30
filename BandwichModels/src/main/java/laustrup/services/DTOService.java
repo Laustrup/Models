@@ -18,13 +18,16 @@ import laustrup.models.users.sub_users.venues.Venue;
 public class DTOService extends Service {
 
     public static User convertFromDTO(UserDTO user) {
-        switch (user.getAuthority()) {
-            case VENUE -> { return new Venue((VenueDTO) user); }
-            case ARTIST -> { return new Artist((ArtistDTO) user); }
-            case BAND -> { return new Band((BandDTO) user); }
-            case PARTICIPANT -> { return new Participant((ParticipantDTO) user); }
-            default -> { return null; }
-        }
+        if (user != null)
+            switch (user.getClass().getSimpleName()) {
+                case "Venue" -> { return new Venue((VenueDTO) user); }
+                case "Artist" -> { return new Artist((ArtistDTO) user); }
+                case "Band" -> { return new Band((BandDTO) user); }
+                case "Participant" -> { return new Participant((ParticipantDTO) user); }
+                default -> { return null; }
+            }
+        else
+            return null;
     }
 
     public static Model convertFromDTO(ModelDTO model) {
@@ -50,12 +53,13 @@ public class DTOService extends Service {
     }
 
     public static ModelDTO convertToDTO(Model model) {
-        switch (model.getClass().getName()) {
-            case "VENUE" -> { return new VenueDTO((Venue) model); }
-            case "ARTIST" -> { return new ArtistDTO((Artist) model); }
-            case "BAND" -> { return new BandDTO((Band) model); }
-            case "PARTICIPANT" -> { return new ParticipantDTO(((Participant) model)); }
-            default -> { return new EventDTO((Event) model); }
+        switch (model.getClass().getSimpleName()) {
+            case "Venue" -> { return new VenueDTO((Venue) model); }
+            case "Artist" -> { return new ArtistDTO((Artist) model); }
+            case "Band" -> { return new BandDTO((Band) model); }
+            case "Participant" -> { return new ParticipantDTO(((Participant) model)); }
+            case "Event" -> { return new EventDTO((Event) model); }
+            default -> { return null; }
         }
     }
 }

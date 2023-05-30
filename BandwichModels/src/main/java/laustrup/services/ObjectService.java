@@ -1,11 +1,8 @@
 package laustrup.services;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * A Service for standard Object algorithms.
- */
+/** A Service for standard Object algorithms. */
 public class ObjectService extends Service {
 
     /**

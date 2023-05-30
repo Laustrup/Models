@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 
 import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.services.ObjectService.ifExists;
 
 /** An Event is a place for gigs, where a venue is having bands playing at specific times. */
 public class Event extends Model {
@@ -148,11 +149,13 @@ public class Event extends Model {
 
         _description = event.getDescription();
 
-        _gigs = new Liszt<>();
-        for (GigDTO gig : event.getGigs())
-            _gigs.add(new Gig(gig));
+        ifExists(event.getGigs(), () -> {
+            _gigs = new Liszt<>();
+            for (GigDTO gig : event.getGigs())
+                _gigs.add(new Gig(gig));
+        });
 
-        if (!_gigs.isEmpty())
+        if (_gigs != null && !_gigs.isEmpty())
             try {
                 calculateTime();
             } catch (InputMismatchException e) {
@@ -160,6 +163,7 @@ public class Event extends Model {
             }
         else {
             _start = event.getOpenDoors() != null ? event.getOpenDoors() : null;
+            _openDoors = _start;
             _end = event.getEnd() != null ? event.getEnd() : (event.getOpenDoors() != null ? event.getOpenDoors() : null);
             _length = _start != null && _end != null ? Duration.between(_start,_end).toMinutes() : 0;
         }
@@ -176,28 +180,36 @@ public class Event extends Model {
         _soldOut = new Plato(event.getIsSoldOut());
         _price = event.getPrice();
         _ticketsURL = event.getTicketsURL();
-        _contactInfo = new ContactInfo(event.getContactInfo());
+        _contactInfo = (ContactInfo) ifExists(event.getContactInfo(), e -> new ContactInfo(event.getContactInfo()));
         _venue = (Venue) convertFromDTO(event.getVenue());
 
         _location = event.getLocation() == null || event.getLocation().isEmpty() ?
                 (event.getVenue() != null ? (event.getLocation() != null ? event.getLocation() : null)
                         : null) : event.getLocation();
 
-        _requests = new Liszt<>();
-        for (RequestDTO request : event.getRequests())
-            _requests.add(new Request(request));
+        ifExists(event.getRequests(), () -> {
+            _requests = new Liszt<>();
+            for (RequestDTO request : event.getRequests())
+                _requests.add(new Request(request));
+        });
 
-        _participations = new Liszt<>();
-        for (ParticipationDTO participation : event.getParticipations())
-            _participations.add(new Participation(participation));
+        ifExists(event.getParticipations(), () -> {
+            _participations = new Liszt<>();
+            for (ParticipationDTO participation : event.getParticipations())
+                _participations.add(new Participation(participation));
+        });
 
-        _bulletins = new Liszt<>();
-        for (BulletinDTO bulletin : event.getBulletins())
-            _bulletins.add(new Bulletin(bulletin));
+        ifExists(event.getBulletins(), () -> {
+            _bulletins = new Liszt<>();
+            for (BulletinDTO bulletin : event.getBulletins())
+                _bulletins.add(new Bulletin(bulletin));
+        });
 
-        _albums = new Liszt<>();
-        for (AlbumDTO album : event.getAlbums())
-            _albums.add(new Album(album));
+        ifExists(event.getAlbums(), () -> {
+            _albums = new Liszt<>();
+            for (AlbumDTO album : event.getAlbums())
+                _albums.add(new Album(album));
+        });
     }
 
     /**

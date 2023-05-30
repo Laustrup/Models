@@ -17,7 +17,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 
 class EventTest extends ModelTester<Event, EventDTO> {
@@ -104,11 +103,11 @@ class EventTest extends ModelTester<Event, EventDTO> {
         );
     }
 
-    @Override @Test
+    @Override @Test //TODO Event stackoverflow from items, temporarily fixed.
     protected void dataTransportObjectTranslate() {
         test(() -> {
             Event expected = arrange(() -> {
-                Event event = _items.get_events()[_random.nextInt(_items.get_eventAmount())];
+                Event event = fixStackOverflow(_items.get_events()[_random.nextInt(_items.get_eventAmount())]);
                 _dto = new EventDTO(event);
                 return event;
             });
@@ -119,6 +118,55 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
             addToPrint("The two Events are:\n \n" + expected + "\n" + actual);
         });
+    }
+
+    private Event fixStackOverflow(Event event) {
+        return fixBulletinStackOverflow(fixParticipationStackOverflow(fixRequestStackOverflow(event)));
+    }
+
+    private Event fixRequestStackOverflow(Event event) {
+        Liszt<Request> requests = new Liszt<>();
+        for (Request request : event.get_requests()) {
+            requests.add(new Request(
+                    request.get_user(),
+                    new Event(request.get_event().get_primaryId()),
+                    request.get_approved(),
+                    request.get_message(),
+                    request.get_timestamp())
+            );
+        }
+
+        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),requests,event.get_participations(),event.get_bulletins(),event.get_albums(),event.get_timestamp());
+    }
+
+    private Event fixParticipationStackOverflow(Event event) {
+        Liszt<Participation> participations = new Liszt<>();
+        for (Participation participation : event.get_participations())
+            participations.add(new Participation(
+                    participation.get_participant(),
+                    new Event(participation.get_event().get_primaryId()),
+                    participation.get_type(),
+                    participation.get_timestamp()
+            ));
+
+        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),event.get_requests(),participations,event.get_bulletins(),event.get_albums(),event.get_timestamp());
+    }
+
+    private Event fixBulletinStackOverflow(Event event) {
+        Liszt<Bulletin> bulletins = new Liszt<>();
+        for (Bulletin bulletin : event.get_bulletins())
+            bulletins.add(new Bulletin(
+                    bulletin.get_primaryId(),
+                    bulletin.get_author(),
+                    new Event(bulletin.get_receiver().get_primaryId()),
+                    bulletin.get_content(),
+                    bulletin.is_sent(),
+                    bulletin.get_edited(),
+                    bulletin.is_public(),
+                    bulletin.get_timestamp()
+            ));
+
+        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),event.get_requests(),event.get_participations(),bulletins,event.get_albums(),event.get_timestamp());
     }
 
     @Override @Test
