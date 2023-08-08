@@ -5,27 +5,19 @@ import laustrup.dtos.users.contact_infos.CountryDTO;
 import lombok.Getter;
 import lombok.ToString;
 
-/**
- * An object with information about a curtain Country.
- */
+/** An object with information about a curtain Country. */
 @ToString
 public class Country {
 
-    /**
-     * The name of the Country.
-     */
+    /** The name of the Country. */
     @Getter
     private String _title;
 
-    /**
-     * The two digits indexes of the Country.
-     */
+    /** The two digits indexes of the Country. */
     @Getter
     private CountryIndexes _indexes;
 
-    /**
-     * The value of the first few digits of a phone number.
-     */
+    /** The value of the first few digits of a phone number. */
     @Getter
     private int _firstPhoneNumberDigits;
 
@@ -40,8 +32,6 @@ public class Country {
         _firstPhoneNumberDigits = firstPhoneNumberDigits;
     }
 
-    /**
-     * An enum with indexes of the Country.
-     */
+    /** An enum with indexes of the Country. */
     public enum CountryIndexes { DK, SE, DE }
 }

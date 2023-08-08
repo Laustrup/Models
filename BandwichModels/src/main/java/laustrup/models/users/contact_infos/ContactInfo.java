@@ -8,32 +8,22 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/**
- * Contains information that people need in order to contact the User.
- */
+/** Contains information that people need in order to contact the User. */
 public class ContactInfo extends Model {
 
-    /**
-     * The email that the User wants to be contacted through outside the application.
-     */
+    /** The email that the User wants to be contacted through outside the application. */
     @Getter @Setter
     private String _email;
 
-    /**
-     * A Phone object that is used to have information about how to contact the User through Phone.
-     */
+    /** A Phone object that is used to have information about how to contact the User through Phone. */
     @Getter
     private Phone _phone;
 
-    /**
-     * An Address object with info about the location of the User.
-     */
+    /** An Address object with info about the location of the User. */
     @Getter @Setter
     private Address _address;
 
-    /**
-     * A Country object for the information of which Country the User is living in.
-     */
+    /** A Country object for the information of which Country the User is living in. */
     @Getter
     private Country _country;
 

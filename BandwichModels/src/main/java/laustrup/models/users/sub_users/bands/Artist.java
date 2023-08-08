@@ -27,21 +27,15 @@ import java.time.LocalDateTime;
  */
 public class Artist extends Performer {
 
-    /**
-     * The Bands that the Artist is a member of.
-     */
+    /** The Bands that the Artist is a member of. */
     @Getter
     private Liszt<Band> _bands;
 
-    /**
-     * A description of the gear, that the Artist possesses and what they require for an Event.
-     */
+    /** A description of the gear, that the Artist possesses and what they require for an Event. */
     @Getter @Setter
     private String _runner;
 
-    /**
-     * The Requests requested for this Artist.
-     */
+    /** The Requests requested for this Artist. */
     @Getter
     private Liszt<Request> _requests;
 
@@ -99,8 +93,7 @@ public class Artist extends Performer {
      * @return The whole Liszt of bands.
      */
     public Liszt<Band> addBands(Band[] bands) {
-        _bands.add(bands);
-        return _bands;
+        return _bands.Add(bands);
     }
 
     /**
@@ -116,8 +109,7 @@ public class Artist extends Performer {
      * @return The whole Liszt of bands.
      */
     public Liszt<Band> remove(Band[] bands) {
-        _bands.remove(bands);
-        return _bands;
+        return _bands.remove(bands);
     }
 
     /**
@@ -125,34 +117,14 @@ public class Artist extends Performer {
      * @param request An object of Request, that is wished to be added.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> add(Request request) { return add(new Request[]{request}); }
-
-    /**
-     * Adds Requests to the Liszt of Requests.
-     * @param requests An array of Requests, that is wished to be added.
-     * @return The whole Liszt of Requests.
-     */
-    public Liszt<Request> add(Request[] requests) {
-        _requests.add(requests);
-        return _requests;
-    }
+    public Liszt<Request> add(Request request) { return _requests.Add(request); }
 
     /**
      * Removes a Request of the Liszt of Requests.
      * @param request An object of Request, that is wished to be removed.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> remove(Request request) { return remove(new Request[]{request}); }
-
-    /**
-     * Removes Requests of the Liszt of Requests.
-     * @param requests An array of Requests, that is wished to be removed.
-     * @return The whole Liszt of Requests.
-     */
-    public Liszt<Request> remove(Request[] requests) {
-        _requests.remove(requests);
-        return _requests;
-    }
+    public Liszt<Request> remove(Request request) { return _requests.remove(new Request[]{request}); }
 
     @Override
     public String toString() {

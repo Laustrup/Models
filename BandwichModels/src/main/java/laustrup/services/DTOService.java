@@ -41,15 +41,16 @@ public class DTOService extends Service {
     }
 
     public static UserDTO convertToDTO(User user) {
-        if (user == null || user.get_authority() == null)
+        if (user != null)
+            switch (user.getClass().getSimpleName()) {
+                case "Venue" -> { return new VenueDTO(user); }
+                case "Artist" -> { return new ArtistDTO(user); }
+                case "Band" -> { return new BandDTO(user); }
+                case "Participant" -> { return new ParticipantDTO(user); }
+                default -> { return null; }
+            }
+        else
             return null;
-        switch (user.get_authority()) {
-            case VENUE -> { return new VenueDTO(user); }
-            case ARTIST -> { return new ArtistDTO(user); }
-            case BAND -> { return new BandDTO(user); }
-            case PARTICIPANT -> { return new ParticipantDTO(user); }
-            default -> { return null; }
-        }
     }
 
     public static ModelDTO convertToDTO(Model model) {

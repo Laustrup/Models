@@ -1,5 +1,6 @@
 package laustrup;
 
+import laustrup.items.TestItems;
 import laustrup.quality_assurance.Tester;
 
 /**

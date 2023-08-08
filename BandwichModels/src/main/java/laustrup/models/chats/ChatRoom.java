@@ -60,18 +60,8 @@ public class ChatRoom extends Model {
             _chatters.add(convertFromDTO(chatter));
     }
 
-    public ChatRoom(long id, boolean isLocal, String title, Liszt<Mail> mails, Liszt<User> chatters,
-                    User responsible, LocalDateTime timestamp) {
-        super(id, title, timestamp);
-        _chatters = chatters;
-        _title = determineChatRoomTitle(_title);
-        _mails = mails;
-    }
-
     /**
      * Containing all attributes of this object.
-     * Purpose is for assembling.
-     * Will set assembling to true.
      * @param id The primary id.
      * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
      * @param mails The Mails with relations to this ChatRoom.
@@ -86,37 +76,12 @@ public class ChatRoom extends Model {
 
     }
 
-    public ChatRoom(long id, boolean isLocal, String title, LocalDateTime timestamp) {
-        super(id, title, timestamp);
-        _chatters = new Liszt<>();
-        _title = determineChatRoomTitle(_title);
-
-        _mails = new Liszt<>();
-    }
-
     /**
-     * A primitive constructor, with lesser values.
-     * Purpose is to use for assembling.
-     * Will set assembling to true.
-     * @param id The primary id.
+     * For when creating a new ChatRoom.
+     * Will generate a timestamp at now.
      * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
-     * @param timestamp The time this ChatRoom was created.
+     * @param chatters The chatters that are members of this ChatRoom.
      */
-    public ChatRoom(long id, String title, LocalDateTime timestamp) {
-        super(id, title, timestamp);
-        _chatters = new Liszt<>();
-        _title = determineChatRoomTitle(_title);
-
-        _mails = new Liszt<>();
-    }
-
-    public ChatRoom(boolean isLocal, String title, Liszt<User> chatters, User responsible) {
-        super(title);
-        _chatters = chatters;
-        _title = determineChatRoomTitle(_title);
-        _mails = new Liszt<>();
-    }
-
     public ChatRoom(String title, Liszt<User> chatters) {
         super(title);
         _chatters = chatters;

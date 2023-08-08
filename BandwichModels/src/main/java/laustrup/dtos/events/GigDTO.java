@@ -16,6 +16,7 @@ import static laustrup.services.DTOService.convertToDTO;
  */
 @NoArgsConstructor @Data
 public class GigDTO extends ModelDTO {
+
     /**
      * The Event of this Gig.
      */
@@ -39,9 +40,9 @@ public class GigDTO extends ModelDTO {
     public GigDTO(Gig gig) {
         super(gig.get_primaryId(), "Gig:"+gig.get_primaryId(), gig.get_timestamp());
         event = new EventDTO(gig.get_event());
-        act = new PerformerDTO[gig.get_act().length];
+        act = new PerformerDTO[gig.get_act().size()];
         for (int i = 0; i < act.length; i++)
-            act[i] = (PerformerDTO) convertToDTO(gig.get_act()[i]);
+            act[i] = (PerformerDTO) convertToDTO(gig.get_act().get(i));
         start = gig.get_start();
         end = gig.get_end();
     }

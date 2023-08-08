@@ -136,20 +136,14 @@ public class Participant extends User {
      * @param following A User, that is wished to be added.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> add(User following) {
-        _idols.add(following);
-        return _idols;
-    }
+    public Liszt<User> add(User following) { return _idols.Add(following); }
 
     /**
      * Removes a User from the followings of the Participant.
      * @param following a User, that is wished to be removed.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> remove(User following) {
-        _idols.remove(following);
-        return _idols;
-    }
+    public Liszt<User> remove(User following) { return _idols.remove(new User[]{following}); }
 
     @Override
     public String toString() {

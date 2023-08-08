@@ -40,7 +40,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
                 Seszt<Performer> performers = new Seszt<>();
                 if (!noGigs)
                     for (Gig gig : gigs)
-                        performers.add(gig.get_act());
+                        performers.add(gig.get_act().get_data());
                 Liszt<Request> requests = new Liszt<>();
                 if (!noGigs)
                     for (Performer performer : performers)
@@ -234,10 +234,10 @@ class EventTest extends ModelTester<Event, EventDTO> {
             Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
             int previousSize = event.get_requests().size();
             Request[] requests = _items.generateRequests(
-                    new Performer[]{
+                    new Liszt<>(new Performer[]{
                         _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
-                        _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
-                    },
+                                _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
+                    }),
                     event
             );
 
@@ -252,7 +252,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddParticipation() {
         test(() -> {
-            Event event = _items.get_events()[_random.nextInt(_items.get_eventAmount())];
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
             int previousSize = event.get_participations().size();
             Participation participation = _items.generateParticipations(event).getFirst();
 
@@ -267,7 +267,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddBulletin() {
         test(() -> {
-            Event event = _items.get_events()[_random.nextInt(_items.get_eventAmount())];
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
             int previousSize = event.get_bulletins().size();
             Bulletin bulletin = _items.generateBulletins(event)[0];
 
@@ -282,7 +282,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddAlbums() {
         test(() -> {
-            Event event = _items.get_events()[_random.nextInt(_items.get_eventAmount())];
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
             int previousSize = event.get_albums().size();
             Album album = new Album(
                     RandomCreatorService.get_instance().generateString(),
@@ -301,7 +301,48 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     @Override @Test
     protected void canSet() {
+        canSetGigs();
+        canSetRequest();
+        canSetParticipation();
+        canSetBulletin();
+        canSetAlbum();
+    }
 
+    private void canSetGigs() {
+        test(() -> {
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Gig gig = event.get_gigs().get(_random.nextInt(event.get_gigs().size()-1));
+
+            //act(() -> event.set());
+        });
+    }
+
+    private void canSetRequest() {
+        test(() -> {
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+
+        });
+    }
+
+    private void canSetParticipation() {
+        test(() -> {
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+
+        });
+    }
+
+    private void canSetBulletin() {
+        test(() -> {
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+
+        });
+    }
+
+    private void canSetAlbum() {
+        test(() -> {
+            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+
+        });
     }
 
     @Override @Test

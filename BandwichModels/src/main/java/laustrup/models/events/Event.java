@@ -318,8 +318,7 @@ public class Event extends Model {
      * @return All the Participations of this Event.
      */
     public Liszt<Participation> add(Participation participation) {
-        _participations.add(participation);
-        return _participations;
+        return _participations.Add(participation);
     }
 
     /**
@@ -348,6 +347,7 @@ public class Event extends Model {
                 _gigs.remove(gigs);
             }
         }
+
         return _gigs;
     }
 
@@ -429,6 +429,7 @@ public class Event extends Model {
                 break;
             }
         }
+
         return _requests;
     }
 
@@ -445,6 +446,15 @@ public class Event extends Model {
      * @return All the requests of the current Event.
      */
     public Liszt<Request> add(Request[] requests) {
+        return add(new Liszt<>(requests));
+    }
+
+    /**
+     * Adds some given Requests to the Liszt of requests from current Event.
+     * @param requests Determines some specific requests, that is wished to be added.
+     * @return All the requests of the current Event.
+     */
+    public Liszt<Request> add(Liszt<Request> requests) {
         for (Request request : requests)
             if (!_requests.contains(request))
                 _requests.add(request);
@@ -485,7 +495,7 @@ public class Event extends Model {
      * @return The Request that is changed. If it is not changed, it returns null.
      */
     public Request acceptRequest(Request request) {
-        return _requests.set(request, new Request(request.get_user(), request.get_event(), new Plato(true)));
+        return _requests.set(request, new Request(request.get_user(), request.get_event(), new Plato(true))).Get(request.toString());
     }
 
     /**
@@ -541,7 +551,7 @@ public class Event extends Model {
      * @return All the Participations of the current Event.
      */
     public Liszt<Participation> addParticipation(Participation participation) {
-        return addParticpations(new Participation[]{participation});
+        return addParticipation(new Participation[]{participation});
     }
 
     /**
@@ -549,9 +559,8 @@ public class Event extends Model {
      * @param participations Determines some specific participants, that is wished to be added.
      * @return All the Participations of the current Event.
      */
-    public Liszt<Participation> addParticpations(Participation[] participations) {
-        _participations.add(participations);
-        return _participations;
+    public Liszt<Participation> addParticipation(Participation[] participations) {
+        return _participations.Add(participations);
     }
 
     /**
@@ -560,16 +569,7 @@ public class Event extends Model {
      * @return All the Participations of the current Event.
      */
     public Liszt<Participation> removeParticipation(Participation participation) {
-        return removeParticpations(new Participation[]{participation});
-    }
-
-    /**
-     * Removes some given Participations from the Liszt of participations from current Event.
-     * @param participations Determines some specific participants, that is wished to be removed.
-     * @return All the Participations of the current Event.
-     */
-    public Liszt<Participation> removeParticpations(Participation[] participations) {
-        _participations.remove(participations);
+        _participations.remove(participation);
         return _participations;
     }
 
@@ -579,14 +579,7 @@ public class Event extends Model {
      * @return All the Bulletins of this Event.
      */
     public Liszt<Bulletin> add(Bulletin bulletin) {
-        _bulletins.add(bulletin);
-        return _bulletins;
-    }
-
-    // TODO Remove when test package no longer needs this
-    public Liszt<Bulletin> add(Bulletin[] bulletins) {
-        _bulletins.add(bulletins);
-        return _bulletins;
+        return _bulletins.Add(bulletin);
     }
 
     /**
@@ -595,8 +588,7 @@ public class Event extends Model {
      * @return All the Albums of this Event.
      */
     public Liszt<Album> add(Album album) {
-        _albums.add(album);
-        return _albums;
+        return _albums.Add(album);
     }
 
     /**
@@ -604,17 +596,8 @@ public class Event extends Model {
      * @param bulletin Determines a specific bulletin, that is wished to be removed.
      * @return All the bulletins of the current Event.
      */
-    public Liszt<Bulletin> removeBulletin(Bulletin bulletin) {
-        return removeBulletins(new Bulletin[]{bulletin});
-    }
-
-    /**
-     * Removes some given Bulletins from the Liszt of bulletins from current Event.
-     * @param bulletins Determines some specific bulletins, that is wished to be removed.
-     * @return All the bulletins of the current Event.
-     */
-    public Liszt<Bulletin> removeBulletins(Bulletin[] bulletins) {
-        _bulletins.remove(bulletins);
+    public Liszt<Bulletin> remove(Bulletin bulletin) {
+        _bulletins.remove(bulletin);
         return _bulletins;
     }
 
@@ -623,7 +606,7 @@ public class Event extends Model {
      * @param participation The Participation that is wished to be set.
      * @return If the Participation is set successfully, it will return the Participation, else it will return null.
      */
-    public Participation setParticipation(Participation participation) {
+    public Participation set(Participation participation) {
         for (int i = 1; i <= _participations.size(); i++) {
             if (_participations.Get(i).get_participant().get_primaryId() == participation.get_participant().get_primaryId()) {
                 _participations.Get(i).set_type(participation.get_type());
@@ -638,23 +621,22 @@ public class Event extends Model {
      * @param gig The Gig, that is wished to be set.
      * @return If the Gig is set successfully, it will return the Gig, else it will return null.
      */
-    public Gig setGig(Gig gig) {
+    public Gig set(Gig gig) {
         for (int i = 1; i <= _gigs.size(); i++) {
             int sharedActs = 0;
 
-            for (int j = 0; j < _gigs.Get(i).get_act().length; j++) {
-                for (Performer performer : gig.get_act()) {
-                    if (_gigs.Get(i).get_act()[j].get_primaryId() == performer.get_primaryId()) {
+            for (int j = 0; j < _gigs.Get(i).get_act().size(); j++)
+                for (Performer performer : gig.get_act())
+                    if (_gigs.Get(i).get_act().get(j).get_primaryId() == performer.get_primaryId())
                         sharedActs++;
-                    }
-                }
-            }
-            if (sharedActs == _gigs.Get(i).get_act().length) {
+
+            if (sharedActs == _gigs.Get(i).get_act().size()) {
                 _gigs.Get(i).set_start(gig.get_start());
                 _gigs.Get(i).set_end(gig.get_end());
             }
         }
-        return null;
+
+        return _gigs.Get(gig.toString());
     }
 
     /**

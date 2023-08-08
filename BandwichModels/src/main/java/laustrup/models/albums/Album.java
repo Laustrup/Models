@@ -92,6 +92,7 @@ public class Album extends Model {
 
     /**
      * Will add items to the Album.
+     * If the item is music and the author is not an Artist or Band, it will not be added.
      * @param items Items of the contents of the Album.
      * @return All the items of the Album.
      */
@@ -110,6 +111,7 @@ public class Album extends Model {
 
     /**
      * Will add an item to the items of the Album.
+     * Will identify by the endpoint, so endpoints can not be set...
      * @param item The item that should be replaced with its common id in items.
      * @return All the items.
      */
@@ -117,6 +119,7 @@ public class Album extends Model {
 
     /**
      * Will set an item of the Album.
+     * Will identify by the endpoint, so endpoints can not be set...
      * @param items The Items that will be replaced with its common endpoint in items.
      * @return All the items.
      */
@@ -153,8 +156,7 @@ public class Album extends Model {
      * @return All the items of this Album.
      */
     public Liszt<AlbumItem> remove(AlbumItem[] items) {
-        _items.remove(items);
-        return _items;
+        return _items.remove(items);
     }
 
     @Override

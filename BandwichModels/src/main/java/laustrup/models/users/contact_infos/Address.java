@@ -5,32 +5,22 @@ import laustrup.dtos.users.contact_infos.AddressDTO;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Contains values that determines address attributes.
- */
+/** Contains values that determines address attributes. */
 public class Address {
 
-    /**
-     * The street and street number.
-     */
+    /** The street and street number. */
     @Getter @Setter
     private String _street;
 
-    /**
-     * The floor, if in an apartment, also include left or right.
-     */
+    /** The floor, if in an apartment, also include left or right. */
     @Getter @Setter
     private String _floor;
 
-    /**
-     * Some digits describing the city.
-     */
+    /** Some digits describing the city. */
     @Getter @Setter
     private String _postal;
 
-    /**
-     * The city of the postal.
-     */
+    /** The city of the postal. */
     @Getter @Setter
     private String _city;
 

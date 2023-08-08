@@ -65,21 +65,6 @@ public class AlbumItem extends Model {
     }
 
     /**
-     * Constructor with all values, that don't have an Event connected.
-     * @param title The title of the item.
-     * @param endpoint The endpoint location for the file.
-     * @param kind Determines if this is music or an image.
-     * @param tags The people joined at this item.
-     * @param timestamp The date this item is posted.
-     */
-    public AlbumItem(String title, String endpoint, Kind kind, Liszt<User> tags, LocalDateTime timestamp) {
-        super(title, timestamp);
-        _endpoint = endpoint;
-        _kind = kind;
-        _tags = tags;
-    }
-
-    /**
      * Constructor with all values.
      * @param title The title of the item.
      * @param endpoint The endpoint location for the file.
@@ -108,10 +93,7 @@ public class AlbumItem extends Model {
      * @param tags The Users that will be added as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> add(User[] tags) {
-        _tags.add(tags);
-        return _tags;
-    }
+    public Liszt<User> add(User[] tags) { return _tags.Add(tags); }
 
     /**
      * Removes a tagged User of the item.
@@ -125,10 +107,7 @@ public class AlbumItem extends Model {
      * @param tags The Users that will be removed as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> remove(User[] tags) {
-        _tags.remove(tags);
-        return _tags;
-    }
+    public Liszt<User> remove(User[] tags) { return _tags.remove(tags); }
 
     @Override
     public String toString() {

@@ -2,12 +2,13 @@ package laustrup.models.chats;
 
 import laustrup.ModelTester;
 import laustrup.dtos.chats.ChatRoomDTO;
-
 import laustrup.models.chats.messages.Mail;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
 import laustrup.services.RandomCreatorService;
+import laustrup.services.TimeService;
+import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 
@@ -66,11 +67,12 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
     private void emptyTitleTest(boolean isNull) {
         test(() -> {
             ChatRoom chatRoom = arrange(() -> new ChatRoom(
-                    _random.nextBoolean(),
+                    _random.nextLong(),
                     isNull ? null : new String(),
+                    new Liszt<>(),
                     _items.get_chatRooms()[_random.nextInt(_items.get_chatRoomAmount())].get_chatters(),
-                    null
-                    )
+                    TimeService.get_instance().generateRandom()
+                )
             );
 
             String expected = simulateEmptyTitle(chatRoom);

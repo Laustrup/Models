@@ -26,33 +26,23 @@ import java.time.LocalDateTime;
  */
 public class Venue extends User {
 
-    /**
-     * The location that the Venue is located at, which could be an address or simple a place.
-     */
+    /** The location that the Venue is located at, which could be an address or simple a place. */
     @Getter @Setter
     private String _location;
 
-    /**
-     * The description of the gear that the Venue posses.
-     */
+    /** The description of the gear that the Venue posses. */
     @Getter @Setter
     private String _gearDescription;
 
-    /**
-     * All the Events that this Venue has planned.
-     */
+    /** All the Events that this Venue has planned. */
     @Getter
     private Liszt<Event> _events;
 
-    /**
-     * The size of the stage and room, that Events can be held at.
-     */
+    /** The size of the stage and room, that Events can be held at. */
     @Getter @Setter
     private int _size;
 
-    /**
-     * The Requests requested for this Venue.
-     */
+    /** The Requests requested for this Venue. */
     @Getter
     private Liszt<Request> _requests;
 

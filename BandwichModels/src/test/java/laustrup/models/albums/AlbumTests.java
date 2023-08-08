@@ -171,7 +171,7 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
                 RandomCreatorService.get_instance().generateString(false,_random.nextInt(10)+1),
                 endpoint,
                 _random.nextBoolean() ? AlbumItem.Kind.MUSIC : AlbumItem.Kind.IMAGE,
-                new Liszt<>(), LocalDateTime.now()
+                new Liszt<>(), null, LocalDateTime.now()
         );
     }
 
@@ -184,7 +184,7 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
     private AlbumItem generateItem(String endpoint, AlbumItem.Kind kind) {
         return new AlbumItem(
                 RandomCreatorService.get_instance().generateString(false,_random.nextInt(10)+1),
-                endpoint, kind, new Liszt<>(), LocalDateTime.now()
+                endpoint, kind, new Liszt<>(), null, LocalDateTime.now()
         );
     }
 }

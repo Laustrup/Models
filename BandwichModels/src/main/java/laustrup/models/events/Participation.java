@@ -11,26 +11,18 @@ import java.time.LocalDateTime;
 
 import static laustrup.services.DTOService.convertFromDTO;
 
-/**
- * Determines type of which a Participant is participating in an Event.
- */
+/** Determines type of which a Participant is participating in an Event. */
 public class Participation extends Model {
 
-    /**
-     * The Participant of the participation.
-     */
+    /** The Participant of the participation. */
     @Getter
     private Participant _participant;
 
-    /**
-     * The Event of the participation.
-     */
+    /** The Event of the participation. */
     @Getter
     private Event _event;
 
-    /**
-     * The type of which participant is participating in the participation.
-     */
+    /** The type of which participant is participating in the participation. */
     @Getter @Setter
     private ParticipationType _type;
 
@@ -74,8 +66,6 @@ public class Participation extends Model {
                 ")";
     }
 
-    /**
-     * Each Participation have four different choices of participating.
-     */
+    /** Each Participation have four different choices of participating. */
     public enum ParticipationType { ACCEPTED, IN_DOUBT, CANCELED, INVITED }
 }

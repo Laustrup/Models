@@ -1,9 +1,10 @@
 package laustrup;
 
+import laustrup.items.TestItems;
+
 import lombok.NoArgsConstructor;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -17,6 +18,12 @@ public abstract class ModelTester<R,T> extends ModelOrServiceTest<R> {
 
     /** can be set to be and used as the DTO of a model class. */
     protected T _dto;
+
+    /**
+     * Contains different generated inheritances to use for testing.
+     * Are being reset for each method.
+     */
+    protected TestItems _items = new TestItems();
 
     /** Defines toString splitter. */
     protected final String _toStringFieldSplitter = ",\n \t",
@@ -62,5 +69,9 @@ public abstract class ModelTester<R,T> extends ModelOrServiceTest<R> {
     protected abstract void canSet();
     protected abstract void canRemove();
 
-    @AfterEach protected void afterEach() { _dto = null; }
+    @AfterEach
+    protected void afterEach() {
+        _dto = null;
+        _items = new TestItems();
+    }
 }
