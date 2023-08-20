@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 
 class AlbumItemTests extends ModelTester<AlbumItem, AlbumItemDTO> {
 
-    AlbumItemTests() { super(true); }
-
     @Test @Override
     public void dataTransportObjectTranslate() {
         test(() -> {

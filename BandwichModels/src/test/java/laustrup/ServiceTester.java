@@ -1,5 +1,6 @@
 package laustrup;
 
+import laustrup.quality_assurance.Tester;
 import laustrup.services.Service;
 
 /**
@@ -7,7 +8,7 @@ import laustrup.services.Service;
  * Extends Tester with Object as a generic.
  * Must have a Service defined.
  */
-public abstract class ServiceTester extends ModelOrServiceTest<Object> {
+public abstract class ServiceTester extends Tester<Object> {
 
     /**
      * The Service that will be used for testing.

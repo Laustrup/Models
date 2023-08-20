@@ -17,9 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
-
-    ChatRoomTests() { super(true); }
-
     @Override @Test
     protected void dataTransportObjectTranslate() {
         test(() -> {

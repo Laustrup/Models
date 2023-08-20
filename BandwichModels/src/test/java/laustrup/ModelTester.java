@@ -1,6 +1,7 @@
 package laustrup;
 
 import laustrup.items.TestItems;
+import laustrup.quality_assurance.Tester;
 
 import lombok.NoArgsConstructor;
 
@@ -14,7 +15,7 @@ import java.util.Arrays;
  * @param <T> The type of the DTO.
  */
 @NoArgsConstructor
-public abstract class ModelTester<R,T> extends ModelOrServiceTest<R> {
+public abstract class ModelTester<R,T> extends Tester<R> {
 
     /** can be set to be and used as the DTO of a model class. */
     protected T _dto;
@@ -28,15 +29,6 @@ public abstract class ModelTester<R,T> extends ModelOrServiceTest<R> {
     /** Defines toString splitter. */
     protected final String _toStringFieldSplitter = ",\n \t",
         _toStringKeyValueSplitter = ":\t";
-
-    /**
-     * Constructor that can have the option to generate TestItems at beforeEach.
-     * Be cautious with doing so, since it can create a noSuchMethodException or other.
-     * @param generateItems If true, it will generate TestItems at beforeEach.
-     */
-    protected ModelTester(boolean generateItems) {
-        super(generateItems);
-    }
 
     /**
      * Will perform the algorithm for testing a toString and check they live up to the predicted standard.

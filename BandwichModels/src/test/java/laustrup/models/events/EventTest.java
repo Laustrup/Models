@@ -10,18 +10,18 @@ import laustrup.models.users.sub_users.Performer;
 import laustrup.services.RandomCreatorService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
-
 import laustrup.utilities.parameters.Plato;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
+import java.util.function.Supplier;
 
 class EventTest extends ModelTester<Event, EventDTO> {
-
-    EventTest() { super(true); }
 
     @ParameterizedTest
     @CsvSource(value = {
@@ -40,14 +40,13 @@ class EventTest extends ModelTester<Event, EventDTO> {
                 Seszt<Performer> performers = new Seszt<>();
                 if (!noGigs)
                     for (Gig gig : gigs)
-                        performers.add(gig.get_act().get_data());
+                        performers.addAll(gig.get_act());
                 Liszt<Request> requests = new Liszt<>();
                 if (!noGigs)
                     for (Performer performer : performers)
                         requests.add(new Request(performer, new Event(eventId), new Plato(), "", LocalDateTime.now()));
 
                 try {
-                    //TODO When test can perform act in arrange, it should perform an act here
                     return new Event(
                         eventId,RandomCreatorService.get_instance().generateString(),
                         RandomCreatorService.get_instance().generateString(), openDoors,
@@ -205,16 +204,16 @@ class EventTest extends ModelTester<Event, EventDTO> {
                 new Gig(
                     event,
                     new Performer[]{
-                            _items.get_bands()[_items.get_bandAmount()],
-                            _items.get_artists()[_items.get_artistAmount()]
+                            _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
+                            _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
                     },
                     LocalDateTime.now(), LocalDateTime.now().plusHours(1)
                 ),
                 new Gig(
                     event,
                     new Performer[]{
-                            _items.get_bands()[_items.get_bandAmount()],
-                            _items.get_artists()[_items.get_artistAmount()]
+                            _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
+                            _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
                     },
                     LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2)
                 )
@@ -310,38 +309,75 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetGigs() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
-            Gig gig = event.get_gigs().get(_random.nextInt(event.get_gigs().size()-1));
+            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            int index = _random.nextInt(arrangement.get_gigs().size());
+            Gig updated = arrangement.get_gigs().get(index);
+            updated.set_title("This gig has been changed!");
 
-            //act(() -> event.set());
+            act(() -> arrangement.set(updated));
+
+            asserting(arrangement.get_gigs().get(index).get_title(), updated.get_title());
         });
     }
 
     private void canSetRequest() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            int index = _random.nextInt(arrangement.get_requests().size());
+            Request request = arrangement.get_requests().get(index);
+            request.set_title("This request has been changed!");
 
+            act(() -> arrangement.set(request));
+
+            asserting(arrangement.get_requests().get(index).get_title(), request.get_title());
         });
     }
 
     private void canSetParticipation() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            int index = _random.nextInt(arrangement.get_participations().size());
+            Participation participation = arrangement.get_participations().get(index);
+            participation.set_type(new Supplier<Participation.ParticipationType>() {
+                @Override
+                public Participation.ParticipationType get() {
+                    Participation.ParticipationType type = Participation.ParticipationType.CANCELED;
+                    if (type == participation.get_type())
+                        type = Participation.ParticipationType.ACCEPTED;
 
+                    return type;
+                }
+            }.get());
+
+            act(() -> arrangement.set(participation));
+
+            asserting(arrangement.get_participations().get(index).get_type(), participation.get_type());
         });
     }
 
     private void canSetBulletin() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            int bulletinIndex = _random.nextInt(arrangement.get_bulletins().size());
+            Bulletin bulletin = arrangement.get_bulletins().get(bulletinIndex);
+            bulletin.set_title("This bulletin has been changed!");
 
+            act(() -> arrangement.set(bulletin));
+
+            asserting(arrangement.get_bulletins().get(bulletinIndex).get_title(),bulletin.get_title());
         });
     }
 
     private void canSetAlbum() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            int index = _random.nextInt(arrangement.get_albums().size());
+            Album album = arrangement.get_albums().get(index);
+            album.set_title("This album has been changed!");
 
+            act(() -> arrangement.set(album));
+
+            asserting(arrangement.get_albums().get(index).get_title(),album.get_title());
         });
     }
 

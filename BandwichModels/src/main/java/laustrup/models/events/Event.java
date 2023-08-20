@@ -24,6 +24,7 @@ import lombok.Setter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
+import java.util.Objects;
 
 import static laustrup.services.DTOService.convertFromDTO;
 import static laustrup.services.ObjectService.ifExists;
@@ -602,7 +603,7 @@ public class Event extends Model {
     }
 
     /**
-     * Sets a Participation, by comparing the participants' ids.
+     * Sets a Participation's type, by comparing the participants' ids.
      * @param participation The Participation that is wished to be set.
      * @return If the Participation is set successfully, it will return the Participation, else it will return null.
      */
@@ -613,6 +614,64 @@ public class Event extends Model {
                 return _participations.Get(i);
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Sets a Bulletin, by comparing the two ids.
+     * @param bulletin The Bulletin that is wished to be set.
+     * @return If the Bulletin is set successfully, it will return the Bulletin, else it will return null.
+     */
+    public Bulletin set(Bulletin bulletin) {
+        for (int i = 1; i <= _bulletins.size(); i++) {
+            Bulletin localBulletin = _bulletins.Get(i);
+
+            if (localBulletin.get_primaryId() == bulletin.get_primaryId()) {
+                _bulletins.Set(i, bulletin);
+                return _bulletins.Get(i);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets a Request, by comparing the two ids of each Request.
+     * @param request The Request that is wished to be set.
+     * @return If the Request is set successfully, it will return the Request, else it will return null.
+     */
+    public Request set(Request request) {
+        for (int i = 1; i <= _requests.size(); i++) {
+            Request localRequest = _requests.Get(i);
+
+            if (
+                localRequest.get_primaryId() == request.get_primaryId()
+                && Objects.equals(localRequest.get_secondaryId(), request.get_secondaryId())
+            ) {
+               _requests.Set(i, request);
+               return _requests.Get(i);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets an Album, by comparing the two ids of each Album.
+     * @param album The Album that is wished to be set.
+     * @return If the Album is set successfully, it will return the Album, else it will return null.
+     */
+    public Album set(Album album) {
+        for (int i = 1; i <= _albums.size(); i++) {
+            Album localAlbum = _albums.Get(i);
+
+            if (localAlbum.get_primaryId() == album.get_primaryId()) {
+                _albums.Set(i, album);
+                return _albums.Get(i);
+            }
+        }
+
         return null;
     }
 
