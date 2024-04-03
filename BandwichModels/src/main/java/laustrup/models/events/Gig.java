@@ -1,48 +1,45 @@
 package laustrup.models.events;
 
 import laustrup.models.Model;
-import laustrup.dtos.events.GigDTO;
-import laustrup.dtos.users.sub_users.PerformerDTO;
 import laustrup.models.users.sub_users.Performer;
+import laustrup.services.DTOService;
 
 import laustrup.utilities.collections.lists.Liszt;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.models.users.sub_users.Performer.PerformerDTO;
 
 /** Determines a specific gig of one band for a specific time. */
+@Getter @Setter
 public class Gig extends Model {
 
     /** The Event of this Gig. */
-    @Getter
     private Event _event;
 
     /** This act is of a Gig and can both be assigned as artists or bands. */
-    @Getter
     private Liszt<Performer> _act;
 
     /** The start of the Gig, where the act will begin. */
-    @Getter @Setter
     private LocalDateTime _start;
 
     /** The end of the Gig, where the act will end. */
-    @Getter @Setter
     private LocalDateTime _end;
 
-    public Gig(GigDTO gig) {
-        super(gig.getPrimaryId(), "Gig:"+gig.getPrimaryId(), gig.getTimestamp());
+    public Gig(DTO gig) {
+        super(gig);
         _event = new Event(gig.getEvent());
         _act = convert(gig.getAct());
         _start = gig.getStart();
         _end = gig.getEnd();
     }
-    private Liszt<Performer> convert(PerformerDTO[] act) {
+    private Liszt<Performer> convert(Performer.DTO[] act) {
         Liszt<Performer> performances = new Liszt<>();
-        for (PerformerDTO performerDTO : act)
-            performances.add((Performer) convertFromDTO(performerDTO));
+        for (Performer.DTO performerDTO : act)
+            performances.add((Performer) DTOService.convert(performerDTO));
 
         return performances;
     }
@@ -56,7 +53,7 @@ public class Gig extends Model {
         this(act.get_data());
     }
 
-    public Gig(long id, Event event, Performer[] act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
+    public Gig(UUID id, Event event, Performer[] act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
         super(id, "Gig:"+id, timestamp);
         _event = event;
         _act = new Liszt<>(act);
@@ -107,5 +104,36 @@ public class Gig extends Model {
             ",start:" + _start.toString() +
             ",end:" + _end.toString() +
         ")";
+    }
+
+    /** Determines a specific gig of one band for a specific time. */
+    @Getter
+    public static class DTO extends ModelDTO {
+
+        /** The Event of this Gig. */
+        private Event.DTO event;
+
+        /** This act is of a Gig and can both be assigned as artists or bands. */
+        private PerformerDTO[] act;
+
+        /** The start of the Gig, where the act will begin. */
+        private LocalDateTime start;
+
+        /** The end of the Gig, where the act will end. */
+        private LocalDateTime end;
+
+        /**
+         * Converts into this DTO Object.
+         * @param gig The Object to be converted.
+         */
+        public DTO(Gig gig) {
+            super(gig);
+            event = new Event.DTO(gig.get_event());
+            act = new PerformerDTO[gig.get_act().size()];
+            for (int i = 0; i < act.length; i++)
+                act[i] = (PerformerDTO) DTOService.convert(gig.get_act().get(i));
+            start = gig.get_start();
+            end = gig.get_end();
+        }
     }
 }

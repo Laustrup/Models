@@ -81,7 +81,7 @@ public abstract class TestCollections {
      * @return The made String of collections.
      */
     public String showItems() {
-        return Printer.get_instance().toString(new Object[]{
+        return Printer.toString(new Object[]{
                 Arrays.toString(_participants),
                 Arrays.toString(_artists),
                 Arrays.toString(_bands),

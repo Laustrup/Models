@@ -1,8 +1,6 @@
 package laustrup.models;
 
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.dtos.events.EventDTO;
-import laustrup.dtos.users.UserDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.services.DTOService;
@@ -10,7 +8,7 @@ import laustrup.services.DTOService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static laustrup.services.DTOService.convertToDTO;
+import static laustrup.models.users.User.UserDTO;
 
 /**
  * Is used for response of a search request,
@@ -27,14 +25,14 @@ public class Search {
     /**
      * All the Events that contains similarities with a search query.
      */
-    private EventDTO[] events;
+    private Event.DTO[] events;
 
     public Search(Liszt<User> users, Liszt<Event> events) {
         this.users = new UserDTO[users.size()];
         for (int i = 0; i < this.users.length; i++)
-            this.users[i] = convertToDTO(users.Get(i+1));
-        this.events = new EventDTO[events.size()];
+            this.users[i] = DTOService.convert(users.Get(i+1));
+        this.events = new Event.DTO[events.size()];
         for (int i = 0; i < this.events.length; i++)
-            this.events[i] = new EventDTO(events.Get(i+1));
+            this.events[i] = new Event.DTO(events.Get(i+1));
     }
 }

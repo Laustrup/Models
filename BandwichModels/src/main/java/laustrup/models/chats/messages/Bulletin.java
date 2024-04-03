@@ -1,64 +1,39 @@
 package laustrup.models.chats.messages;
 
 import laustrup.models.Model;
-import laustrup.dtos.chats.messages.BulletinDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
+import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static laustrup.services.DTOService.convertFromDTO;
-
-/** A kind of post, that can be attached to every kind of Model. */
+@Getter
 public class Bulletin extends Message {
 
-    /** The Model class that this Bulletin will be posted to. */
-    @Getter
     public Model _receiver;
 
-    /**
-     * Converts a Data Transport Object into this object.
-     * @param bulletin The Data Transport Object that will be converted.
-     */
-    public Bulletin(BulletinDTO bulletin) {
-        super(bulletin.getPrimaryId(), convertFromDTO(bulletin.getAuthor()),
-                bulletin.getContent(), bulletin.isSent(), new Plato(bulletin.getIsEdited()), bulletin.isPublic(),
-                bulletin.getTimestamp());
-        _receiver = convertFromDTO(bulletin.getReceiver());
+    public Bulletin(DTO bulletin) {
+        super(bulletin);
+        _receiver = DTOService.convert(bulletin.getReceiver());
     }
-
-    /**
-     * Contains all its values as parameters, are meant for building from database.
-     * @param id The unique id of this Bulletin.
-     * @param author The creator of this Bulletin.
-     * @param receiver The Model that the Bulletin is meant for.
-     * @param content The message content of this Bulletin.
-     * @param isSent Determines if it has been sent yet or is a draft.
-     * @param isEdited Determines if it has been edited or changed after it has been changes.
-     * @param isPublic Determines if it is allowed to be view by other than the author.
-     * @param timestamp The date and time this Bulletin was sent.
-     */
-    public Bulletin(long id, User author, Model receiver, String content,
+    public Bulletin(UUID id, User author, Model receiver, String content,
                     boolean isSent, Plato isEdited, boolean isPublic,
                     LocalDateTime timestamp) {
         super(id, author, content, isSent, isEdited, isPublic, timestamp);
         _receiver = receiver;
     }
 
-    /**
-     * For when a creating a new Bulletin.
-     * @param author The creator of this Bulletin.
-     * @param receiver The Model that the Bulletin is meant for.
-     * @param content The message content of this Bulletin.
-     */
+    public Bulletin(UUID id, String content, boolean isSent, Plato isEdited, boolean isPublic, LocalDateTime timestamp) {
+        super(id, null, content, isSent, isEdited, isPublic, timestamp);
+    }
+
     public Bulletin(User author, User receiver, String content) {
         super(author);
         _receiver = receiver;
         _content = content;
-        _sent = false;
-        _edited = new Plato();
     }
 
     @Override
@@ -82,5 +57,21 @@ public class Bulletin extends Message {
                         String.valueOf(_timestamp)
                 }
         );
+    }
+
+    @Getter
+    public static class DTO extends Message.DTO {
+
+        /** The Model that are receiving this Bulletin. */
+        public ModelDTO receiver;
+
+        /**
+         * Converts into this DTO Object.
+         * @param bulletin The Object to be converted.
+         */
+        public DTO(Bulletin bulletin) {
+            super(bulletin);
+            receiver = DTOService.convert(bulletin.get_receiver());
+        }
     }
 }

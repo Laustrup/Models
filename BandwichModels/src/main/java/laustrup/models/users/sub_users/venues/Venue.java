@@ -6,8 +6,6 @@ import laustrup.models.albums.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.dtos.chats.RequestDTO;
-import laustrup.dtos.users.sub_users.venues.VenueDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
@@ -18,38 +16,36 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * A Venue can be the host to an Event and contains different information about
  * itself and the opportunities for Events.
  * Extends from User, which means it also contains ChatRooms and other alike attributes.
  */
+@Getter
 public class Venue extends User {
 
     /** The location that the Venue is located at, which could be an address or simple a place. */
-    @Getter @Setter
+    @Setter
     private String _location;
 
     /** The description of the gear that the Venue posses. */
-    @Getter @Setter
+    @Setter
     private String _gearDescription;
 
     /** All the Events that this Venue has planned. */
-    @Getter
     private Liszt<Event> _events;
 
     /** The size of the stage and room, that Events can be held at. */
-    @Getter @Setter
+    @Setter
     private int _size;
 
     /** The Requests requested for this Venue. */
-    @Getter
     private Liszt<Request> _requests;
 
-    public Venue(VenueDTO venue) {
-        super(venue.getPrimaryId(), venue.getUsername(), venue.getDescription(), new ContactInfo(venue.getContactInfo()),
-                venue.getAlbums(), venue.getRatings(), venue.getEvents(), venue.getChatRooms(),
-                new Subscription(venue.getSubscription()), venue.getBulletins(), Authority.VENUE, venue.getTimestamp());
+    public Venue(DTO venue) {
+        super(venue);
 
         if (venue.getLocation() == null)
             _location = _contactInfo.getAddressInfo();
@@ -60,19 +56,15 @@ public class Venue extends User {
         _size = venue.getSize();
 
         _requests = new Liszt<>();
-        for (RequestDTO request : venue.getRequests())
+        for (Request.DTO request : venue.getRequests())
             _requests.add(new Request(request));
     }
-    public Venue(long id) {
-        super(id, Authority.VENUE);
-    }
-    public Venue(long id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
+    public Venue(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
                  Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, String location,
-                 String gearDescription, Subscription.Status subscriptionStatus, SubscriptionOffer subscriptionOffer,
+                 String gearDescription, Subscription subscription,
                  Liszt<Bulletin> bulletins, int size, Liszt<Request> requests, LocalDateTime timestamp) {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
-                new Subscription(new Venue(id), Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, null),
-                bulletins, Authority.VENUE, timestamp);
+                subscription, bulletins, Authority.VENUE, timestamp);
 
         if (location == null)
             _location = _contactInfo.getAddressInfo();
@@ -88,8 +80,7 @@ public class Venue extends User {
 
     public Venue(String username, String description, String location, String gearDescription, int size) {
         super(username, null, null, description,
-                new Subscription(new Venue(0), Subscription.Type.FREEMIUM,
-                        Subscription.Status.ACCEPTED, null, null), Authority.VENUE);
+                null, Authority.VENUE);
 
         if (location == null)
             _location = _contactInfo.getAddressInfo();
@@ -181,5 +172,60 @@ public class Venue extends User {
                 ",gearDescription="+_gearDescription+
                 ",timestamp="+_timestamp+
                 ")";
+    }
+
+    /**
+     * A Venue can be the host to an Event and contains different information about
+     * itself and the opportunities for Events.
+     * Extends from User, which means it also contains ChatRooms and other alike attributes.
+     */
+    @Getter @Setter
+    public static class DTO extends UserDTO {
+
+        /**
+         * The location that the Venue is located at, which could be an address or simple a place.
+         */
+        private String location;
+
+        /**
+         * The description of the gear that the Venue posses.
+         */
+        private String gearDescription;
+
+        /**
+         * The size of the stage and room, that Events can be held at.
+         */
+        private int size;
+
+        /**
+         * The Requests requested for this Venue.
+         */
+        private Request.DTO[] requests;
+
+        public DTO(Venue venue) {
+            super(venue);
+
+            location = venue.get_location();
+
+            gearDescription = venue.get_gearDescription();
+            size = venue.get_size();
+            requests = new Request.DTO[venue.get_requests().size()];
+            for (int i = 0; i < requests.length; i++)
+                requests[i] = new Request.DTO(venue.get_requests().Get(i+1));
+        }
+
+        public DTO(User user) {
+            super(user);
+
+            if (user.get_authority() == User.Authority.VENUE) {
+                location = ((Venue) user).get_location();
+
+                gearDescription = ((Venue) user).get_gearDescription();
+                size = ((Venue) user).get_size();
+                requests = new Request.DTO[((Venue) user).get_requests().size()];
+                for (int i = 0; i < requests.length; i++)
+                    requests[i] = new Request.DTO(((Venue) user).get_requests().Get(i+1));
+            }
+        }
     }
 }

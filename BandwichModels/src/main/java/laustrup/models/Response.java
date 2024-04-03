@@ -19,10 +19,18 @@ public class Response<E> {
     private E element;
 
     /**
-     * An enum that is a status title of the situation.
+     * An enum that is a status title of the response.
      * Is used for determining the message.
+     * Difference from Situation is that this is about the Response itself.
      */
     private StatusType status;
+
+    /**
+     * Simply said, this is used to describe a relevant situation.
+     * Useful to identify an incident or change.
+     * Difference from status is that this is about the body of the Response.
+     */
+    private String situation;
 
     /**
      * This will be printed to inform the enduser of the situation
@@ -36,13 +44,26 @@ public class Response<E> {
      */
     private boolean error = false;
 
-    public Response(E element) {
+    /**
+     * Sets the status to OK.
+     * @param element The element which is considered the body of the response.
+     * @param situation The situation of the body.
+     */
+    public Response(E element, Situation situation) {
         this.element = element;
+        this.situation = situation.get_message();
         status = StatusType.OK;
     }
 
-    public Response(E element, StatusType status) {
+    /**
+     * Will also set the message according to the status and element.
+     * @param element The element which is considered the body of the response.
+     * @param situation The situation of the body.
+     * @param status The status for the Response.
+     */
+    public Response(E element, Situation situation, StatusType status) {
         this.element = element;
+        this.situation = situation.get_message();
         this.status = status;
         message = setMessage();
     }
@@ -167,7 +188,7 @@ public class Response<E> {
                     return "Unknown issue for response...";
                 }
                 default -> {
-                    Printer.get_instance().print("No message to write in response...");
+                    Printer.print("No message to write in response...");
                     return new String();
                 }
             }

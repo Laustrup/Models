@@ -1,13 +1,6 @@
 package laustrup.services;
 
 import laustrup.models.Model;
-import laustrup.dtos.ModelDTO;
-import laustrup.dtos.events.EventDTO;
-import laustrup.dtos.users.UserDTO;
-import laustrup.dtos.users.sub_users.bands.ArtistDTO;
-import laustrup.dtos.users.sub_users.bands.BandDTO;
-import laustrup.dtos.users.sub_users.participants.ParticipantDTO;
-import laustrup.dtos.users.sub_users.venues.VenueDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
@@ -15,52 +8,97 @@ import laustrup.models.users.sub_users.bands.Band;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.sub_users.venues.Venue;
 
+import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.Model.ModelDTO;
+
+/** Mostly used to convert Objects. */
 public class DTOService extends Service {
 
-    public static User convertFromDTO(UserDTO user) {
-        if (user != null)
-            switch (user.getClass().getSimpleName()) {
-                case "Venue" -> { return new Venue((VenueDTO) user); }
-                case "Artist" -> { return new Artist((ArtistDTO) user); }
-                case "Band" -> { return new Band((BandDTO) user); }
-                case "Participant" -> { return new Participant((ParticipantDTO) user); }
-                default -> { return null; }
-            }
-        else
-            return null;
+    /**
+     * Converts from DTO Object.
+     * @param user The Object to be converted.
+     * @return The converted Object.
+     */
+    public static User convert(UserDTO user) {
+        return user == null ? null : switch (user.getAuthority()) {
+            case VENUE -> new Venue((Venue.DTO) user);
+            case ARTIST -> new Artist((Artist.DTO) user);
+            case BAND -> new Band((Band.DTO) user);
+            case PARTICIPANT -> new Participant((Participant.DTO) user);
+        };
     }
 
-    public static Model convertFromDTO(ModelDTO model) {
-        switch (model.getClass().getName()) {
-            case "VENUE" -> { return new Venue((VenueDTO) model); }
-            case "ARTIST" -> { return new Artist((ArtistDTO) model); }
-            case "BAND" -> { return new Band((BandDTO) model); }
-            case "PARTICIPANT" -> { return new Participant(((ParticipantDTO) model)); }
-            default -> { return new Event((EventDTO) model); }
-        }
+    /**
+     * Converts to DTO Object.
+     * @param user The Object to be converted.
+     * @return The converted Object.
+     */
+    public static UserDTO convert(User user) {
+        return user == null || user.get_authority() == null ? null : switch (user.get_authority()) {
+            case VENUE -> new Venue.DTO(user);
+            case ARTIST -> new Artist.DTO((Artist) user);
+            case BAND -> new Band.DTO((Band) user);
+            case PARTICIPANT -> new Participant.DTO(user);
+        };
     }
 
-    public static UserDTO convertToDTO(User user) {
-        if (user != null)
-            switch (user.getClass().getSimpleName()) {
-                case "Venue" -> { return new VenueDTO(user); }
-                case "Artist" -> { return new ArtistDTO(user); }
-                case "Band" -> { return new BandDTO(user); }
-                case "Participant" -> { return new ParticipantDTO(user); }
-                default -> { return null; }
-            }
-        else
-            return null;
+    /**
+     * Converts from DTO Object.
+     * @param model The Object to be converted.
+     * @return The converted Object.
+     */
+    public static Model convert(ModelDTO model) {
+        return model == null ? null : switch (model.getClass().getName()) {
+            case "VENUE" -> new Venue((Venue.DTO) model);
+            case "ARTIST" -> new Artist((Artist.DTO) model);
+            case "BAND" -> new Band((Band.DTO) model);
+            case "PARTICIPANT" -> new Participant(((Participant.DTO) model));
+            case "EVENT" -> new Event((Event.DTO) model);
+            default -> null;
+        };
     }
 
-    public static ModelDTO convertToDTO(Model model) {
-        switch (model.getClass().getSimpleName()) {
-            case "Venue" -> { return new VenueDTO((Venue) model); }
-            case "Artist" -> { return new ArtistDTO((Artist) model); }
-            case "Band" -> { return new BandDTO((Band) model); }
-            case "Participant" -> { return new ParticipantDTO(((Participant) model)); }
-            case "Event" -> { return new EventDTO((Event) model); }
-            default -> { return null; }
-        }
+    /**
+     * Converts to DTO Object.
+     * @param model The Object to be converted.
+     * @return The converted Object.
+     */
+    public static ModelDTO convert(Model model) {
+        return model == null ? null : switch (model.getClass().getName()) {
+            case "VENUE" ->  new Venue.DTO((Venue) model);
+            case "ARTIST" -> new Artist.DTO((Artist) model);
+            case "BAND" -> new Band.DTO((Band) model);
+            case "PARTICIPANT" -> new Participant.DTO(((Participant) model));
+            case "EVENT" -> new Event.DTO((Event) model);
+            default -> null;
+        };
+    }
+
+    /**
+     * Converts from DTO Object.
+     * @param authority The Object to be converted.
+     * @return The converted Object.
+     */
+    public static User.Authority convert(UserDTO.Authority authority) {
+        return authority == null ? null : switch (authority) {
+            case VENUE -> User.Authority.VENUE;
+            case ARTIST -> User.Authority.ARTIST;
+            case BAND -> User.Authority.BAND;
+            case PARTICIPANT -> User.Authority.PARTICIPANT;
+        };
+    }
+
+    /**
+     * Converts to DTO Object.
+     * @param authority The Object to be converted.
+     * @return The converted Object.
+     */
+    public static UserDTO.Authority convert(User.Authority authority) {
+        return authority == null ? null : switch (authority) {
+            case VENUE -> UserDTO.Authority.VENUE;
+            case ARTIST -> UserDTO.Authority.ARTIST;
+            case BAND -> UserDTO.Authority.BAND;
+            case PARTICIPANT -> UserDTO.Authority.PARTICIPANT;
+        };
     }
 }

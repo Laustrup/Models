@@ -6,9 +6,6 @@ import laustrup.models.albums.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.dtos.chats.RequestDTO;
-import laustrup.dtos.users.sub_users.bands.ArtistDTO;
-import laustrup.dtos.users.sub_users.bands.BandDTO;
 import laustrup.models.events.Event;
 import laustrup.models.events.Gig;
 import laustrup.models.users.User;
@@ -20,46 +17,39 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * An Artist can either be a solo Performer or member of a Band, which changes the Subscription, if it ain't freemium.
  * Extends from Performer.
  */
+@Getter
 public class Artist extends Performer {
 
     /** The Bands that the Artist is a member of. */
-    @Getter
     private Liszt<Band> _bands;
 
     /** A description of the gear, that the Artist possesses and what they require for an Event. */
-    @Getter @Setter
+    @Setter
     private String _runner;
 
     /** The Requests requested for this Artist. */
-    @Getter
     private Liszt<Request> _requests;
 
-    public Artist(ArtistDTO artist) {
-        super(artist.getPrimaryId(), artist.getUsername(), artist.getFirstName(), artist.getLastName(),
-                artist.getDescription(), new ContactInfo(artist.getContactInfo()), Authority.ARTIST, artist.getAlbums(),
-                artist.getRatings(), artist.getEvents(), artist.getGigs(), artist.getChatRooms(),
-                new Subscription(artist.getSubscription()), artist.getBulletins(), artist.getFans(), artist.getIdols(),
-                artist.getTimestamp());
+    public Artist(DTO artist) {
+        super(artist);
         _bands = new Liszt<>();
-        for (BandDTO band : artist.getBands())
+        for (Band.DTO band : artist.getBands())
             _bands.add(new Band(band));
 
         _runner = artist.getRunner();
 
         _requests = new Liszt<>();
-        for (RequestDTO request : artist.getRequests())
+        for (Request.DTO request : artist.getRequests())
             _requests.add(new Request(request));
     }
-    public Artist(long id) {
-        super(id,Authority.ARTIST);
-    }
 
-    public Artist(long id, String username, String firstName, String lastName, String description,
+    public Artist(UUID id, String username, String firstName, String lastName, String description,
                   ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                   Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins,
                   Liszt<Band> bands, String runner, Liszt<User> fans, Liszt<User> idols, Liszt<Request> requests,
@@ -135,5 +125,37 @@ public class Artist extends Performer {
                     ",timestamp="+_timestamp+
                     ",runner="+_runner+
                 ")";
+    }
+
+    /**
+     * An Artist can either be a solo Performer or member of a Band, which changes the Subscription, if it ain't freemium.
+     * Extends from Performer.
+     */
+    @Getter @Setter
+    public static class DTO extends PerformerDTO {
+
+        /** The Bands that the Artist is a member of. */
+        private Band.DTO[] bands;
+
+        /** A description of the gear, that the Artist possesses and what they require for an Event. */
+        private String runner;
+
+        /** The Requests requested for this Artist. */
+        private Request.DTO[] requests;
+
+        /**
+         * Converts into this DTO Object.
+         * @param artist The Object to be converted.
+         */
+        public DTO(Artist artist) {
+            super(artist);
+            bands = new Band.DTO[artist.get_bands().size()];
+            for (int i = 0; i < bands.length; i++)
+                bands[i] = new Band.DTO(artist.get_bands().Get(i+1));
+            runner = artist.get_runner();
+            requests = new Request.DTO[artist.get_requests().size()];
+            for (int i = 0; i < requests.length; i++)
+                requests[i] = new Request.DTO(artist.get_requests().Get(i+1));
+        }
     }
 }

@@ -1,9 +1,10 @@
 package laustrup.models.users;
 
 import laustrup.utilities.console.Printer;
-import laustrup.dtos.users.LoginDTO;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.InputMismatchException;
  * Is use for logging in a user.
  * Can check validations of email and password.
  */
+@Getter
 @ToString
 public class Login {
 
@@ -20,23 +22,20 @@ public class Login {
      * The title used for a user.
      * Can also be as an email, since it's possible to log in with email.
      */
-    @Getter
     private String _username;
 
     /**
      * This makes sure, that the user is allowed to log in.
      * The length must be 7, also must contain a special character and number.
      */
-    @Getter
     private String _password;
 
     /**
      * Specifies the time this entity was created.
      */
-    @Getter
     private LocalDateTime _timestamp;
 
-    public Login(LoginDTO login) {
+    public Login(DTO login) {
         this(login.getUsername(), login.getPassword());
     }
     public Login(String username, String password) {
@@ -91,10 +90,10 @@ public class Login {
             if (sections.length == 2 && !sections[0].isEmpty()) {
                 try {
                     sections = separateEmailSection(sections);
-                    Printer.get_instance().print(sections);
+                    Printer.print(sections);
                     return true;
                 } catch (InputMismatchException e) {
-                    Printer.get_instance().print("Email is missing an ending...",e);
+                    Printer.print("Email is missing an ending...",e);
                     return false;
                 }
             }
@@ -120,5 +119,37 @@ public class Login {
             return storage;
         }
         throw new InputMismatchException();
+    }
+
+    /**
+     * Is use for logging in a user.
+     * Can check validations of email and password.
+     */
+    @NoArgsConstructor
+    @Data
+    public static class DTO {
+
+        /**
+         * The title used for a user.
+         * Can also be as an email, since it's possible to log in with email.
+         */
+        private String username;
+
+        /**
+         * This makes sure, that the user is allowed to log in.
+         * The length must be 7, also must contain a special character and number.
+         */
+        private String password;
+
+        /**
+         * Specifies the time this entity was created.
+         */
+        private LocalDateTime timestamp;
+
+        public DTO(Login login) {
+            username = login.get_username();
+            password = login.get_password();
+            timestamp = login.get_timestamp();
+        }
     }
 }

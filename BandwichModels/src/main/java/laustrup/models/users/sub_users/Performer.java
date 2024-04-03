@@ -1,18 +1,11 @@
 package laustrup.models.users.sub_users;
 
+import laustrup.services.DTOService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.dtos.RatingDTO;
-import laustrup.dtos.albums.AlbumDTO;
-import laustrup.dtos.chats.ChatRoomDTO;
-import laustrup.dtos.chats.messages.BulletinDTO;
-import laustrup.dtos.events.EventDTO;
-import laustrup.dtos.events.GigDTO;
-import laustrup.dtos.users.UserDTO;
-import laustrup.dtos.users.sub_users.PerformerDTO;
 import laustrup.models.events.Event;
 import laustrup.models.events.Gig;
 import laustrup.models.users.User;
@@ -21,84 +14,42 @@ import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
-
-import static laustrup.services.DTOService.convertFromDTO;
+import java.util.UUID;
 
 /**
  * An abstract class object, that can be extended by classes such as Artist and Band.
  * Extends from User.
  */
+@Getter
 public abstract class Performer extends Participant {
 
     /**
      * Describes all the gigs, that the Performer is a part of an act.
      */
-    @Getter
     protected Liszt<Gig> _gigs;
 
     /**
      * All the participants that are following this Performer, is included here.
      */
-    @Getter
     protected Liszt<User> _fans;
 
-    public Performer(long id, String username, String firstName, String lastName, String description,
-                     ContactInfo contactInfo, Authority authority, AlbumDTO[] albums, RatingDTO[] ratings,
-                     EventDTO[] events, GigDTO[] gigs, ChatRoomDTO[] chatRooms, Subscription subscription,
-                     BulletinDTO[] bulletins, UserDTO[] fans, UserDTO[] idols, LocalDateTime timestamp) {
-        super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events,
-                chatRooms, subscription, bulletins, idols, timestamp);
-        _authority = authority;
-
-        _gigs = new Liszt<>();
-        for (GigDTO gig : gigs)
-            _gigs.add(new Gig(gig));
-
-        _fans = new Liszt<>();
-        for (UserDTO fan : fans)
-            _fans.add(convertFromDTO(fan));
-    }
-    public Performer(long id, String username, String description, ContactInfo contactInfo, Authority authority,
-                     AlbumDTO[] albums, RatingDTO[] ratings, EventDTO[] events, GigDTO[] gigs, ChatRoomDTO[] chatRooms,
-                     Subscription subscription, BulletinDTO[] bulletins, UserDTO[] fans, UserDTO[] idols, LocalDateTime timestamp) {
-        super(id, username, "", "", description, contactInfo, albums, ratings, events, chatRooms, subscription,
-                bulletins, idols, timestamp);
-        _authority = authority;
-
-        _gigs = new Liszt<>();
-        if (gigs != null)
-            for (GigDTO gig : gigs)
-                _gigs.add(new Gig(gig));
-
-        _fans = new Liszt<>();
-        if (fans != null)
-            for (UserDTO fan : fans)
-                _fans.add(convertFromDTO(fan));
-    }
     public Performer(PerformerDTO performer) {
-        super(performer.getPrimaryId(), performer.getUsername(), performer.getFirstName(), performer.getLastName(),
-                performer.getDescription(), new ContactInfo(performer.getContactInfo()), performer.getAlbums(),
-                performer.getRatings(), performer.getEvents(), performer.getChatRooms(),
-                new Subscription(performer.getSubscription()), performer.getBulletins(), performer.getIdols(),
-                performer.getTimestamp());
+        super(performer);
         _authority = Authority.valueOf(performer.getAuthority().toString());
 
         _gigs = new Liszt<>();
-        for (GigDTO gig : performer.getGigs())
+        for (Gig.DTO gig : performer.getGigs())
             _gigs.add(new Gig(gig));
 
         _fans = new Liszt<>();
         for (UserDTO fan : performer.getFans())
-            _fans.add(convertFromDTO(fan));
+            _fans.add(DTOService.convert(fan));
     }
 
-    public Performer(long id, Authority authority) {
-        super(id,authority);
-    }
-
-    public Performer(long id, String username, String firstName, String lastName, String description,
+    public Performer(UUID id, String username, String firstName, String lastName, String description,
                      ContactInfo contactInfo, Authority authority, Liszt<Album> albums, Liszt<Rating> ratings,
                      Liszt<Event> events, Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms, Subscription subscription,
                      Liszt<Bulletin> bulletins, Liszt<User> fans, Liszt<User> idols, LocalDateTime timestamp) {
@@ -109,7 +60,7 @@ public abstract class Performer extends Participant {
         _fans = fans;
     }
 
-    public Performer(long id, String username, String description, ContactInfo contactInfo, Authority authority,
+    public Performer(UUID id, String username, String description, ContactInfo contactInfo, Authority authority,
                      Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events, Liszt<Gig> gigs,
                      Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins, Liszt<User> fans,
                      Liszt<User> idols, LocalDateTime timestamp) {
@@ -142,7 +93,7 @@ public abstract class Performer extends Participant {
      * @return If the id of the card is already set, it will return null,
      * otherwise it will return the Subscription of the User.
      */
-    public Subscription set_cardId(long id) {
+    public Subscription set_cardId(UUID id) {
         if (_subscription.get_cardId() == null) {
             _subscription.set_cardId(id);
             return _subscription;
@@ -185,15 +136,44 @@ public abstract class Performer extends Participant {
      * @param fan An object of Fan, that is wished to be added.
      * @return The whole Liszt of fans.
      */
-    public Liszt<User> addFan(User fan) { return addFans(new User[]{fan}); }
+    public Liszt<User> add(User fan) { return add(new User[]{fan}); }
 
     /**
      * Adds Fans to the Liszt of fans.
      * @param fans An array of fans, that is wished to be Added.
      * @return The whole Liszt of fans.
      */
-    public Liszt<User> addFans(User[] fans) {
+    public Liszt<User> add(User[] fans) {
         _fans.add(fans);
         return _fans;
+    }
+
+    /**
+     * An abstract class object, that can be extended by classes such as Artist and Band.
+     * Extends from User.
+     */
+    @Getter @Setter
+    public static class PerformerDTO extends Participant.DTO {
+
+        /** Describes all the gigs, that the Performer is a part of an act. */
+        public Gig.DTO[] gigs;
+
+        /** All the participants that are following this Performer, is included here. */
+        public UserDTO[] fans;
+
+        /**
+         * Converts into this DTO Object.
+         * @param performer The Object to be converted.
+         */
+        public PerformerDTO(Performer performer) {
+            super(performer);
+            authority = DTOService.convert(performer.get_authority());
+            gigs = new Gig.DTO[performer.get_gigs().size()];
+            for (int i = 0; i < gigs.length; i++)
+                gigs[i] = new Gig.DTO(performer.get_gigs().get(i));
+            fans = new UserDTO[performer.get_fans().size()];
+            for (int i = 0; i < fans.length; i++)
+                fans[i] = DTOService.convert(performer.get_fans().get(i));
+        }
     }
 }

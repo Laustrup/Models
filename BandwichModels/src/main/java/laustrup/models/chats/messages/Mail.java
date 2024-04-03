@@ -1,58 +1,36 @@
 package laustrup.models.chats.messages;
 
-import laustrup.dtos.chats.ChatRoomDTO;
 import laustrup.models.chats.ChatRoom;
-import laustrup.dtos.chats.messages.MailDTO;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static laustrup.services.DTOService.convertFromDTO;
-import static laustrup.services.ObjectService.ifExists;
-
-/** A message that will be connected to a ChatRoom */
+@Getter
 public class Mail extends Message {
 
-    /** The ChatRoom this Mail is included in. */
-    @Getter
     private ChatRoom _chatRoom;
 
-    /**
-     * Converts a Data Transport Object into this object.
-     * @param mail The Data Transport Object that will be converted.
-     */
-    public Mail(MailDTO mail) {
-        super(mail.getPrimaryId(), convertFromDTO(mail.getAuthor()),
-                mail.getContent(), mail.isSent(), new Plato(mail.getIsEdited()), mail.isPublic(), mail.getTimestamp());
-        _chatRoom = (ChatRoom) ifExists(mail.getChatRoom(), e -> new ChatRoom((ChatRoomDTO) e));
+    public Mail(DTO mail) {
+        super(mail);
+        _chatRoom = new ChatRoom(mail.getChatRoom());
     }
-
-    /**
-     * Contains all values as parameters, is meant for constructing from database.
-     * @param id The unique id of this Mail.
-     * @param chatRoom The ChatRoom this mail is included in.
-     * @param author The creator of this Mail.
-     * @param content The description content of this Mail.
-     * @param isSent Is this Mail sent?
-     * @param isEdited Is this Mail edited after it is sent?
-     * @param isPublic Is this Mail public at the moment?
-     * @param timestamp The date and time this Mail was sent.
-     */
-    public Mail(long id, ChatRoom chatRoom, User author, String content,
+    public Mail(UUID id, ChatRoom chatRoom, User author, String content,
                 boolean isSent, Plato isEdited, boolean isPublic,
                 LocalDateTime timestamp) {
         super(id, author, content, isSent, isEdited, isPublic, timestamp);
         _chatRoom = chatRoom;
     }
 
-    /**
-     * For creating this Mail.
-     * @param chatRoom The ChatRoom this mail is included in.
-     * @param author The creator of this Mail.
-     */
+    public Mail(UUID id, User author, String content,
+                boolean isSent, Plato isEdited, boolean isPublic,
+                LocalDateTime timestamp) {
+        super(id, author, content, isSent, isEdited, isPublic, timestamp);
+    }
+
     public Mail(ChatRoom chatRoom, User author) {
         super(author);
         _chatRoom = chatRoom;
@@ -103,5 +81,21 @@ public class Mail extends Message {
                     String.valueOf(_timestamp)
                 }
         );
+    }
+
+    @Getter
+    public static class DTO extends Message.DTO {
+
+        /** The ChatRoom that this message exists in. */
+        private ChatRoom.DTO chatRoom;
+
+        /**
+         * Converts into this DTO Object.
+         * @param mail The Object to be converted.
+         */
+        public DTO(Mail mail) {
+            super(mail);
+            chatRoom = new ChatRoom.DTO(mail.get_chatRoom());
+        }
     }
 }

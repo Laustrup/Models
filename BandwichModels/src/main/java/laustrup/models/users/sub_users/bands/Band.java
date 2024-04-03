@@ -1,14 +1,10 @@
 package laustrup.models.users.sub_users.bands;
 
-import laustrup.dtos.users.contact_infos.ContactInfoDTO;
-import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.dtos.users.sub_users.bands.ArtistDTO;
-import laustrup.dtos.users.sub_users.bands.BandDTO;
 import laustrup.models.events.Event;
 import laustrup.models.events.Gig;
 import laustrup.models.users.User;
@@ -22,40 +18,31 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
-
-import static laustrup.services.ObjectService.ifExists;
+import java.util.UUID;
 
 /** Extends performer and contains Artists as members */
+@Getter
 public class Band extends Performer {
 
     /** Contains all the Artists, that are members of this band. */
-    @Getter
     private Liszt<Artist> _members;
 
     /** A description of the gear, that the band possesses and what they require for an Event. */
-    @Getter @Setter
+    @Setter
     private String _runner;
 
-    public Band(BandDTO band) {
-        super(band.getPrimaryId(), band.getUsername(), band.getDescription(),
-                (ContactInfo) ifExists(band.getContactInfo(), e -> new ContactInfo((ContactInfoDTO) e)),
-                Authority.BAND, band.getAlbums(), band.getRatings(), band.getEvents(), band.getGigs(), band.getChatRooms(),
-                (Subscription) ifExists(band.getSubscription(), e -> new Subscription((SubscriptionDTO) e)),
-                band.getBulletins(), band.getFans(), band.getIdols(), band.getTimestamp());
+    public Band(Band.DTO band) {
+        super(band);
         _username = band.getUsername();
 
         _members = new Liszt<>();
-        if (band.getMembers() != null)
-            for (ArtistDTO member : band.getMembers())
-                _members.add(new Artist(member));
+        for (Artist.DTO member : band.getMembers())
+            _members.add(new Artist(member));
 
         _runner = band.getRunner();
     }
-    public Band(long id) {
-        super(id,Authority.BAND);
-    }
 
-    public Band(long id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
+    public Band(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
                 Liszt<Rating> ratings, Liszt<Event> events, Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms,
                 Subscription subscription, Liszt<Bulletin> bulletins, Liszt<Artist> members,
                 String runner, Liszt<User> fans, Liszt<User> idols, LocalDateTime timestamp) {
@@ -121,5 +108,25 @@ public class Band extends Performer {
                     ",timestamp=" + _timestamp +
                     ",runner=" + _runner +
                 ")";
+    }
+
+    /** Extends performer and contains Artists as members */
+    @Getter @Setter
+    public static class DTO extends PerformerDTO {
+
+        /** Contains all the Artists, that are members of this band. */
+        private Artist.DTO[] members;
+
+        /** A description of the gear, that the band possesses and what they require for an Event. */
+        private String runner;
+
+        public DTO(Band band) {
+            super(band);
+            members = new Artist.DTO[band.get_members().size()];
+            for (int i = 0; i < members.length; i++)
+                members[i] = new Artist.DTO(band.get_members().Get(i+1));
+
+            runner = band.get_runner();
+        }
     }
 }

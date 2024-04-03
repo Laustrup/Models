@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * The base of many objects, that share these same attributes.
@@ -15,28 +16,29 @@ public abstract class Model {
     /**
      * The identification value in the database for a specific entity.
      * Must be unique, if there ain't other ids for this entity.
+     * UUIDs are unique hex decimal values of the specific entity.
      */
     @Getter
-    protected long _primaryId;
+    protected UUID _primaryId;
 
     /**
      * Another identification value in the database for a specific entity.
      * Must be unique with primary id.
-     * Is used for incidents, where there are a connection between two entities
+     * Is used for incidents, where there are a connection between two entities,
      * and they are both being used as primary keys
      */
-    protected Long _secondaryId;
+    protected UUID _secondaryId;
 
     /**
      * Gets the secondary id, if there isn't any, it will get the primary id.
      * @return The gathered id.
      */
-    public Long get_secondaryId() {
-        return _secondaryId == null || _secondaryId < 1 ? get_primaryId() : _secondaryId;
+    public UUID get_secondaryId() {
+        return _secondaryId == null ? get_primaryId() : _secondaryId;
     }
 
     /**
-     * The name for an enitity or model.
+     * The name for an entity or model.
      * Can be of different purposes,
      * such as username or simply for naming a unit.
      */
@@ -47,30 +49,49 @@ public abstract class Model {
     @Getter
     protected LocalDateTime _timestamp;
 
-    /** A kind of String message, that can be used to define an incident a message. */
-    @Getter @Setter
-    protected String _situation = "UNDEFINED";
+    /**
+     * Simply said, this is used to describe a relevant situation.
+     * Useful to identify an incident or change.
+     * Is added to the Response entity class when answering.
+     */
+    @Getter
+    protected Situation _situation = Situation.NONE;
 
-    /** I used for the defineToString of how it should be split. */
+    /**
+     * Sets the Situation.
+     * The situation mustn't become none after it has had a situation,
+     * then it must be resolved, which this method insures to prevent misinformation.
+     * @param situation The new Situation.
+     * @return The current Situation.
+     */
+    public Situation set_situation(Situation situation) {
+        _situation = situation == Situation.NONE && _situation != Situation.NONE
+            ? Situation.RESOLVED
+            : situation;
+
+        return _situation;
+    }
+
+    /** For the defineToString of how it should be split. */
     private final String _toStringFieldSplitter = ",\n \t",
             _toStringKeyValueSplitter = ":\t";
 
-    /** Doesn't take any parameters, but will set the timestamp to the present time now. */
-    public Model() { _timestamp = LocalDateTime.now(); }
+    public Model(ModelDTO model) {
+        _primaryId = model.getPrimaryId();
+        _secondaryId = model.getSecondaryId();
+        _title = model.getTitle();
+        _timestamp = model.getTimestamp();
+        _situation = model.getSituation();
+    }
 
-    /**
-     * Sets the timestamp to present time now.
-     * @param id An unique id value to identify the Model.
-     */
-    public Model(long id) {
-        _primaryId = id;
+    /** Will generate a timestamp of the moment now in datetime. */
+    public Model() {
         _timestamp = LocalDateTime.now();
     }
 
     /**
-     * For newly created Models with a generated id.
-     * Sets the timestamp to present time now.
-     * @param title The title of the Model, either a given title or created from values.
+     * Will generate a timestamp of the moment now in datetime.
+     * @param title A title describing this entity internally.
      */
     public Model(String title) {
         _title = title;
@@ -78,9 +99,8 @@ public abstract class Model {
     }
 
     /**
-     * For newly created Models with a generated id.
-     * @param title The title of the Model, either a given title or created from values.
-     * @param timestamp The time this Model was created.
+     * @param title A title describing this entity internally.
+     * @param timestamp Specifies the time this entity was created.
      */
     public Model(String title, LocalDateTime timestamp) {
         _title = title;
@@ -88,24 +108,23 @@ public abstract class Model {
     }
 
     /**
-     * Only sets the values in the parameter.
-     * @param id An unique id value to identify the Model.
-     * @param title The title of the Model, either a given title or created from values.
-     * @param timestamp The time this Model was created.
+     * @param id A hex decimal value identifying this item uniquely.
+     * @param title A title describing this entity internally.
+     * @param timestamp Specifies the time this entity was created.
      */
-    public Model(long id, String title, LocalDateTime timestamp) {
+    public Model(UUID id, String title, LocalDateTime timestamp) {
         _primaryId = id;
         _title = title;
         _timestamp = timestamp;
     }
 
     /**
-     * Constructor for a Model with two ids, which could be a conjoint relation Model.
-     * @param primaryId The first id.
-     * @param secondaryId The second id.
-     * @param title The title of the Model, either a given title or created from values.
+     * Will generate a timestamp of the moment now in datetime.
+     * @param primaryId A hex decimal value identifying this item uniquely.
+     * @param secondaryId Another hex decimal value identifying another item uniquely.
+     * @param title A title describing this entity internally.
      */
-    public Model(long primaryId, long secondaryId, String title) {
+    public Model(UUID primaryId, UUID secondaryId, String title) {
         _primaryId = primaryId;
         _secondaryId = secondaryId;
         _title = title;
@@ -113,18 +132,18 @@ public abstract class Model {
     }
 
     /**
-     * Constructor for a Model with two ids, which could be a conjoint relation Model.
-     * @param primaryId The first id.
-     * @param secondaryId The second id.
-     * @param title The title of the Model, either a given title or created from values.
-     * @param timestamp The time this Model was created.
+     * @param primaryId A hex decimal value identifying this item uniquely.
+     * @param secondaryId Another hex decimal value identifying another item uniquely.
+     * @param title A title describing this entity internally.
+     * @param timestamp Specifies the time this entity was created.
      */
-    public Model(long primaryId, long secondaryId, String title, LocalDateTime timestamp) {
+    public Model(UUID primaryId, UUID secondaryId, String title, LocalDateTime timestamp) {
         _primaryId = primaryId;
         _secondaryId = secondaryId;
         _title = title;
         _timestamp = timestamp;
     }
+
 
     /**
      * Checks if secondary id is null.
@@ -166,5 +185,54 @@ public abstract class Model {
             content = new StringBuilder("Content couldn't be generated, since there are less attributes than values");
 
         return title + "(\n \t" + content + "\n)";
+    }
+
+    /**
+     * The base of many objects, that share these same attributes.
+     * When it is created through a constructor, that doesn't ask for a DateTime.
+     * It will use the DateTime of now.
+     */
+    @Getter @Setter
+    public static class ModelDTO {
+
+        /**
+         * The identification value in the database for a specific entity.
+         * Must be unique, if there ain't other ids for this entity.
+         * UUIDs are unique hex decimal values of the specific entity.
+         */
+        protected UUID primaryId;
+
+        /**
+         * Another identification value in the database for a specific entity.
+         * Must be unique with primary id.
+         * Is used for incidents, where there are an connection between two entities,
+         * and they are both being used as primary keys
+         */
+        protected UUID secondaryId;
+
+        /**
+         * The name for an entity or model.
+         * Can be of different purposes,
+         * such as username or simply for naming a unit.
+         */
+        protected String title;
+
+        /** Specifies the time this entity was created. */
+        protected LocalDateTime timestamp;
+
+        /**
+         * Simply said, this is used to describe a relevant situation.
+         * Useful to identify an incident or change.
+         * Is added to the Response entity class when answering.
+         */
+        protected Situation situation;
+
+        public ModelDTO(Model model) {
+            primaryId = model.get_primaryId();
+            secondaryId = model.get_secondaryId();
+            title = model.get_title();
+            timestamp = model.get_timestamp();
+            situation = model.get_situation();
+        }
     }
 }

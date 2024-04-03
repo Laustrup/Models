@@ -3,38 +3,36 @@ package laustrup.models.chats;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
 import laustrup.models.chats.messages.Mail;
-import laustrup.dtos.chats.ChatRoomDTO;
-import laustrup.dtos.chats.messages.MailDTO;
-import laustrup.dtos.users.UserDTO;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
+import laustrup.services.DTOService;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.models.users.User.UserDTO;
 import static laustrup.services.ObjectService.ifExists;
 
 /** This is used for multiple Users to communicate with each other through Mails. */
+@Getter
 public class ChatRoom extends Model {
 
     /** All the Mails that has been sent will be stored here. */
-    @Getter
     private Liszt<Mail> _mails;
 
     /** The Users, except the responsible, that can write with each other. */
-    @Getter
     private Liszt<User> _chatters;
 
     /**
      * Converts a Data Transport Object into this object.
      * @param chatRoom The Data Transport Object that will be converted.
      */
-    public ChatRoom(ChatRoomDTO chatRoom) {
-        super(chatRoom.getPrimaryId(), chatRoom.getSecondaryId() != null ? chatRoom.getSecondaryId() : 0,
-                chatRoom.getTitle(), chatRoom.getTimestamp() != null ? chatRoom.getTimestamp() : LocalDateTime.now());
+    public ChatRoom(ChatRoom.DTO chatRoom) {
+        super(chatRoom);
+        _mails = new Liszt<>();
         convert(chatRoom.getMails());
         convert(chatRoom.getChatters());
     }
@@ -43,11 +41,10 @@ public class ChatRoom extends Model {
      * Converts a Data Transport Object into Mails.
      * @param mails The Data Transport Object that will be converted.
      */
-    private void convert(MailDTO[] mails) {
+    private void convert(Mail.DTO[] mails) {
         _mails = new Liszt<>();
-        for (MailDTO mail : mails)
+        for (Mail.DTO mail : mails)
             _mails.add(new Mail(mail));
-
     }
 
     /**
@@ -57,7 +54,7 @@ public class ChatRoom extends Model {
     private void convert(UserDTO[] chatters) {
         _chatters = new Liszt<>();
         for (UserDTO chatter : chatters)
-            _chatters.add(convertFromDTO(chatter));
+            _chatters.add(DTOService.convert(chatter));
     }
 
     /**
@@ -68,12 +65,26 @@ public class ChatRoom extends Model {
      * @param chatters The chatters that are members of this ChatRoom.
      * @param timestamp The time this ChatRoom was created.
      */
-    public ChatRoom(long id, String title, Liszt<Mail> mails, Liszt<User> chatters, LocalDateTime timestamp) {
+    public ChatRoom(UUID id, String title, Liszt<Mail> mails, Liszt<User> chatters, LocalDateTime timestamp) {
         super(id, title, timestamp);
         _chatters = chatters;
         _title = determineChatRoomTitle(_title);
         _mails = mails;
+    }
 
+    /**
+     * A primitive constructor, with lesser values.
+     * Purpose is to use for assembling.
+     * Will set assembling to true.
+     * @param id The primary id.
+     * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
+     * @param timestamp The time this ChatRoom was created.
+     */
+    public ChatRoom(UUID id, String title, LocalDateTime timestamp) {
+        super(id, title, timestamp);
+        _chatters = new Liszt<>();
+        _title = determineChatRoomTitle(_title);
+        _mails = new Liszt<>();
     }
 
     /**
@@ -202,6 +213,7 @@ public class ChatRoom extends Model {
                 break;
             }
         }
+
         return _mails;
     }
 
@@ -217,6 +229,7 @@ public class ChatRoom extends Model {
                 break;
             }
         }
+
         return _chatters;
     }
 
@@ -226,10 +239,10 @@ public class ChatRoom extends Model {
      * @return True if it will be edited correctly.
      */
     public boolean edit(Mail mail) {
-        for (int i = 1; i <= _mails.size(); i++) {
+        for (int i = 1; i <= _mails.size(); i++)
             if (_mails.Get(i).get_primaryId() == mail.get_primaryId())
                 return mail == _mails.set(i, mail);
-        }
+
         return false;
     }
 
@@ -248,5 +261,43 @@ public class ChatRoom extends Model {
                 String.valueOf(_timestamp)
             }
         );
+    }
+
+    /** This is used for multiple Users to communicate with each other through Mails. */
+    @Getter
+    public static class DTO extends ModelDTO {
+
+        /** All the Mails that has been sent will be stored here. */
+        private Mail.DTO[] mails;
+
+        /** The Users, except the responsible, that can write with each other. */
+        private UserDTO[] chatters;
+
+        /** This responsible are being calculated for answeringTime. */
+        private UserDTO responsible;
+
+        /**
+         * The amount of time it takes, before the responsible have answered the chatroom,
+         * measured from the first message.
+         * Is calculated in minutes.
+         */
+        private Long answeringTime;
+
+        /** Is true if the responsible has answered with a message. */
+        private boolean answered;
+
+        /**
+         * Converts into this DTO Object.
+         * @param chatRoom The Object to be converted.
+         */
+        public DTO(ChatRoom chatRoom) {
+            super(chatRoom);
+            mails = new Mail.DTO[chatRoom.get_mails().size()];
+            for (int i = 0; i < mails.length; i++)
+                mails[i] = new Mail.DTO(chatRoom.get_mails().get(i));
+            chatters = new User.UserDTO[chatRoom.get_chatters().size()];
+            for (int i = 0; i < chatters.length; i++)
+                chatters[i] = DTOService.convert(chatRoom.get_chatters().Get(i+1));
+        }
     }
 }

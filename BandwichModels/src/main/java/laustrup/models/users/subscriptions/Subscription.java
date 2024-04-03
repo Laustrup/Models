@@ -1,7 +1,6 @@
 package laustrup.models.users.subscriptions;
 
 import laustrup.models.Model;
-import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.models.users.User;
 import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
@@ -10,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import static laustrup.models.users.User.UserDTO;
 
 /**
  * Defines the kind of subscription a user is having.
@@ -52,20 +54,16 @@ public class Subscription extends Model {
      * Is only the id and not the object for security reasons.
      */
     @Getter
-    private Long _cardId;
+    private UUID _cardId;
 
-    public Subscription(SubscriptionDTO subscription) {
-        super(subscription.getPrimaryId(), subscription.getSecondaryId(),
-                subscription.getUser() != null
-                        ? subscription.getUser().getUsername()+"-Subscription: " + subscription.getUser().getPrimaryId()
-                        : "Subscription:" + subscription.getPrimaryId() + "-" + subscription.getSecondaryId(),
-                subscription.getTimestamp());
+    public Subscription(DTO subscription) {
+        super(subscription);
         _type = defineType(Type.valueOf(subscription.getType().toString()));
         _status = Status.valueOf(subscription.getStatus().toString());
         _offer = new SubscriptionOffer(subscription.getOffer());
         _cardId = subscription.getCardId();
     }
-    public Subscription(User user, Type type, Status status, SubscriptionOffer offer, Long cardId, LocalDateTime timestamp) {
+    public Subscription(User user, Type type, Status status, SubscriptionOffer offer, UUID cardId, LocalDateTime timestamp) {
         super(user.get_primaryId(), cardId, user.get_username()+"-Subscription: " + user.get_primaryId(), timestamp);
         _type = defineType(type);
         _status = status;
@@ -73,7 +71,7 @@ public class Subscription extends Model {
         _cardId = cardId;
     }
 
-    public Subscription(long id, Type type, Status status, SubscriptionOffer offer, Long cardId) {
+    public Subscription(UUID id, Type type, Status status, SubscriptionOffer offer, UUID cardId) {
         super(id, cardId, "Unkown_user-Subscription: " + id);
         _type = defineType(type);
         _status = status;
@@ -82,7 +80,7 @@ public class Subscription extends Model {
         _timestamp = null;
     }
 
-    public Subscription(User user, Type type, Status status, SubscriptionOffer offer, Long cardId) {
+    public Subscription(User user, Type type, Status status, SubscriptionOffer offer, UUID cardId) {
         super(user.get_title() + "-Subscription");
         _user = user;
         _type = defineType(type);
@@ -97,8 +95,8 @@ public class Subscription extends Model {
      * @param id The id value that will be set as the connection between this subscription and the card of that id.
      * @return The id of the card, that is connected to this Subscription.
      */
-    public Long set_cardId(long id) {
-        if (_cardId==null)
+    public UUID set_cardId(UUID id) {
+        if (_cardId == null)
             _cardId = id;
 
         return _cardId;
@@ -201,5 +199,72 @@ public class Subscription extends Model {
         BLOCKED,
         DISACTIVATED,
         CLOSED
+    }
+
+    /**
+     * Defines the kind of subscription a user is having.
+     * Only Artists and Bands can have a paying subscription.
+     */
+    @Getter @Setter
+    public static class DTO extends ModelDTO {
+
+        /**
+         * The User that uses this Subscription.
+         */
+        private UserDTO user;
+
+        /**
+         * An enum that contains different kinds of types, that this Subscription can be.
+         * Will also determine the price.
+         */
+        private Type type;
+
+        /**
+         * An enum that determines what kind of status, the situation of the Subscription is in.
+         */
+        private Status status;
+
+        /**
+         * How much the User should pay per month.
+         */
+        private int price;
+
+        /**
+         * An object class that specifies the offer if any, that this Subscription has.
+         */
+        private SubscriptionOffer.DTO offer;
+
+        /**
+         * The id in the database of the card, that is connected to this subscription.
+         * Is only the id and not the object for security reasons.
+         */
+        private UUID cardId;
+
+        public DTO(Subscription subscription) {
+            super(subscription);
+            type = Type.valueOf(subscription.get_type().toString());
+            status = Status.valueOf(subscription.get_status().toString());
+            offer = new SubscriptionOffer.DTO(subscription.get_offer());
+            cardId = subscription.get_cardId();
+        }
+
+        /**
+         * An enum that can be of different types, determining the type of Subscription.
+         */
+        public enum Type {
+            FREEMIUM,
+            PREMIUM_BAND,
+            PREMIUM_ARTIST
+        }
+
+        /**
+         * An enum that defines Status that a Subscription is currently in.
+         */
+        public enum Status {
+            ACCEPTED,
+            BLOCKED,
+            DISACTIVATED,
+            CLOSED
+        }
     }
 }

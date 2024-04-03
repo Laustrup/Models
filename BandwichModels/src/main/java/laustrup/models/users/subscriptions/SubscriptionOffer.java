@@ -1,10 +1,8 @@
 package laustrup.models.users.subscriptions;
 
 import laustrup.utilities.console.Printer;
-import laustrup.dtos.users.subscriptions.SubscriptionOfferDTO;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
@@ -33,13 +31,13 @@ public class SubscriptionOffer {
      */
     private double _effect;
 
-    public SubscriptionOffer(SubscriptionOfferDTO offer) {
+    public SubscriptionOffer(DTO offer) {
         _expires = offer.getExpires();
         _type = Type.valueOf(offer.getType().toString());
         try {
             set_effect(offer.getEffect());
         } catch (InputMismatchException e) {
-            Printer.get_instance().print("Couldn't create effect to subscription offer...", e);
+            Printer.print("Couldn't create effect to subscription offer...", e);
         }
     }
     public SubscriptionOffer(LocalDateTime expires, Type type, double effect) {
@@ -48,7 +46,7 @@ public class SubscriptionOffer {
         try {
             set_effect(effect);
         } catch (InputMismatchException e) {
-            Printer.get_instance().print("Couldn't create effect to subscription offer...", e);
+            Printer.print("Couldn't create effect to subscription offer...", e);
         }
     }
 
@@ -60,6 +58,7 @@ public class SubscriptionOffer {
     public double get_effect() {
         if (_type == Type.SALE)
             return _effect;
+
         return 1;
     }
 
@@ -84,5 +83,41 @@ public class SubscriptionOffer {
     public enum Type {
         FREE_TRIAL,
         SALE
+    }
+
+    /**
+     * This offer determines, if the price of a Subscription should be changed through its attributes.
+     */
+    @Getter @Setter
+    public static class DTO {
+
+        /**
+         * Determines when this offer is no longer valid.
+         */
+        private LocalDateTime expires;
+
+        /**
+         * An enum that defines, which kind of offer this class is.
+         */
+        private Type type;
+
+        /**
+         * This attribute will be multiplied with the price of the Subscription.
+         * It must be between 0 -> 1, seen as percentages, where 1 = 100%
+         */
+        private double effect;
+
+        public DTO(SubscriptionOffer subscriptionOffer) {
+            expires = subscriptionOffer.get_expires();
+            type = Type.valueOf(subscriptionOffer.get_type().toString());
+            effect = subscriptionOffer.get_effect();
+        }
+        /**
+         * An enum of the different values a SubscriptionOffer can be of.
+         */
+        public enum Type {
+            FREE_TRIAL,
+            SALE
+        }
     }
 }

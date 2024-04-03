@@ -1,31 +1,30 @@
 package laustrup.models.chats;
 
 import laustrup.models.Model;
-import laustrup.dtos.chats.RequestDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.utilities.parameters.Plato;
+import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.models.users.User.UserDTO;
 
 /** Determines if a User have approved to be a part of the Event. */
+@Getter
 public class Request extends Model {
 
     /** The User that needs to approve the Event. */
-    @Getter
     private User _user;
 
     /** The Event that has been requested for. */
-    @Getter
     private Event _event;
 
     /** The value that indicates if the request for the Event has been approved. */
-    @Getter @Setter
+    @Setter
     private Plato _approved;
 
     /** Will set the approved to true. */
@@ -35,22 +34,12 @@ public class Request extends Model {
     public void deny() { _approved.set_argument(false); }
 
     /** This message will be shown for the user, in order to inform of the request. */
-    @Getter @Setter
+    @Setter
     private String _message;
 
-    /**
-     * Converts a Data Transport Object into this object.
-     * @param request The Data Transport Object that will be converted.
-     */
-    public Request(RequestDTO request) {
-        super(
-            request.getPrimaryId(),
-            request.getEvent().getPrimaryId(),
-            "Request of " + request.getUser().getUsername() + " to " + request.getEvent().getTitle(),
-            request.getTimestamp()
-        );
-
-        _user = convertFromDTO(request.getUser());
+    public Request(DTO request) {
+        super(request);
+        _user = DTOService.convert(request.getUser());
         _event = new Event(request.getEvent());
         _approved = new Plato(request.getApproved());
         _message = request.getMessage();
@@ -108,5 +97,34 @@ public class Request extends Model {
                 String.valueOf(_timestamp)
             }
         );
+    }
+
+    /** Determines if a User have approved to be a part of the Event. */
+    @Getter
+    public static class DTO extends ModelDTO {
+
+        /** The User that needs to approve the Event. */
+        private UserDTO user;
+
+        /** The Event that has been requested for. */
+        private Event.DTO event;
+
+        /** The value that indicates if the request for the Event has been approved. */
+        private Plato.Argument approved;
+
+        /** This message will be shown for the user, in order to inform of the request. */
+        private String message;
+
+        /**
+         * Converts into this DTO Object.
+         * @param request The Object to be converted.
+         */
+        public DTO(Request request) {
+            super(request);
+            user = DTOService.convert(request.get_user());
+            event = new Event.DTO(request.get_event());
+            approved = request.get_approved().get_argument();
+            message = request.get_message();
+        }
     }
 }

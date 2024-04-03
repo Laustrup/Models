@@ -82,9 +82,9 @@ public class FileService extends Service {
             for (String[] replacing : replacings)
                 content = content.replace(replacing[0],replacing[1]);
         } catch (IOException e) {
-            Printer.get_instance().print("Couldn't read string of \n\n\t" + path + "\n\nwith excludes: " + Arrays.toString(replacings), e);
+            Printer.print("Couldn't read string of \n\n\t" + path + "\n\nwith excludes: " + Arrays.toString(replacings), e);
         } catch (Exception e) {
-            Printer.get_instance().print("Couldn't get content from \n\n\t" + path + "\n\nwith excludes: " + Arrays.toString(replacings), e);
+            Printer.print("Couldn't get content from \n\n\t" + path + "\n\nwith excludes: " + Arrays.toString(replacings), e);
         }
 
         return content;
@@ -115,7 +115,7 @@ public class FileService extends Service {
         try {
             return Files.write(Paths.get(path), content.getBytes());
         } catch (IOException e) {
-            Printer.get_instance().print("Couldn't write content to " + path, e);
+            Printer.print("Couldn't write content to " + path, e);
         }
         return null;
     }
@@ -141,7 +141,7 @@ public class FileService extends Service {
         File file = new File(path);
 
         if (!file.exists())
-            Printer.get_instance().print("File of " + path + " Doesnt exists and can't be deleted...", new Exception());
+            Printer.print("File of " + path + " Doesnt exists and can't be deleted...", new Exception());
 
         return file.delete();
     }

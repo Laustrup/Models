@@ -2,66 +2,50 @@ package laustrup.models.albums;
 
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
-import laustrup.dtos.albums.AlbumItemDTO;
-import laustrup.dtos.users.UserDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
+import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.models.users.User.UserDTO;
 
-/**
- * Is either music or an image.
- * Is a part of an Album and are used to be fetched from an endpoint,
- * where the file is stored.
- */
+@Getter
 public class AlbumItem extends Model {
 
     /** Categories the tagged people, who have participated on the item of the album. */
-    @Getter
     private Liszt<User> _tags;
 
     /** The endpoint for a URL, that is used to get the file of the item. */
-    @Getter
     private String _endpoint;
 
     /** An Album can have a relation to an Event, but doesn't necessarily have to. */
-    @Getter @Setter
+    @Setter
     private Event _event;
 
     /**
      * This is an Enum.
      * The Album might either be a MUSIC or IMAGE Album.
      */
-    @Getter
     private Kind _kind;
 
     /**
      * Will translate a transport object of this object into a construct of this object.
      * @param albumItem The transport object to be transformed.
      */
-    public AlbumItem(AlbumItemDTO albumItem) {
-        super(albumItem.get_title(), albumItem.get_timestamp());
+    public AlbumItem(AlbumItem.DTO albumItem) {
+        super(albumItem);
         _endpoint = albumItem.getEndpoint();
         _kind = Kind.valueOf(albumItem.getKind().toString());
         _tags = new Liszt<>();
         convert(albumItem.getTags());
     }
-
-    /**
-     * Converts an array of tags transport objects into a Liszt of tags.
-     * @param tags The array to be converted.
-     * @return The converted tags as a Liszt.
-     */
-    private Liszt<User> convert(UserDTO[] tags) {
-        for (UserDTO tag : tags)
-            _tags.add(convertFromDTO(tag));
-
-        return _tags;
+    private void convert(User.UserDTO[] tags) {
+        for (User.UserDTO tag : tags)
+            _tags.add(DTOService.convert(tag));
     }
 
     /**
@@ -123,6 +107,44 @@ public class AlbumItem extends Model {
                 _kind.toString(),
                 _timestamp.toString()
         });
+    }
+
+    @Getter
+    public static class DTO extends ModelDTO {
+
+        /** Categories the tagged people, who have participated on the item of the album. */
+        private UserDTO[] tags;
+
+        /** The endpoint for a URL, that is used to get the file of the item. */
+        private String endpoint;
+
+        /** An Album can have a relation to an Event, but doesn't necessarily have to. */
+        private Event.DTO event;
+
+        /**
+         * This is an Enum.
+         * The Album might either be a MUSIC or IMAGE Album.
+         */
+        private Kind kind;
+
+        /**
+         * Converts into this DTO Object.
+         * @param item The Object to be converted.
+         */
+        public DTO(AlbumItem item) {
+            super(item);
+            endpoint = item.get_endpoint();
+            kind = Kind.valueOf(item.get_kind().toString());
+
+            tags = new UserDTO[item.get_tags().size()];
+            for (int i = 0; i < tags.length; i++)
+                tags[i] = DTOService.convert(item.get_tags().get(i));
+
+            event = new Event.DTO(item.get_event());
+        }
+
+        /** An enum that will describe the type of Album. */
+        public enum Kind { IMAGE, MUSIC }
     }
 
     /** An enum that will describe the type of Album. */

@@ -1,18 +1,22 @@
 package laustrup.models.chats.messages;
 
 import laustrup.models.Model;
-import laustrup.dtos.chats.messages.MessageDTO;
 import laustrup.models.users.User;
+import laustrup.services.DTOService;
 import laustrup.utilities.parameters.Plato;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import static laustrup.services.DTOService.convertFromDTO;
+import static laustrup.models.users.User.UserDTO;
 
-/** An abstract class that contains common attributes for Messages. */
+/**
+ * An abstract class that contains common attributes for Messages.
+ */
+@Getter
 public abstract class Message extends Model {
 
     /** The User that wrote the Message. */
@@ -20,48 +24,36 @@ public abstract class Message extends Model {
     protected User _author;
 
     /** The content of the written Message. */
-    @Getter @Setter
+    @Setter
     protected String _content;
 
     /** True if the Message is sent. */
-    @Getter @Setter
+    @Setter
     protected boolean _sent;
 
     /**
      * A Plato object, that will be true if the Message has been edited.
      * Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
      */
-    @Getter
     protected Plato _edited;
 
     /** Can be switch between both true and false, if true the message is public for every User. */
-    @Getter @Setter
+    @Setter
     protected boolean _public;
 
     /**
      * Converts a Data Transport Object into this object.
      * @param message The Data Transport Object that will be converted.
      */
-    public Message(MessageDTO message) {
-        super(message.getPrimaryId(), "Message-"+message.getPrimaryId(), message.getTimestamp());
-        _author = convertFromDTO(message.getAuthor());
+    public Message(DTO message) {
+        super(message);
+        _author = DTOService.convert(message.getAuthor());
         _content = message.getContent();
         _sent = message.isSent();
         _edited = new Plato(message.getIsEdited());
         _public = message.isPublic();
     }
-
-    /**
-     * With all the values as parameters, is meant for being constructed from database.
-     * @param id The unique id of this Message.
-     * @param author The creator of this Message.
-     * @param content The descriptive content of this Message.
-     * @param isSent Is this Mail sent?
-     * @param isEdited Is this Mail edited after it is sent?
-     * @param isPublic Is this Mail public at the moment?
-     * @param timestamp The date and time this Mail was sent.
-     */
-    public Message(long id, User author, String content, boolean isSent, Plato isEdited, boolean isPublic,
+    public Message(UUID id, User author, String content, boolean isSent, Plato isEdited, boolean isPublic,
                    LocalDateTime timestamp) {
         super(id, "Message-"+id,timestamp);
         _author = author;
@@ -78,7 +70,7 @@ public abstract class Message extends Model {
     public Message(User author) {
         super("Message-by:" + author.get_title());
         _author = author;
-        _content = new String();
+        _content = "";
         _sent = false;
         _edited = new Plato();
         _public = false;
@@ -105,4 +97,41 @@ public abstract class Message extends Model {
 
         return _content;
     }
+
+    /** An abstract class that contains common attributes for Messages. */
+    @Getter
+    protected static class DTO extends ModelDTO {
+
+        /** The User that wrote the Message. */
+        protected UserDTO author;
+
+        /** The content of the written Message. */
+        protected String content;
+
+        /** True if the Message is sent. */
+        protected boolean isSent;
+
+        /**
+         * A Plato object, that will be true if the Message has been edited.
+         * Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+         */
+        protected Plato.Argument isEdited;
+
+        /** Can be switched between both true and false, if true the message is public for every User. */
+        protected boolean isPublic;
+
+        /**
+         * Converts into this DTO Object.
+         * @param message The Object to be converted.
+         */
+        public DTO(Message message) {
+            super(message);
+            this.author = DTOService.convert(message.get_author());
+            this.content = message.get_content();
+            this.isSent = message.is_sent();
+            this.isEdited = message.get_edited().get_argument();
+            this.isPublic = message.is_public();
+        }
+    }
+
 }

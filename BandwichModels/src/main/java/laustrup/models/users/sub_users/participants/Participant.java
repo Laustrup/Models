@@ -1,87 +1,60 @@
 package laustrup.models.users.sub_users.participants;
 
-import laustrup.dtos.users.contact_infos.ContactInfoDTO;
-import laustrup.dtos.users.subscriptions.SubscriptionDTO;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.dtos.RatingDTO;
-import laustrup.dtos.albums.AlbumDTO;
-import laustrup.dtos.chats.ChatRoomDTO;
-import laustrup.dtos.chats.messages.BulletinDTO;
-import laustrup.dtos.events.EventDTO;
-import laustrup.dtos.users.UserDTO;
-import laustrup.dtos.users.sub_users.participants.ParticipantDTO;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.subscriptions.Subscription;
 import laustrup.models.users.subscriptions.SubscriptionOffer;
+import laustrup.services.DTOService;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
-
-import static laustrup.services.DTOService.convertFromDTO;
-import static laustrup.services.ObjectService.ifExists;
+import java.util.UUID;
 
 /**
  * Defines a User, that will attend an Event as an audience.
  * Extends from User.
  */
+@Getter
 public class Participant extends User {
 
     /**
      * These are the Users that the Participant can follow,
      * indicating that new content will be shared with the Participant.
      */
-    @Getter
     private Liszt<User> _idols;
 
-    public Participant(ParticipantDTO participant) {
-        super(participant.getPrimaryId(), participant.getUsername(), participant.getFirstName(),participant.getLastName(), participant.getDescription(),
-                (ContactInfo) ifExists(participant.getContactInfo(), e -> new ContactInfo((ContactInfoDTO) e)),
-                participant.getAlbums(), participant.getRatings(), participant.getEvents(), participant.getChatRooms(),
-                (Subscription) ifExists(participant.getSubscription(), e -> new Subscription((SubscriptionDTO) e)),
-                participant.getBulletins(), Authority.PARTICIPANT, participant.getTimestamp());
+    public Participant(DTO participant) {
+        super(participant);
         _idols = new Liszt<>();
-        if (participant.getIdols() != null)
-            for (UserDTO idol : participant.getIdols())
-                _idols.add(convertFromDTO(idol));
+        for (UserDTO idol : participant.getIdols())
+            _idols.add(DTOService.convert(idol));
     }
-    public Participant(long id, String username, String firstName, String lastName, String description,
-                       ContactInfo contactInfo, AlbumDTO[] albums, RatingDTO[] ratings,
-                       EventDTO[] events, ChatRoomDTO[] chatRooms, Subscription subscription, BulletinDTO[] bulletins,
-                       UserDTO[] idols, LocalDateTime timestamp) {
-        super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events, chatRooms,
-                subscription, bulletins, Authority.PARTICIPANT, timestamp);
-        _idols = new Liszt<>();
-        if (idols != null)
-            for (UserDTO idol : idols)
-                _idols.add(convertFromDTO(idol));
-    }
-    public Participant(long id, Authority authority) {
-        super(id,authority);
-    }
-    public Participant(long id) {super(id,Authority.PARTICIPANT);}
-    public Participant(long id, String username, String firstName, String lastName, String description,
+
+    public Participant(UUID id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                        Liszt<ChatRoom> chatRooms, Subscription.Status subscriptionStatus,
-                       SubscriptionOffer subscriptionOffer, Long cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
+                       SubscriptionOffer subscriptionOffer, UUID cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
                        LocalDateTime timestamp) {
         super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events, chatRooms,
-                new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
-                bulletins, Authority.PARTICIPANT, timestamp);
+            new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
+            bulletins, Authority.PARTICIPANT, timestamp
+        );
         _idols = idols;
         _subscription.set_user(this);
     }
 
-    public Participant(long id, String username, String description,
+    public Participant(UUID id, String username, String description,
                        ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                        Liszt<ChatRoom> chatRooms, Subscription.Status subscriptionStatus,
-                       SubscriptionOffer subscriptionOffer, Long cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
+                       SubscriptionOffer subscriptionOffer, UUID cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
                        LocalDateTime timestamp) {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
                 new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
@@ -91,7 +64,7 @@ public class Participant extends User {
         _subscription.get_user().set_description(_description);
     }
 
-    public Participant(long id, String username, String firstName, String lastName, String description,
+    public Participant(UUID id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                        Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins,
                        Liszt<User> idols, LocalDateTime timestamp) {
@@ -101,20 +74,18 @@ public class Participant extends User {
         _subscription.set_user(this);
     }
 
-    public Participant(long id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
+    public Participant(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
                        Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, Subscription subscription,
                        Liszt<Bulletin> bulletins, Liszt<User> idols, LocalDateTime timestamp) {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
                 subscription, bulletins, Authority.PARTICIPANT, timestamp);
         _idols = idols;
-        if (_subscription!=null)
-            _subscription.set_user(this);
     }
 
     public Participant(String username, String firstName, String lastName, String description,
                        SubscriptionOffer subscriptionOffer, Liszt<User> idols) {
         super(username, firstName, lastName, description,
-                new Subscription(new Participant(0,Authority.PARTICIPANT), Subscription.Type.FREEMIUM,
+                new Subscription(new Participant(username,description,null), Subscription.Type.FREEMIUM,
                         Subscription.Status.ACCEPTED, subscriptionOffer, null),
                 Authority.PARTICIPANT);
         _idols = idols;
@@ -154,4 +125,37 @@ public class Participant extends User {
                     ",timestamp=" + _timestamp +
                 ")";
     }
+
+    /**
+     * Defines a User, that will attend an Event as an audience.
+     * Extends from User.
+     */
+    @Getter @Setter
+    public static class DTO extends UserDTO {
+
+        /**
+         * These are the Users that the Participant can follow,
+         * indicating that new content will be shared with the Participant.
+         */
+        private UserDTO[] idols;
+
+        public DTO(Participant participant) {
+            super(participant);
+            if (idols != null) {
+                idols = new UserDTO[participant.get_idols().size()];
+                for (int i = 0; i < idols.length; i++)
+                    idols[i] = DTOService.convert(participant.get_idols().Get(i+1));
+            }
+        }
+
+        public DTO(User user) {
+            super(user);
+            if (user.get_authority() == User.Authority.PARTICIPANT) {
+                idols = new UserDTO[((Participant) user).get_idols().size()];
+                for (int i = 0; i < idols.length; i++)
+                    idols[i] = DTOService.convert(((Participant) user).get_idols().Get(i+1));
+            }
+        }
+    }
+
 }

@@ -1,16 +1,14 @@
 package laustrup.models.users.subscriptions;
 
-import laustrup.dtos.users.subscriptions.CardDTO;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.InputMismatchException;
+import java.util.UUID;
 
 /**
  * Contains different information about credit cards, that are needed for curtain subscriptions.
  */
+@Getter
 @ToString
 public class Card {
 
@@ -18,49 +16,45 @@ public class Card {
      * This id is the id from the database.
      * Subscription only contains the id of this card for security reasons.
      */
-    @Getter
-    private long _id;
+    private UUID _id;
 
     /**
      * An enum of different credit card providers or brands.
      */
-    @Getter @Setter
+    @Setter
     private Type _type;
 
     /**
      * The owner of the credit card.
      */
-    @Getter @Setter
+    @Setter
     private String _owner;
 
     /**
      * This pin code is the password information to the card.
      * Must be a curtain amount of numbers.
      */
-    @Getter
     private long _cardNumbers;
 
     /**
      * The month that the card will expire.
      * Only two digits allowed.
      */
-    @Getter
     private int _expirationMonth;
 
     /**
      * The year that the card will expire.
      * Only two digits allowed.
      */
-    @Getter @Setter
+    @Setter
     private int _expirationYear;
 
     /**
      * The three digits on the backside of the credit card.
      */
-    @Getter
     private int _cVV;
 
-    public Card(CardDTO card) throws InputMismatchException {
+    public Card(DTO card) throws InputMismatchException {
         _id = card.getId();
         _type = Type.valueOf(card.getType().toString());
         _owner = card.getOwner();
@@ -69,7 +63,7 @@ public class Card {
         _expirationYear = card.getExpirationYear();
         set_cVV(card.getCVV());
     }
-    public Card(long id, Type type, String owner, long numbers,
+    public Card(UUID id, Type type, String owner, long numbers,
                 int expirationMonth, int expirationYear,
                 int cVV) throws InputMismatchException {
         _id = id;
@@ -137,4 +131,71 @@ public class Card {
         AMERICAN_EXPRESS,
         DANCARD,
     }
+
+    /**
+     * Contains different information about credit cards, that are needed for curtain subscriptions.
+     */
+    @NoArgsConstructor
+    @Data
+    public static class DTO {
+
+        /**
+         * This id is the id from the database.
+         * Subscription only contains the id of this card for security reasons.
+         */
+        private UUID id;
+
+        /**
+         * An enum of different credit card providers or brands.
+         */
+        private Type type;
+
+        /**
+         * The owner of the credit card.
+         */
+        private String owner;
+
+        /**
+         * This pin code is the password information to the card.
+         * Must be a curtain amount of numbers.
+         */
+        private long cardNumbers;
+
+        /**
+         * The month that the card will expire.
+         * Only two digits allowed.
+         */
+        private int expirationMonth;
+
+        /**
+         * The year that the card will expire.
+         * Only two digits allowed.
+         */
+        private int expirationYear;
+
+        /**
+         * The three digits on the backside of the credit card.
+         */
+        private int cVV;
+
+        public DTO(Card card) {
+            id = card.get_id();
+            type = Type.valueOf(card.get_type().toString());
+            owner = card.get_owner();
+            cardNumbers = card.get_cardNumbers();
+            expirationMonth = card.get_expirationMonth();
+            expirationYear = card.get_expirationYear();
+            cVV = card.get_cVV();
+        }
+
+        /**
+         * Are a set of enums with values of different credit card providers.
+         */
+        public enum Type {
+            VISA,
+            AMERICAN_EXPRESS,
+            DANCARD,
+        }
+    }
+
 }
