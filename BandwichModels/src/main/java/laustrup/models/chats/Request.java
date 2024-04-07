@@ -8,13 +8,14 @@ import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 
 import static laustrup.models.users.User.UserDTO;
 
 /** Determines if a User have approved to be a part of the Event. */
-@Getter
+@Getter @FieldNameConstants
 public class Request extends Model {
 
     /** The User that needs to approve the Event. */
@@ -37,6 +38,10 @@ public class Request extends Model {
     @Setter
     private String _message;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param request The transport object to be transformed.
+     */
     public Request(DTO request) {
         super(request);
         _user = DTOService.convert(request.getUser());
@@ -85,15 +90,15 @@ public class Request extends Model {
         return defineToString(
             getClass().getSimpleName(),
             new String[]{
-                "primaryId",
-                "secondaryId",
-                "approved",
-                "timestamp"
+                Model.Fields._primaryId,
+                Model.Fields._secondaryId,
+                Fields._approved,
+                Model.Fields._timestamp
             },
             new String[]{
                 String.valueOf(_primaryId),
                 String.valueOf(_secondaryId),
-                _approved.get_argument().toString(),
+                _approved != null ? _approved.get_argument().toString() : null,
                 String.valueOf(_timestamp)
             }
         );

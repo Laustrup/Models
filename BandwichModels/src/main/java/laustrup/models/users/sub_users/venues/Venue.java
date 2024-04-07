@@ -1,5 +1,6 @@
 package laustrup.models.users.sub_users.venues;
 
+import laustrup.models.Model;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -14,6 +15,7 @@ import laustrup.models.users.subscriptions.SubscriptionOffer;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,7 +25,7 @@ import java.util.UUID;
  * itself and the opportunities for Events.
  * Extends from User, which means it also contains ChatRooms and other alike attributes.
  */
-@Getter
+@Getter @FieldNameConstants
 public class Venue extends User {
 
     /** The location that the Venue is located at, which could be an address or simple a place. */
@@ -44,13 +46,14 @@ public class Venue extends User {
     /** The Requests requested for this Venue. */
     private Liszt<Request> _requests;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param venue The transport object to be transformed.
+     */
     public Venue(DTO venue) {
         super(venue);
 
-        if (venue.getLocation() == null)
-            _location = _contactInfo.getAddressInfo();
-        else
-            _location = venue.getLocation();
+        _location = venue.getLocation() == null ? _contactInfo.getAddressInfo() : venue.getLocation();
 
         _gearDescription = venue.getGearDescription();
         _size = venue.getSize();
@@ -66,10 +69,7 @@ public class Venue extends User {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
                 subscription, bulletins, Authority.VENUE, timestamp);
 
-        if (location == null)
-            _location = _contactInfo.getAddressInfo();
-        else
-            _location = location;
+        _location = location == null ? _contactInfo.getAddressInfo() : location;
 
         _gearDescription = gearDescription;
         _size = size;
@@ -82,10 +82,7 @@ public class Venue extends User {
         super(username, null, null, description,
                 null, Authority.VENUE);
 
-        if (location == null)
-            _location = _contactInfo.getAddressInfo();
-        else
-            _location = location;
+        _location = location == null ? _contactInfo.getAddressInfo() : location;
 
         _gearDescription = gearDescription;
         _events = new Liszt<>();
@@ -165,19 +162,31 @@ public class Venue extends User {
 
     @Override
     public String toString() {
-        return "Venue(id="+_primaryId+
-                ",username="+_username+
-                ",location="+_location+
-                ",description="+_description+
-                ",gearDescription="+_gearDescription+
-                ",timestamp="+_timestamp+
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+                new String[] {
+                    Model.Fields._primaryId,
+                    User.Fields._username,
+                    Fields._location,
+                    User.Fields._description,
+                    Fields._gearDescription,
+                    Model.Fields._timestamp
+                },
+                new String[] {
+                    String.valueOf(get_primaryId()),
+                    get_username(),
+                    get_location(),
+                    get_description(),
+                    get_gearDescription(),
+                    String.valueOf(get_timestamp())
+                }
+        );
     }
 
     /**
-     * A Venue can be the host to an Event and contains different information about
-     * itself and the opportunities for Events.
-     * Extends from User, which means it also contains ChatRooms and other alike attributes.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO extends UserDTO {

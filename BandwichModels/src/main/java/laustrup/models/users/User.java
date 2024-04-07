@@ -12,6 +12,7 @@ import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.UUID;
  * It extends from Model class.
  * Can calculate full name from first- and last name.
  */
+@FieldNameConstants
 public abstract class User extends Model {
 
     /**
@@ -103,6 +105,10 @@ public abstract class User extends Model {
     @Getter
     protected Authority _authority;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param user The transport object to be transformed.
+     */
     public User(UserDTO user) {
         super(user.getPrimaryId(),user.getUsername() + "-" + user.getPrimaryId(),user.getTimestamp());
         _username = user.getUsername();
@@ -315,9 +321,9 @@ public abstract class User extends Model {
     }
 
     /**
-     * An abstract class, which is meant to be extended to a user type of object.
-     * It extends from Model class.
-     * Can calculate full name from first- and last name.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class UserDTO extends ModelDTO {

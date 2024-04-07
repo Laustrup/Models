@@ -1,7 +1,6 @@
 package laustrup.models.albums;
 
 import laustrup.ModelTester;
-import laustrup.dtos.albums.AlbumItemDTO;
 
 import laustrup.models.users.User;
 import laustrup.services.RandomCreatorService;
@@ -10,14 +9,14 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-class AlbumItemTests extends ModelTester<AlbumItem, AlbumItemDTO> {
+class AlbumItemTests extends ModelTester<AlbumItem, AlbumItem.DTO> {
 
     @Test @Override
     public void dataTransportObjectTranslate() {
         test(() -> {
             AlbumItem expected = arrange(() -> {
                 AlbumItem item = _items.get_albums()[0].get_items().Get(1);
-                _dto = new AlbumItemDTO(item);
+                _dto = new AlbumItem.DTO(item);
                 return item;
             });
 

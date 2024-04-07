@@ -1,6 +1,7 @@
 package laustrup.models.users.subscriptions;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.InputMismatchException;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
  */
 @Getter
 @ToString
+@FieldNameConstants
 public class Card {
 
     /**
@@ -54,6 +56,10 @@ public class Card {
      */
     private int _cVV;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param card The transport object to be transformed.
+     */
     public Card(DTO card) throws InputMismatchException {
         _id = card.getId();
         _type = Type.valueOf(card.getType().toString());
@@ -122,7 +128,6 @@ public class Card {
         return _cVV;
     }
 
-    // TODO Add more types
     /**
      * Are a set of enums with values of different credit card providers.
      */
@@ -133,7 +138,9 @@ public class Card {
     }
 
     /**
-     * Contains different information about credit cards, that are needed for curtain subscriptions.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @NoArgsConstructor
     @Data

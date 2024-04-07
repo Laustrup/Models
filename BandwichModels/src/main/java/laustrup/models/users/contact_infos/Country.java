@@ -1,9 +1,10 @@
 package laustrup.models.users.contact_infos;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 /** An object with information about a curtain Country. */
-@Getter @ToString
+@Getter @ToString @FieldNameConstants
 public class Country {
 
     /** The name of the Country. */
@@ -15,6 +16,10 @@ public class Country {
     /** The value of the first few digits of a phone number. */
     private int _firstPhoneNumberDigits;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param country The transport object to be transformed.
+     */
     public Country(DTO country) {
         _title = country.getTitle();
         _indexes = CountryIndexes.valueOf(country.getIndexes().toString());
@@ -29,7 +34,11 @@ public class Country {
     /** An enum with indexes of the Country. */
     public enum CountryIndexes { DK, SE, DE }
 
-    /** An object with information about a curtain Country. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO {
 

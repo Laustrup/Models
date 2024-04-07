@@ -15,6 +15,7 @@ import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ import java.util.UUID;
 import static laustrup.services.ObjectService.ifExists;
 
 /** An Event is a place for gigs, where a venue is having bands playing at specific times. */
-@Getter
+@Getter @FieldNameConstants
 public class Event extends Model {
 
     /**
@@ -125,6 +126,10 @@ public class Event extends Model {
     @Setter
     private Liszt<Album> _albums;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param event The transport object to be transformed.
+     */
     public Event(DTO event) {
         super(event);
 
@@ -621,8 +626,7 @@ public class Event extends Model {
                 localRequest.get_primaryId() == request.get_primaryId()
                 && Objects.equals(localRequest.get_secondaryId(), request.get_secondaryId())
             ) {
-               _requests.Set(i, request);
-               return _requests.Get(i);
+               return _requests.Set(i, request).Get(i);
             }
         }
 
@@ -638,9 +642,8 @@ public class Event extends Model {
         for (int i = 1; i <= _albums.size(); i++) {
             Album localAlbum = _albums.Get(i);
 
-            if (localAlbum.get_primaryId() == album.get_primaryId()) {
-                _albums.Set(i, album);
-                return _albums.Get(i);
+            if (localAlbum.get_primaryId() == album.get_primaryId()) {;
+                return _albums.Set(i, album).Get(i);
             }
         }
 
@@ -700,13 +703,14 @@ public class Event extends Model {
 
     @Override
     public String toString() {
-        return defineToString(getClass().getSimpleName(),
+        return defineToString(
+            getClass().getSimpleName(),
             new String[]{
-                "id",
-                "title",
-                "description",
-                "price",
-                "timestamp"
+                Model.Fields._primaryId,
+                Model.Fields._title,
+                Fields._description,
+                Fields._price,
+                Model.Fields._timestamp
             },
             new String[]{
                 String.valueOf(_primaryId),
@@ -718,7 +722,11 @@ public class Event extends Model {
         );
     }
 
-    /** An Event is placed a gig, where a venue is having bands playing at specific times. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter
     public static class DTO extends ModelDTO {
 

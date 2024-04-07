@@ -3,10 +3,11 @@ package laustrup.models.events;
 import laustrup.models.Model;
 import laustrup.models.users.sub_users.Performer;
 import laustrup.services.DTOService;
-
 import laustrup.utilities.collections.lists.Liszt;
+
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import java.util.UUID;
 import static laustrup.models.users.sub_users.Performer.PerformerDTO;
 
 /** Determines a specific gig of one band for a specific time. */
-@Getter @Setter
+@Getter @Setter @FieldNameConstants
 public class Gig extends Model {
 
     /** The Event of this Gig. */
@@ -29,6 +30,10 @@ public class Gig extends Model {
     /** The end of the Gig, where the act will end. */
     private LocalDateTime _end;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param gig The transport object to be transformed.
+     */
     public Gig(DTO gig) {
         super(gig);
         _event = new Event(gig.getEvent());
@@ -99,14 +104,26 @@ public class Gig extends Model {
 
     @Override
     public String toString() {
-        return "Gig(" +
-            "id:" + _primaryId +
-            ",start:" + _start.toString() +
-            ",end:" + _end.toString() +
-        ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                Fields._start,
+                Fields._end
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                String.valueOf(get_start()),
+                String.valueOf(get_end())
+            }
+        );
     }
 
-    /** Determines a specific gig of one band for a specific time. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter
     public static class DTO extends ModelDTO {
 

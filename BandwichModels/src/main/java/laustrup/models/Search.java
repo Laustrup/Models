@@ -5,8 +5,8 @@ import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.services.DTOService;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import static laustrup.models.users.User.UserDTO;
 
@@ -14,7 +14,7 @@ import static laustrup.models.users.User.UserDTO;
  * Is used for response of a search request,
  * contains different objects that are alike of the search query.
  */
-@NoArgsConstructor @Data
+@Getter @Setter
 public class Search {
 
     /**

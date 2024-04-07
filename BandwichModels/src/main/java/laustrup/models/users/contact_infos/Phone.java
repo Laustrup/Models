@@ -3,8 +3,7 @@ package laustrup.models.users.contact_infos;
 import lombok.*;
 
 /** Details about phone contacting information. */
-@Getter
-@ToString
+@Getter @ToString
 public class Phone {
 
     /** A country object, that represents the nationality of this PhoneNumber. */
@@ -18,6 +17,10 @@ public class Phone {
     /** True if the number is for a mobile. */
     private boolean _mobile;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param phone The transport object to be transformed.
+     */
     public Phone(DTO phone) {
         _country = new Country(phone.getCountry());
         _numbers = phone.getNumbers();
@@ -29,7 +32,11 @@ public class Phone {
         _mobile = mobile;
     }
 
-    /** Details about phone contacting information. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO {
 

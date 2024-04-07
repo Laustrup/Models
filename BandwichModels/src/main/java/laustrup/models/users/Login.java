@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
@@ -16,6 +17,7 @@ import java.util.InputMismatchException;
  */
 @Getter
 @ToString
+@FieldNameConstants
 public class Login {
 
     /**
@@ -35,6 +37,10 @@ public class Login {
      */
     private LocalDateTime _timestamp;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param login The transport object to be transformed.
+     */
     public Login(DTO login) {
         this(login.getUsername(), login.getPassword());
     }
@@ -118,14 +124,15 @@ public class Login {
 
             return storage;
         }
+
         throw new InputMismatchException();
     }
 
     /**
-     * Is use for logging in a user.
-     * Can check validations of email and password.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
-    @NoArgsConstructor
     @Data
     public static class DTO {
 

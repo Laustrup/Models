@@ -7,6 +7,7 @@ import laustrup.models.users.sub_users.bands.Band;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import static laustrup.models.users.User.UserDTO;
  * Defines the kind of subscription a user is having.
  * Only Artists and Bands can have a paying subscription.
  */
+@FieldNameConstants
 public class Subscription extends Model {
 
     /**
@@ -56,6 +58,10 @@ public class Subscription extends Model {
     @Getter
     private UUID _cardId;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param subscription The transport object to be transformed.
+     */
     public Subscription(DTO subscription) {
         super(subscription);
         _type = defineType(Type.valueOf(subscription.getType().toString()));
@@ -174,16 +180,29 @@ public class Subscription extends Model {
 
     @Override
     public String toString() {
-        return "Subscription(" +
-                    "id:" + _primaryId +
-                    ",status:" + _status +
-                    ",type:" + _type +
-                    ",price:" + _price +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                Fields._status,
+                Fields._type,
+                Fields._price,
+                Model.Fields._timestamp
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                get_status() != null ? get_status().name() : null,
+                get_type() != null ? get_type().name() : null,
+                String.valueOf(get_price()),
+                String.valueOf(get_timestamp())
+            }
+        );
     }
 
     /**
-     * An enum that can be of different types, determining the type of Subscription.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     public enum Type {
         FREEMIUM,
@@ -202,8 +221,9 @@ public class Subscription extends Model {
     }
 
     /**
-     * Defines the kind of subscription a user is having.
-     * Only Artists and Bands can have a paying subscription.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO extends ModelDTO {

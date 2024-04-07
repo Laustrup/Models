@@ -8,13 +8,18 @@ import laustrup.models.users.sub_users.bands.Band;
 import laustrup.services.DTOService;
 
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static laustrup.models.users.User.UserDTO;
 
-@Getter
+/**
+ * Contains objects that are describing data of either photos or music.
+ * The items contain the link to the file source.
+ */
+@Getter @FieldNameConstants
 public class Album extends Model {
 
     /** These endpoints are being used for getting the image/music file. */
@@ -53,8 +58,13 @@ public class Album extends Model {
      * @param author The creator of the Album.
      * @param timestamp The date this Album was created.
      */
-    public Album(UUID id, String title, Liszt<AlbumItem> items, User author,
-                 LocalDateTime timestamp) {
+    public Album(
+            UUID id,
+             String title,
+             Liszt<AlbumItem> items,
+             User author,
+             LocalDateTime timestamp
+    ) {
         super(id, title, timestamp);
         _items = items;
         _author = author;
@@ -157,9 +167,9 @@ public class Album extends Model {
         return defineToString(
             getClass().getSimpleName(),
             new String[]{
-                "id",
-                "title",
-                "timestamp"
+                Model.Fields._primaryId,
+                Model.Fields._title,
+                Model.Fields._timestamp
             },
             new String[]{
                 String.valueOf(_primaryId),
@@ -168,6 +178,11 @@ public class Album extends Model {
         });
     }
 
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter
     public static class DTO extends ModelDTO {
 

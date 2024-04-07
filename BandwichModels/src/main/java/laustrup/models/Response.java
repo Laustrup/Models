@@ -2,6 +2,7 @@ package laustrup.models;
 
 import laustrup.utilities.console.Printer;
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * This object is meant for containing an element from backend to frontend.
@@ -9,7 +10,8 @@ import lombok.*;
  * boolean value, to determine whether the response is an error or not.
  * @param <E> The element that will be delivered to frontend.
  */
-@NoArgsConstructor @Data
+@Getter @Setter
+@FieldNameConstants
 public class Response<E> {
 
     /**

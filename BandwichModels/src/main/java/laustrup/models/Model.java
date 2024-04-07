@@ -1,7 +1,10 @@
 package laustrup.models;
 
+import laustrup.utilities.console.Printer;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,6 +14,8 @@ import java.util.UUID;
  * When it is created through a constructor, that doesn't ask for a DateTime.
  * It will use the DateTime of now.
  */
+@FieldNameConstants
+@ToString(of = {"_primaryId", "_title", "_timestamp"})
 public abstract class Model {
 
     /**
@@ -73,13 +78,14 @@ public abstract class Model {
     }
 
     /** For the defineToString of how it should be split. */
+    @FieldNameConstants.Exclude
     private final String _toStringFieldSplitter = ",\n \t",
             _toStringKeyValueSplitter = ":\t";
 
     public Model(ModelDTO model) {
         _primaryId = model.getPrimaryId();
         _secondaryId = model.getSecondaryId();
-        _title = model.getTitle();
+        _title = model.getClass().getSimpleName() + " \"" + model.getPrimaryId() + "\"";
         _timestamp = model.getTimestamp();
         _situation = model.getSituation();
     }
@@ -175,14 +181,20 @@ public abstract class Model {
     protected String defineToString(String title, String[] keys, String[] values) {
         StringBuilder content = new StringBuilder();
 
-        if (values.length <= keys.length)
-            for (int i = 0; i < keys.length; i++) {
-                content.append(keys[i]).append(_toStringKeyValueSplitter).append(values[i]);
-                if (i < keys.length-1)
-                    content.append(_toStringFieldSplitter);
-            }
-        else
-            content = new StringBuilder("Content couldn't be generated, since there are less attributes than values");
+        try {
+            if (values.length <= keys.length)
+                for (int i = 0; i < keys.length; i++) {
+                    content.append(keys[i]).append(_toStringKeyValueSplitter).append(values[i] != null ? values[i] : "null");
+                    if (i < keys.length-1)
+                        content.append(_toStringFieldSplitter);
+                }
+            else
+                content = new StringBuilder("Content couldn't be generated, since there are less attributes than values");
+        } catch (Exception e) {
+            String message = title + " had an error when trying to define its ToString.";
+            Printer.print(message, e);
+            content = new StringBuilder(get_primaryId() != null ? String.valueOf(get_primaryId()) : message);
+        }
 
         return title + "(\n \t" + content + "\n)";
     }

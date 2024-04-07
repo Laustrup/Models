@@ -4,14 +4,13 @@ import laustrup.models.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Contains information that people need in order to contact the User.
- */
-@Getter
+/** Contains information that people need in order to contact the User. */
+@Getter @FieldNameConstants
 public class ContactInfo extends Model {
 
     /** The email that the User wants to be contacted through outside the application. */
@@ -28,6 +27,10 @@ public class ContactInfo extends Model {
     /** A Country object for the information of which Country the User is living in. */
     private Country _country;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param contactInfo The transport object to be transformed.
+     */
     public ContactInfo(DTO contactInfo) {
         super(contactInfo);
         _email = contactInfo.getEmail();
@@ -62,16 +65,30 @@ public class ContactInfo extends Model {
 
     @Override
     public String toString() {
-        return "ContactInfo(" +
-                    "id:" + _primaryId +
-                    ",email:" + _email +
-                    ",address:" + getAddressInfo() +
-                    ",phone:" + _phone.toString() +
-                    ",country:" + _country.toString() +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                Fields._email,
+                Fields._address,
+                Fields._phone,
+                Fields._country
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                get_email(),
+                get_address().toString(),
+                get_phone().toString(),
+                _country.toString()
+            }
+        );
     }
 
-    /** Contains information that people need in order to contact the User. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO extends ModelDTO {
 

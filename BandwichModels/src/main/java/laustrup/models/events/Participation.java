@@ -6,11 +6,12 @@ import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 
 /** Determines type of which a Participant is participating in an Event. */
-@Getter
+@Getter @FieldNameConstants
 public class Participation extends Model {
 
     /** The Participant of the participation. */
@@ -23,6 +24,10 @@ public class Participation extends Model {
     @Setter
     private ParticipationType _type;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param participation The transport object to be transformed.
+     */
     public Participation(DTO participation) {
         super(participation);
         _participant = (Participant) DTOService.convert(participation.getParticipant());
@@ -51,18 +56,31 @@ public class Participation extends Model {
 
     @Override
     public String toString() {
-        return "Participation(" +
-                    "primaryId:" + _primaryId +
-                    ",secondaryId:" + _secondaryId +
-                    ",title:" + _title +
-                    ",type:" + _type +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                Model.Fields._secondaryId,
+                Model.Fields._title,
+                Fields._type
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                String.valueOf(get_secondaryId()),
+                get_title(),
+                get_type().name()
+            }
+        );
     }
 
     /** Each Participation have four different choices of participating. */
     public enum ParticipationType { ACCEPTED, IN_DOUBT, CANCELED, INVITED }
 
-    /** Determines type of which a Participant is participating in an Event. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO extends ModelDTO {
 

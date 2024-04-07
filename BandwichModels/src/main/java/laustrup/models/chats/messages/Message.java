@@ -7,16 +7,15 @@ import laustrup.utilities.parameters.Plato;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static laustrup.models.users.User.UserDTO;
 
-/**
- * An abstract class that contains common attributes for Messages.
- */
-@Getter
+/** An abstract class that contains common attributes for Messages. */
+@Getter @FieldNameConstants
 public abstract class Message extends Model {
 
     /** The User that wrote the Message. */
@@ -37,7 +36,7 @@ public abstract class Message extends Model {
      */
     protected Plato _edited;
 
-    /** Can be switch between both true and false, if true the message is public for every User. */
+    /** Can be switched between both true and false, if true the message is public for every User. */
     @Setter
     protected boolean _public;
 
@@ -133,5 +132,4 @@ public abstract class Message extends Model {
             this.isPublic = message.is_public();
         }
     }
-
 }

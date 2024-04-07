@@ -3,6 +3,7 @@ package laustrup.models.users.subscriptions;
 import laustrup.utilities.console.Printer;
 
 import lombok.*;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
@@ -10,7 +11,7 @@ import java.util.InputMismatchException;
 /**
  * This offer determines, if the price of a Subscription should be changed through its attributes.
  */
-@ToString
+@ToString @FieldNameConstants
 public class SubscriptionOffer {
 
     /**
@@ -31,6 +32,10 @@ public class SubscriptionOffer {
      */
     private double _effect;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param offer The transport object to be transformed.
+     */
     public SubscriptionOffer(DTO offer) {
         _expires = offer.getExpires();
         _type = Type.valueOf(offer.getType().toString());
@@ -86,7 +91,9 @@ public class SubscriptionOffer {
     }
 
     /**
-     * This offer determines, if the price of a Subscription should be changed through its attributes.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO {

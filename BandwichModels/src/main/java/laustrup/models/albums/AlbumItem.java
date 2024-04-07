@@ -8,12 +8,17 @@ import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 
 import static laustrup.models.users.User.UserDTO;
 
-@Getter
+/**
+ * An item of an album that can be either a photos or music.
+ * Has a link to the endpoint of the file source.
+ */
+@Getter @FieldNameConstants
 public class AlbumItem extends Model {
 
     /** Categories the tagged people, who have participated on the item of the album. */
@@ -70,45 +75,58 @@ public class AlbumItem extends Model {
      * @param tag The User that will be added as a tag.
      * @return All the tags of the item.
      */
-    public Liszt<User> add(User tag) { return add(new User[]{tag}); }
+    public Liszt<User> add(User tag) {
+        return add(new User[]{tag});
+    }
 
     /**
      * Will add some Users as tags to the item.
      * @param tags The Users that will be added as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> add(User[] tags) { return _tags.Add(tags); }
+    public Liszt<User> add(User[] tags) {
+        return _tags.Add(tags);
+    }
 
     /**
      * Removes a tagged User of the item.
      * @param tag The User that will be removed as a tag.
      * @return All the tags of the item.
      */
-    public Liszt<User> remove(User tag) { return remove(new User[]{tag}); }
+    public Liszt<User> remove(User tag) {
+        return remove(new User[]{tag});
+    }
 
     /**
      * Removes some tagged Users of the item.
      * @param tags The Users that will be removed as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> remove(User[] tags) { return _tags.remove(tags); }
+    public Liszt<User> remove(User[] tags) {
+        return _tags.remove(tags);
+    }
 
     @Override
     public String toString() {
         return defineToString(
             getClass().getSimpleName(),
             new String[]{
-                "endpoint",
-                "kind",
-                "timestamp"
+                Fields._endpoint,
+                Fields._kind,
+                Model.Fields._timestamp
             },
             new String[]{
                 _endpoint,
-                _kind.toString(),
-                _timestamp.toString()
+                _kind != null ? _kind.toString() : null,
+                _timestamp != null ? _timestamp.toString() : null
         });
     }
 
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter
     public static class DTO extends ModelDTO {
 

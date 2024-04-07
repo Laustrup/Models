@@ -1,5 +1,6 @@
 package laustrup.models.users.sub_users.bands;
 
+import laustrup.models.Model;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -15,6 +16,7 @@ import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,7 +25,7 @@ import java.util.UUID;
  * An Artist can either be a solo Performer or member of a Band, which changes the Subscription, if it ain't freemium.
  * Extends from Performer.
  */
-@Getter
+@Getter @FieldNameConstants
 public class Artist extends Performer {
 
     /** The Bands that the Artist is a member of. */
@@ -36,6 +38,10 @@ public class Artist extends Performer {
     /** The Requests requested for this Artist. */
     private Liszt<Request> _requests;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param artist The transport object to be transformed.
+     */
     public Artist(DTO artist) {
         super(artist);
         _bands = new Liszt<>();
@@ -118,18 +124,28 @@ public class Artist extends Performer {
 
     @Override
     public String toString() {
-        return "Artist(" +
-                    "id="+_primaryId+
-                    ",username="+_username+
-                    ",description="+_description+
-                    ",timestamp="+_timestamp+
-                    ",runner="+_runner+
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                User.Fields._username,
+                User.Fields._description,
+                Fields._runner,
+                Model.Fields._timestamp
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                get_username(),
+                get_description(),
+                get_runner(),
+                String.valueOf(get_timestamp())
+            });
     }
 
     /**
-     * An Artist can either be a solo Performer or member of a Band, which changes the Subscription, if it ain't freemium.
-     * Extends from Performer.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO extends PerformerDTO {

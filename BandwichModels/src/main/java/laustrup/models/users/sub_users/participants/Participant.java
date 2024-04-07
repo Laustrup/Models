@@ -1,5 +1,6 @@
 package laustrup.models.users.sub_users.participants;
 
+import laustrup.models.Model;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -14,6 +15,7 @@ import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,7 +24,7 @@ import java.util.UUID;
  * Defines a User, that will attend an Event as an audience.
  * Extends from User.
  */
-@Getter
+@Getter @FieldNameConstants
 public class Participant extends User {
 
     /**
@@ -31,6 +33,10 @@ public class Participant extends User {
      */
     private Liszt<User> _idols;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param participant The transport object to be transformed.
+     */
     public Participant(DTO participant) {
         super(participant);
         _idols = new Liszt<>();
@@ -107,28 +113,41 @@ public class Participant extends User {
      * @param following A User, that is wished to be added.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> add(User following) { return _idols.Add(following); }
+    public Liszt<User> add(User following) {
+        return _idols.Add(following);
+    }
 
     /**
      * Removes a User from the followings of the Participant.
      * @param following a User, that is wished to be removed.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> remove(User following) { return _idols.remove(new User[]{following}); }
+    public Liszt<User> remove(User following) {
+        return _idols.remove(new User[]{following});
+    }
 
     @Override
     public String toString() {
-        return "Participant(" +
-                    "id=" + _primaryId +
-                    ",username=" + _username +
-                    ",description=" + _description +
-                    ",timestamp=" + _timestamp +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                User.Fields._description,
+                Model.Fields._timestamp
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                get_username(),
+                get_description(),
+                String.valueOf(get_timestamp())
+            }
+        );
     }
 
     /**
-     * Defines a User, that will attend an Event as an audience.
-     * Extends from User.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO extends UserDTO {

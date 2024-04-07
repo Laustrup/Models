@@ -2,9 +2,13 @@ package laustrup.models.users.contact_infos;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /** Contains values that determines address attributes. */
-@Setter @Getter
+@Setter @Getter @FieldNameConstants
 public class Address {
 
     /** The street and street number. */
@@ -35,17 +39,19 @@ public class Address {
 
     @Override
     public String toString() {
-        String info = "";
-
-        info += get_street() != null ? get_street() + ", " : "";
-        info += get_floor() != null ? get_floor() + ", " : "";
-        info += get_postal() != null ? get_postal() + " " : "";
-        info += get_city() != null ? get_city() : "";
-
-        return info;
+        return String.join(", ", Arrays.stream(new String[] {
+            get_street(),
+            get_floor(),
+            get_postal(),
+            get_city()
+        }).filter(Objects::nonNull).toList());
     }
 
-    /** Contains values that determines address attributes. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO {
 

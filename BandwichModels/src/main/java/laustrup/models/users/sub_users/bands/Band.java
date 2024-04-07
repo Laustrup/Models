@@ -1,5 +1,6 @@
 package laustrup.models.users.sub_users.bands;
 
+import laustrup.models.Model;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Rating;
 import laustrup.models.albums.Album;
@@ -15,13 +16,14 @@ import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.UUID;
 
 /** Extends performer and contains Artists as members */
-@Getter
+@Getter @FieldNameConstants
 public class Band extends Performer {
 
     /** Contains all the Artists, that are members of this band. */
@@ -31,6 +33,10 @@ public class Band extends Performer {
     @Setter
     private String _runner;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param band The transport object to be transformed.
+     */
     public Band(Band.DTO band) {
         super(band);
         _username = band.getUsername();
@@ -101,16 +107,30 @@ public class Band extends Performer {
 
     @Override
     public String toString() {
-        return "Band(" +
-                    "id=" + _primaryId +
-                    ",username=" + _username +
-                    ",description=" + _description +
-                    ",timestamp=" + _timestamp +
-                    ",runner=" + _runner +
-                ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Model.Fields._primaryId,
+                User.Fields._username,
+                User.Fields._description,
+                Fields._runner,
+                Model.Fields._timestamp
+            },
+            new String[] {
+                String.valueOf(get_primaryId()),
+                get_username(),
+                get_description(),
+                get_runner(),
+                Model.Fields._timestamp
+            }
+        );
     }
 
-    /** Extends performer and contains Artists as members */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter @Setter
     public static class DTO extends PerformerDTO {
 

@@ -5,6 +5,7 @@ import laustrup.models.users.User;
 import laustrup.services.DTOService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
@@ -18,6 +19,7 @@ import static laustrup.services.ObjectService.ifExists;
  * Is created by a user.
  */
 @Getter
+@FieldNameConstants
 public class Rating extends Model {
 
     /**
@@ -44,6 +46,10 @@ public class Rating extends Model {
     @Setter
     private String _comment;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param rating The transport object to be transformed.
+     */
     public Rating(DTO rating) throws InputMismatchException {
         super(rating);
         _value = set_value(rating.getValue());
@@ -95,23 +101,27 @@ public class Rating extends Model {
 
     @Override
     public String toString() {
-        if (_appointed == null || _judge == null)
-            return "Rating(value:" + _value +
-                    ",appointed:" + _primaryId +
-                    ",judge:" + _secondaryId +
-                    ",timestamp" + _timestamp +
-                    ")";
-        else
-            return "Rating(value:" + _value +
-                    ",appointed:" + _appointed.get_title() +
-                    ",judge:" + _judge.get_title() +
-                    ",timestamp" + _timestamp +
-                    ")";
+        return defineToString(
+            getClass().getSimpleName(),
+            new String[] {
+                Fields._appointed,
+                Fields._judge,
+                Fields._value,
+                Model.Fields._timestamp
+            },
+            new String[] {
+                get_appointed() != null ? get_appointed().get_title() : String.valueOf(get_primaryId()),
+                get_judge() != null ? get_judge().get_title() : String.valueOf(get_secondaryId()),
+                String.valueOf(get_value()),
+                String.valueOf(get_timestamp())
+            }
+        );
     }
 
     /**
-     * Can be added to a model to indicate the rating that the model is appreciated.
-     * Is created by a user.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class DTO extends ModelDTO {

@@ -15,6 +15,7 @@ import laustrup.models.users.subscriptions.Subscription;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,7 +24,7 @@ import java.util.UUID;
  * An abstract class object, that can be extended by classes such as Artist and Band.
  * Extends from User.
  */
-@Getter
+@Getter @FieldNameConstants
 public abstract class Performer extends Participant {
 
     /**
@@ -36,6 +37,10 @@ public abstract class Performer extends Participant {
      */
     protected Liszt<User> _fans;
 
+    /**
+     * Will translate a transport object of this object into a construct of this object.
+     * @param performer The transport object to be transformed.
+     */
     public Performer(PerformerDTO performer) {
         super(performer);
         _authority = Authority.valueOf(performer.getAuthority().toString());
@@ -149,8 +154,9 @@ public abstract class Performer extends Participant {
     }
 
     /**
-     * An abstract class object, that can be extended by classes such as Artist and Band.
-     * Extends from User.
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
      */
     @Getter @Setter
     public static class PerformerDTO extends Participant.DTO {

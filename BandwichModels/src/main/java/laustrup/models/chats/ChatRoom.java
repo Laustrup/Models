@@ -9,6 +9,7 @@ import laustrup.models.users.sub_users.bands.Band;
 import laustrup.services.DTOService;
 
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import static laustrup.models.users.User.UserDTO;
 import static laustrup.services.ObjectService.ifExists;
 
 /** This is used for multiple Users to communicate with each other through Mails. */
-@Getter
+@Getter @FieldNameConstants
 public class ChatRoom extends Model {
 
     /** All the Mails that has been sent will be stored here. */
@@ -167,7 +168,7 @@ public class ChatRoom extends Model {
      * unless some already is a chatter.
      * @param chatters A users that is wished to be added as a chatter of the ChatRoom.
      * @return All the chatters of the ChatRoom.
-     */ //TODO Band needs to be Seszt with members, then move if contains
+     */
     public Liszt<User> add(User[] chatters) {
         ifExists(chatters,() -> {
             for (User chatter : chatters) {
@@ -251,9 +252,9 @@ public class ChatRoom extends Model {
         return defineToString(
             getClass().getSimpleName(),
             new String[]{
-                "id",
-                "title",
-                "timestamp"
+                Model.Fields._primaryId,
+                Model.Fields._title,
+                Model.Fields._timestamp
             },
             new String[]{
                 String.valueOf(_primaryId),
@@ -263,7 +264,11 @@ public class ChatRoom extends Model {
         );
     }
 
-    /** This is used for multiple Users to communicate with each other through Mails. */
+    /**
+     * The Data Transfer Object.
+     * Is meant to be used as having common fields and be the body of Requests and Responses.
+     * Doesn't have any logic.
+     */
     @Getter
     public static class DTO extends ModelDTO {
 
