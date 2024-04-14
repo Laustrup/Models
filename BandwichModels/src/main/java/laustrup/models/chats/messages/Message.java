@@ -52,27 +52,33 @@ public abstract class Message extends Model {
         _edited = new Plato(message.getIsEdited());
         _public = message.isPublic();
     }
-    public Message(UUID id, User author, String content, boolean isSent, Plato isEdited, boolean isPublic,
-                   LocalDateTime timestamp) {
+
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param author The User that wrote the Message.
+     * @param content The content of the written Message.
+     * @param isSent True if the Message is sent.
+     * @param isEdited A Plato object, that will be true if the Message has been edited.
+     *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+     * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     * @param timestamp Specifies the time this entity was created.
+     */
+    public Message(
+            UUID id,
+            User author,
+            String content,
+            boolean isSent,
+            Plato isEdited,
+            boolean isPublic,
+            LocalDateTime timestamp
+    ) {
         super(id, "Message-"+id,timestamp);
         _author = author;
         _content = content;
         _sent = isSent;
         _edited = isEdited;
         _public = isPublic;
-    }
-
-    /**
-     * For creating this Message.
-     * @param author The creator of this Message.
-     */
-    public Message(User author) {
-        super("Message-by:" + author.get_title());
-        _author = author;
-        _content = "";
-        _sent = false;
-        _edited = new Plato();
-        _public = false;
     }
 
     /**

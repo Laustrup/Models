@@ -74,34 +74,6 @@ public class ChatRoom extends Model {
     }
 
     /**
-     * A primitive constructor, with lesser values.
-     * Purpose is to use for assembling.
-     * Will set assembling to true.
-     * @param id The primary id.
-     * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
-     * @param timestamp The time this ChatRoom was created.
-     */
-    public ChatRoom(UUID id, String title, LocalDateTime timestamp) {
-        super(id, title, timestamp);
-        _chatters = new Liszt<>();
-        _title = determineChatRoomTitle(_title);
-        _mails = new Liszt<>();
-    }
-
-    /**
-     * For when creating a new ChatRoom.
-     * Will generate a timestamp at now.
-     * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
-     * @param chatters The chatters that are members of this ChatRoom.
-     */
-    public ChatRoom(String title, Liszt<User> chatters) {
-        super(title);
-        _chatters = chatters;
-        _title = determineChatRoomTitle(_title);
-        _mails = new Liszt<>();
-    }
-
-    /**
      * Will generate a title of the chatters of this ChatRoom
      * but only if the title isn't default set yet.
      * @return The generated Title.

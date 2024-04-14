@@ -79,8 +79,29 @@ public class Event extends Model {
      * This is the address or place, whether the Event will be held.
      * Will be used to be search at in Google Maps.
      */
-    @Setter
     private String _location;
+
+    /**
+     * Sets the location.
+     * In case that the input is null or empty, it will use the location of the Venue.
+     * @param location The new location value.
+     * @return The location value.
+     */
+    public String set_location(String location) {
+        _location = location == null || location.isEmpty()
+            ? (
+                _venue != null
+                    ? (
+                        _venue.get_location() != null
+                            ? _venue.get_location()
+                            : null
+                    )
+                    : null
+            )
+            : location;
+
+        return _location;
+    }
 
     /**
      * The cost of a ticket.
@@ -169,9 +190,7 @@ public class Event extends Model {
         _contactInfo = (ContactInfo) ifExists(event.getContactInfo(), e -> new ContactInfo(event.getContactInfo()));
         _venue = (Venue) DTOService.convert(event.getVenue());
 
-        _location = event.getLocation() == null || event.getLocation().isEmpty() ?
-                (event.getVenue() != null ? (event.getLocation() != null ? event.getLocation() : null)
-                        : null) : event.getLocation();
+        set_location(event.getLocation());
 
         ifExists(event.getRequests(), () -> {
             _requests = new Liszt<>();
@@ -222,12 +241,28 @@ public class Event extends Model {
      * @param timestamp The date and time this Event was created.
      * @throws InputMismatchException Will be thrown, if the times don't fit each other correctly.
      */
-    public Event(UUID id, String title, String description, LocalDateTime openDoors, Plato isVoluntary, Plato isPublic,
-                 Plato isCancelled, Plato isSoldOut, String location, double price, String ticketsURL,
-                 ContactInfo contactInfo, Liszt<Gig> gigs, Venue venue, Liszt<Request> requests,
-                 Liszt<Participation> participations, Liszt<Bulletin> bulletins, Liszt<Album> albums,
-                 LocalDateTime timestamp) throws InputMismatchException {
-        super(id, title, timestamp);
+    public Event(
+            UUID id,
+            String title,
+            String description,
+            LocalDateTime openDoors,
+            Plato isVoluntary,
+            Plato isPublic,
+            Plato isCancelled,
+            Plato isSoldOut,
+            String location,
+            double price,
+            String ticketsURL,
+            ContactInfo contactInfo,
+            Liszt<Gig> gigs,
+            Venue venue,
+            Liszt<Request> requests,
+            Liszt<Participation> participations,
+            Liszt<Bulletin> bulletins,
+            Liszt<Album> albums,
+            LocalDateTime timestamp
+    ) throws InputMismatchException {
+        super(id, title == null || title.isEmpty() ? "Untitled event" : title, timestamp);
 
         _description = description;
         _gigs = gigs;
@@ -258,36 +293,12 @@ public class Event extends Model {
         _contactInfo = contactInfo;
         _venue = venue;
 
-        _location = location == null || location.isEmpty() ?
-                (venue != null ? (venue.get_location() != null ? venue.get_location() : null)
-                    : null) : location;
+        set_location(location);
 
         _requests = requests;
         _participations = participations;
         _bulletins = bulletins;
         _albums = albums;
-    }
-
-    /**
-     * Constructs a new Event.
-     * @param title The named title of the Event.
-     * @param user The User who created this Event,
-     *             can only be public when the Venue either creates an Event or accepts the Request.
-     */
-    public Event(String title, User user) {
-        super(title);
-
-        _gigs = new Liszt<>();
-        if (user.get_authority() == User.Authority.BAND || user.get_authority() == User.Authority.ARTIST)
-            _gigs.add(new Gig(new Performer[]{(Performer) user}));
-        else _venue = (Venue) user;
-
-        _participations = new Liszt<>();
-        _bulletins = new Liszt<>();
-        _albums = new Liszt<>();
-
-        _length = 0;
-        _cancelled = new Plato();
     }
 
     /**
@@ -341,9 +352,11 @@ public class Event extends Model {
             for (Performer stranger : gigs[i].get_act())
                 for (Gig gig : _gigs)
                     for (Performer performer : gig.get_act())
-                        if (stranger.get_primaryId() != performer.get_primaryId() &&
-                            !gigs[i].get_start().isEqual(gig.get_start()) &&
-                            !gigs[i].get_end().isEqual(gig.get_end()))
+                        if (
+                            stranger.get_primaryId() != performer.get_primaryId()
+                            && !gigs[i].get_start().isEqual(gig.get_start())
+                            && !gigs[i].get_end().isEqual(gig.get_end())
+                        )
                             storage[i] = gigs[i];
 
         int length = 0;
@@ -381,29 +394,36 @@ public class Event extends Model {
         for (Gig gig : gigs)
             for (Performer performer : gig.get_act())
                 if (!isPerformerInOtherGigs(performer))
-                    removeRequest(performer);
+                    removeRequests(performer);
 
         calculateTime();
 
         return _gigs;
     }
 
+    /**
+     * Checks if the Performer is included in any Gig of this Event.
+     * @param performer The Performer that might be included in a Gig.
+     * @return True if the Performer is included in any Gig.
+     */
     private boolean isPerformerInOtherGigs(Performer performer) {
-        boolean isInOtherGig = false;
         for (Gig gig : _gigs)
             for (Performer gigPerformer : gig.get_act())
-                if (gigPerformer.get_primaryId() == performer.get_primaryId()) {
-                    isInOtherGig = true;
-                    break;
-                }
+                if (gigPerformer.get_primaryId() == performer.get_primaryId())
+                    return true;
 
-        return isInOtherGig;
+        return false;
     }
 
-    private Liszt<Request> removeRequest(Performer performer) {
+    /**
+     * Will remove any Requests of this Performer for this Event.
+     * @param performer The Performer that should have the Request excluded.
+     * @return The Requests of this Event.
+     */
+    private Liszt<Request> removeRequests(Performer performer) {
         for (int i = 1; i <= _requests.size(); i++) {
             if (_requests.Get(i).get_user().get_primaryId() == performer.get_primaryId()) {
-                _requests.remove(i);
+                _requests.Remove(i);
                 break;
             }
         }
@@ -459,7 +479,7 @@ public class Event extends Model {
                     }
                 }
                 if (!requestAlreadyExist)
-                    requests[i] = new Request(user,this, new Plato());
+                    requests[i] = new Request(user, this);
             }
         }
 
@@ -472,8 +492,18 @@ public class Event extends Model {
      * @param request The Request that is wished to have its approved set to true.
      * @return The Request that is changed. If it is not changed, it returns null.
      */
-    public Request acceptRequest(Request request) {
-        return _requests.set(request, new Request(request.get_user(), request.get_event(), new Plato(true))).Get(request.toString());
+    public Liszt<Request> accept(Request request) {
+        if (!_requests.contains(request))
+            return null;
+
+        for (Request local : _requests) {
+            if (local.get_primaryId().equals(request.get_primaryId())) {
+                local.set_approved(new Plato(true));
+                return _requests;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -506,7 +536,7 @@ public class Event extends Model {
 
         _public.set_argument(false);
         _venue = venue;
-        _requests.add(new Request(venue, this, new Plato(Plato.Argument.UNDEFINED)));
+        _requests.add(new Request(venue, this));
 
         return _venue;
     }
@@ -874,5 +904,5 @@ public class Event extends Model {
             }
         }
     }
-    }
+}
 

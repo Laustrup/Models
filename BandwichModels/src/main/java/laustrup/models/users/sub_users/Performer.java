@@ -27,14 +27,10 @@ import java.util.UUID;
 @Getter @FieldNameConstants
 public abstract class Performer extends Participant {
 
-    /**
-     * Describes all the gigs, that the Performer is a part of an act.
-     */
+    /** Describes all the gigs, that the Performer is a part of an act. */
     protected Liszt<Gig> _gigs;
 
-    /**
-     * All the participants that are following this Performer, is included here.
-     */
+    /** All the participants that are following this Performer, is included here. */
     protected Liszt<User> _fans;
 
     /**
@@ -74,21 +70,6 @@ public abstract class Performer extends Participant {
         _authority = authority;
         _gigs = gigs;
         _fans = fans;
-    }
-
-    public Performer(String username, String firstName, String lastName, String description, Subscription subscription,
-                     Authority authority) {
-        super(username, firstName, lastName, description, subscription);
-        _authority = authority;
-        _gigs = new Liszt<>();
-        _fans = new Liszt<>();
-    }
-
-    public Performer(String username, String description, Subscription subscription, Authority authority) {
-        super(username, description, subscription);
-        _authority = authority;
-        _gigs = new Liszt<>();
-        _fans = new Liszt<>();
     }
 
     /**

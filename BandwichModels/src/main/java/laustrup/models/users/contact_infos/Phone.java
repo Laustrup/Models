@@ -26,6 +26,13 @@ public class Phone {
         _numbers = phone.getNumbers();
         _mobile = phone.isMobile();
     }
+
+    /**
+     * The primary id that identifies this unique Object.
+     * @param country A country object, that represents the nationality of this PhoneNumber.
+     * @param numbers The contact numbers for the Phone.
+     * @param mobile True if the number is for a mobile.
+     */
     public Phone(Country country, long numbers, boolean mobile) {
         _country = country;
         _numbers = numbers;

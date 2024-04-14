@@ -38,21 +38,22 @@ public class ContactInfo extends Model {
         _address = new Address(contactInfo.getAddress());
         _country = new Country(contactInfo.getCountry());
     }
+
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param email The email that the User wants to be contacted through outside the application.
+     * @param phone A Phone object that is used to have information about how to contact the User through Phone.
+     * @param address An Address object with info about the location of the User.
+     * @param country A Country object for the information of which Country the User is living in.
+     * @param timestamp The date and time this ContactInfo was created.
+     */
     public ContactInfo(UUID id, String email, Phone phone, Address address, Country country, LocalDateTime timestamp) {
         super(id, "Contact-info: "+id, timestamp);
         _email = email;
         _phone = phone;
         _address = address;
         _country = country;
-    }
-
-    public ContactInfo(String email, Phone phone, Address address, Country country) {
-        super();
-        _email = email;
-        _phone = phone;
-        _address = address;
-        _country = country;
-        _title = getAddressInfo();
     }
 
     /**

@@ -26,6 +26,19 @@ public class Bulletin extends Message {
         super(bulletin);
         _receiver = DTOService.convert(bulletin.getReceiver());
     }
+
+    /**
+     * A constructor with all the values of a Bulletin.
+     * @param id The primary id that identifies this unique Object.
+     * @param author The User that wrote the Message.
+     * @param receiver The Model receiver that are having the Bulletin posted at its dashboard.
+     * @param content The content of the written Message.
+     * @param isSent True if the Message is sent.
+     * @param isEdited A Plato object, that will be true if the Message has been edited.
+     *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+     * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     * @param timestamp Specifies the time this entity was created.
+     */
     public Bulletin(
             UUID id,
             User author,
@@ -38,16 +51,6 @@ public class Bulletin extends Message {
     ) {
         super(id, author, content, isSent, isEdited, isPublic, timestamp);
         _receiver = receiver;
-    }
-
-    public Bulletin(UUID id, String content, boolean isSent, Plato isEdited, boolean isPublic, LocalDateTime timestamp) {
-        super(id, null, content, isSent, isEdited, isPublic, timestamp);
-    }
-
-    public Bulletin(User author, User receiver, String content) {
-        super(author);
-        _receiver = receiver;
-        _content = content;
     }
 
     @Override

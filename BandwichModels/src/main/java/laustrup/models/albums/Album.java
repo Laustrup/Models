@@ -52,7 +52,7 @@ public class Album extends Model {
 
     /**
      * A constructor with all the values of an Album.
-     * @param id The primary id that identifies this unique Album.
+     * @param id The primary id that identifies this unique Object.
      * @param title The title of the Album.
      * @param items The items contained on this Album.
      * @param author The creator of the Album.
@@ -60,24 +60,12 @@ public class Album extends Model {
      */
     public Album(
             UUID id,
-             String title,
-             Liszt<AlbumItem> items,
-             User author,
-             LocalDateTime timestamp
+            String title,
+            Liszt<AlbumItem> items,
+            User author,
+            LocalDateTime timestamp
     ) {
         super(id, title, timestamp);
-        _items = items;
-        _author = author;
-    }
-
-    /**
-     * A limited constructor, that can be used for when it is created.
-     * @param title The title of the Album.
-     * @param items The items contained on this Album.
-     * @param author The creator of the Album.
-     */
-    public Album(String title, Liszt<AlbumItem> items, User author) {
-        super(title);
         _items = items;
         _author = author;
     }

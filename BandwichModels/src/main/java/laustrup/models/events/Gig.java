@@ -49,25 +49,17 @@ public class Gig extends Model {
         return performances;
     }
 
-    public Gig(Performer[] act) {
-        super("New gig");
-        _act = new Liszt<>(act);
-    }
-
-    public Gig(Liszt<Performer> act) {
-        this(act.get_data());
-    }
-
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param event The Event of this Gig.
+     * @param act This act is of a Gig and can both be assigned as artists or bands.
+     * @param start The start of the Gig, where the act will begin.
+     * @param end The end of the Gig, where the act will end.
+     * @param timestamp The time this Object was created.
+     */
     public Gig(UUID id, Event event, Performer[] act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
-        super(id, "Gig:"+id, timestamp);
-        _event = event;
-        _act = new Liszt<>(act);
-        _start = start;
-        _end = end;
-    }
-
-    public Gig(Event event, Performer[] act, LocalDateTime start, LocalDateTime end) {
-        super("New gig");
+        super(id, "Gig:" + id, timestamp);
         _event = event;
         _act = new Liszt<>(act);
         _start = start;
@@ -97,6 +89,11 @@ public class Gig extends Model {
         return _act.Add(performance);
     }
 
+    /**
+     * Removes a performance from its act.
+     * @param performance The performance that should be removed from the act.
+     * @return The act of this Gig.
+     */
     public Liszt<Performer> remove(Performer performance) {
         _act.remove(performance);
         return _act;

@@ -21,9 +21,7 @@ import static laustrup.models.users.User.UserDTO;
 @FieldNameConstants
 public class Subscription extends Model {
 
-    /**
-     * The User that uses this Subscription.
-     */
+    /** The User that uses this Subscription. */
     @Getter
     private User _user;
 
@@ -34,20 +32,14 @@ public class Subscription extends Model {
     @Getter
     private Type _type;
 
-    /**
-     * An enum that determines what kind of status, the situation of the Subscription is in.
-     */
+    /** An enum that determines what kind of status, the situation of the Subscription is in. */
     @Getter @Setter
     private Status _status;
 
-    /**
-     * How much the User should pay per month.
-     */
+    /** How much the User should pay per month. */
     private int _price;
 
-    /**
-     * An object class that specifies the offer if any, that this Subscription has.
-     */
+    /** An object class that specifies the offer if any, that this Subscription has. */
     @Getter @Setter
     private SubscriptionOffer _offer;
 
@@ -69,6 +61,16 @@ public class Subscription extends Model {
         _offer = new SubscriptionOffer(subscription.getOffer());
         _cardId = subscription.getCardId();
     }
+
+    /**
+     *
+     * @param user
+     * @param type
+     * @param status
+     * @param offer
+     * @param cardId
+     * @param timestamp
+     */
     public Subscription(User user, Type type, Status status, SubscriptionOffer offer, UUID cardId, LocalDateTime timestamp) {
         super(user.get_primaryId(), cardId, user.get_username()+"-Subscription: " + user.get_primaryId(), timestamp);
         _type = defineType(type);

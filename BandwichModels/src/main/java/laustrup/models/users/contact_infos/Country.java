@@ -25,6 +25,13 @@ public class Country {
         _indexes = CountryIndexes.valueOf(country.getIndexes().toString());
         _firstPhoneNumberDigits = country.getFirstPhoneNumberDigits();
     }
+
+    /**
+     The primary id that identifies this unique Object.
+     * @param title The name of the Country.
+     * @param indexes The two digits indexes of the Country.
+     * @param firstPhoneNumberDigits The value of the first few digits of a phone number.
+     */
     public Country(String title, CountryIndexes indexes, int firstPhoneNumberDigits) {
         _title = title;
         _indexes = indexes;

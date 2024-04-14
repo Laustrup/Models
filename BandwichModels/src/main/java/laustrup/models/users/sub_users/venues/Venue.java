@@ -62,6 +62,26 @@ public class Venue extends User {
         for (Request.DTO request : venue.getRequests())
             _requests.add(new Request(request));
     }
+
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param username The title of the user, that the user uses to use as a title for the profile.
+     * @param description This is what the user uses to describe itself.
+     * @param contactInfo An object that has the different attributes,
+     *                    that can be used to contact this user.
+     * @param albums An album consisting of images.
+     * @param ratings Ratings made from other users on this user based on a value.
+     * @param events The Events that this user is included in.
+     * @param chatRooms These ChatRooms can be used to communicate with other users.
+     * @param location The location that the Venue is located at, which could be an address or simple a place.
+     * @param gearDescription The description of the gear that the Venue posses.
+     * @param subscription The Subscription of this Artist.
+     * @param bulletins Messages by other Users.
+     * @param size The size of the stage and room, that Events can be held at.
+     * @param requests The Requests requested for this Artist.
+     * @param timestamp The date and time this ContactInfo was created.
+     */
     public Venue(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
                  Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, String location,
                  String gearDescription, Subscription subscription,
@@ -76,20 +96,6 @@ public class Venue extends User {
         _subscription.get_user().set_username(_username);
         _subscription.get_user().set_description(_description);
         _requests = requests;
-    }
-
-    public Venue(String username, String description, String location, String gearDescription, int size) {
-        super(username, null, null, description,
-                null, Authority.VENUE);
-
-        _location = location == null ? _contactInfo.getAddressInfo() : location;
-
-        _gearDescription = gearDescription;
-        _events = new Liszt<>();
-        _requests = new Liszt<>();
-        _size = size;
-        _subscription.get_user().set_username(_username);
-        _subscription.get_user().set_description(_description);
     }
 
     /**

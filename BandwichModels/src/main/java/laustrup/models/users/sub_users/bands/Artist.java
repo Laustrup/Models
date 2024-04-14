@@ -55,11 +55,50 @@ public class Artist extends Performer {
             _requests.add(new Request(request));
     }
 
-    public Artist(UUID id, String username, String firstName, String lastName, String description,
-                  ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
-                  Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins,
-                  Liszt<Band> bands, String runner, Liszt<User> fans, Liszt<User> idols, Liszt<Request> requests,
-                  LocalDateTime timestamp) {
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param username The title of the user, that the user uses to use as a title for the profile.
+     * @param firstName The real first name of the user's name.
+     * @param lastName The real last name of the user's name.
+     * @param description This is what the user uses to describe itself.
+     * @param contactInfo An object that has the different attributes,
+     *                    that can be used to contact this user.
+     * @param albums An album consisting of images.
+     * @param ratings Ratings made from other users on this user based on a value.
+     * @param events The Events that this user is included in.
+     * @param gigs Describes all the gigs, that the Performer is a part of an act.
+     * @param chatRooms These ChatRooms can be used to communicate with other users.
+     * @param subscription The Subscription of this Artist.
+     * @param bulletins Messages by other Users.
+     * @param bands The Bands that the Artist is a member of.
+     * @param runner A description of the gear, that the Artist possesses and what they require for an Event.
+     * @param fans All the participants that are following this Performer, is included here.
+     * @param idols The people that are following this Object.
+     * @param requests The Requests requested for this Artist.
+     * @param timestamp The date and time this ContactInfo was created.
+     */
+    public Artist(
+            UUID id,
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Liszt<Gig> gigs,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Liszt<Band> bands,
+            String runner,
+            Liszt<User> fans,
+            Liszt<User> idols,
+            Liszt<Request> requests,
+            LocalDateTime timestamp
+    ) {
         super(id, username, firstName, lastName, description, contactInfo, Authority.ARTIST, albums, ratings,
                 events, gigs, chatRooms, subscription, bulletins, fans, idols, timestamp);
         _bands = bands;
@@ -67,28 +106,21 @@ public class Artist extends Performer {
         _requests = requests;
     }
 
-    public Artist(String username, String firstName, String lastName, String description, Subscription subscription,
-                  ContactInfo contactInfo, Liszt<Band> bands, String runner) {
-        super(username, firstName, lastName, description, subscription, Authority.ARTIST);
-        _contactInfo = contactInfo;
-        _bands = bands;
-        _runner = runner;
-        _requests = new Liszt<>();
-    }
-
     /**
      * Adds a Band to the Liszt of bands.
      * @param band A specific Band, that is wished to be added.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> addBand(Band band) { return addBands(new Band[]{band});}
+    public Liszt<Band> add(Band band) {
+        return add(new Band[]{band});
+    }
 
     /**
      * Adds multiple Bands to the Liszt of bands.
      * @param bands Some specific Bands, that is wished to be added.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> addBands(Band[] bands) {
+    public Liszt<Band> add(Band[] bands) {
         return _bands.Add(bands);
     }
 
@@ -97,7 +129,9 @@ public class Artist extends Performer {
      * @param band A specific Band, that is wished to be removed.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> remove(Band band) { return remove(new Band[]{band}); }
+    public Liszt<Band> remove(Band band) {
+        return remove(new Band[]{band});
+    }
 
     /**
      * Removes multiple Bands from the Liszt of bands.
@@ -113,14 +147,18 @@ public class Artist extends Performer {
      * @param request An object of Request, that is wished to be added.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> add(Request request) { return _requests.Add(request); }
+    public Liszt<Request> add(Request request) {
+        return _requests.Add(request);
+    }
 
     /**
      * Removes a Request of the Liszt of Requests.
      * @param request An object of Request, that is wished to be removed.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> remove(Request request) { return _requests.remove(new Request[]{request}); }
+    public Liszt<Request> remove(Request request) {
+        return _requests.remove(new Request[]{request});
+    }
 
     @Override
     public String toString() {

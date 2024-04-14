@@ -59,7 +59,17 @@ public class Request extends Model {
      * @param timestamp The date and time the Request was made.
      */
     public Request(User user, Event event, Plato approved, String message, LocalDateTime timestamp) {
-        super(user.get_primaryId(), event.get_primaryId(), "Request of " + user.get_username() + " to " + event.get_title(),timestamp);
+        super(
+            user != null ? user.get_primaryId() : null,
+            event != null ? event.get_primaryId() : null,
+            user != null && event != null
+                ? "Request of " + user.get_username() + " to " + event.get_title() : "Empty Request",
+            timestamp
+        );
+
+        if (user == null || event == null)
+            throw new IllegalArgumentException("User and event are both required for Request with timestamp: " + timestamp);
+
         _user = user;
         _event = event;
         _approved = approved;
@@ -67,22 +77,24 @@ public class Request extends Model {
     }
 
     /**
-     * For creating a Request, sets timestamp to now.
+     * Default constructor to generate Requests that are just created.
      * @param user The User that is requested for the Gig.
      * @param event The Event that is hosting the Gig.
-     * @param approved Defines if the Request have been approved.
      */
-    public Request(User user, Event event, Plato approved) {
-        super(
-            user.get_primaryId(),
-            event.get_primaryId(),
-            "Request of " + user.get_username() + " to " + event.get_title(),
+    public Request(User user, Event event) {
+        this(
+            user,
+            event,
+            new Plato(false),
+            user != null && event != null
+                ? """
+                    This request wishes @user to perform at @event
+                    """
+                    .replace("@user", user.get_username())
+                    .replace("@event", event.get_title())
+                : "This Request has no user or event assigned",
             LocalDateTime.now()
         );
-
-        _user = user;
-        _event = event;
-        _approved = approved;
     }
 
     @Override

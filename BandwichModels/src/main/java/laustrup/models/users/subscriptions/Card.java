@@ -20,15 +20,11 @@ public class Card {
      */
     private UUID _id;
 
-    /**
-     * An enum of different credit card providers or brands.
-     */
+    /** An enum of different credit card providers or brands. */
     @Setter
     private Type _type;
 
-    /**
-     * The owner of the credit card.
-     */
+    /** The owner of the credit card. */
     @Setter
     private String _owner;
 
@@ -51,9 +47,7 @@ public class Card {
     @Setter
     private int _expirationYear;
 
-    /**
-     * The three digits on the backside of the credit card.
-     */
+    /** The three digits on the backside of the credit card. */
     private int _cVV;
 
     /**
@@ -69,9 +63,27 @@ public class Card {
         _expirationYear = card.getExpirationYear();
         set_cVV(card.getCVV());
     }
-    public Card(UUID id, Type type, String owner, long numbers,
-                int expirationMonth, int expirationYear,
-                int cVV) throws InputMismatchException {
+
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param type An enum of different credit card providers or brands.
+     * @param owner The owner of the credit card.
+     * @param numbers The numbers for the card.
+     * @param expirationMonth The month that the card expires.
+     * @param expirationYear The year the card expires.
+     * @param cVV The safety numbers for the card.
+     * @throws InputMismatchException Will be thrown, if the month length isn't between 0 -> 12.
+     */
+    public Card(
+            UUID id,
+            Type type,
+            String owner,
+            long numbers,
+            int expirationMonth,
+            int expirationYear,
+            int cVV
+    ) throws InputMismatchException {
         _id = id;
         _type = type;
         _owner = owner;
@@ -79,17 +91,6 @@ public class Card {
         set_expirationMonth(expirationMonth);
         _expirationYear = expirationYear;
         set_cVV(cVV);
-    }
-
-    public Card(Type type, String owner, long numbers,
-                int expirationMonth, int expirationYear,
-                int controlDigits) throws InputMismatchException {
-        _type = type;
-        _owner = owner;
-        set_cardNumbers(numbers);
-        set_expirationMonth(expirationMonth);
-        _expirationYear = expirationYear;
-        set_cVV(controlDigits);
     }
 
     /**
@@ -128,9 +129,7 @@ public class Card {
         return _cVV;
     }
 
-    /**
-     * Are a set of enums with values of different credit card providers.
-     */
+    /** Are a set of enums with values of different credit card providers. */
     public enum Type {
         VISA,
         AMERICAN_EXPRESS,
@@ -152,14 +151,10 @@ public class Card {
          */
         private UUID id;
 
-        /**
-         * An enum of different credit card providers or brands.
-         */
+        /** An enum of different credit card providers or brands. */
         private Type type;
 
-        /**
-         * The owner of the credit card.
-         */
+        /** The owner of the credit card. */
         private String owner;
 
         /**

@@ -57,19 +57,6 @@ public class Participant extends User {
         _subscription.set_user(this);
     }
 
-    public Participant(UUID id, String username, String description,
-                       ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
-                       Liszt<ChatRoom> chatRooms, Subscription.Status subscriptionStatus,
-                       SubscriptionOffer subscriptionOffer, UUID cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
-                       LocalDateTime timestamp) {
-        super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
-                new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
-                bulletins, Authority.PARTICIPANT, timestamp);
-        _idols = idols;
-        _subscription.get_user().set_username(_username);
-        _subscription.get_user().set_description(_description);
-    }
-
     public Participant(UUID id, String username, String firstName, String lastName, String description,
                        ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
                        Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins,
@@ -86,26 +73,6 @@ public class Participant extends User {
         super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
                 subscription, bulletins, Authority.PARTICIPANT, timestamp);
         _idols = idols;
-    }
-
-    public Participant(String username, String firstName, String lastName, String description,
-                       SubscriptionOffer subscriptionOffer, Liszt<User> idols) {
-        super(username, firstName, lastName, description,
-                new Subscription(new Participant(username,description,null), Subscription.Type.FREEMIUM,
-                        Subscription.Status.ACCEPTED, subscriptionOffer, null),
-                Authority.PARTICIPANT);
-        _idols = idols;
-    }
-
-    public Participant(String username, String firstName, String lastName, String description,
-                       Subscription subscription) {
-        super(username, firstName, lastName, description, subscription, Authority.PARTICIPANT);
-        _idols = new Liszt<>();
-    }
-
-    public Participant(String username, String description, Subscription subscription) {
-        super(username, description, subscription, Authority.PARTICIPANT);
-        _idols = new Liszt<>();
     }
 
     /**

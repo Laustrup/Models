@@ -48,26 +48,52 @@ public class Band extends Performer {
         _runner = band.getRunner();
     }
 
-    public Band(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
-                Liszt<Rating> ratings, Liszt<Event> events, Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms,
-                Subscription subscription, Liszt<Bulletin> bulletins, Liszt<Artist> members,
-                String runner, Liszt<User> fans, Liszt<User> idols, LocalDateTime timestamp) {
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param username The title of the user, that the user uses to use as a title for the profile.
+     * @param description This is what the user uses to describe itself.
+     * @param contactInfo An object that has the different attributes,
+     *                    that can be used to contact this Band.
+     * @param albums An album consisting of images.
+     * @param ratings Ratings made from other users on this user based on a value.
+     * @param events The Events that this user is included in.
+     * @param gigs Describes all the gigs, that the Performer is a part of an act.
+     * @param chatRooms These ChatRooms can be used to communicate with other users.
+     * @param subscription The Subscription of this Artist.
+     * @param bulletins Messages by other Users.
+     * @param members Contains all the Artists, that are members of this band.
+     * @param runner A description of the gear, that the Artist possesses and what they require for an Event.
+     * @param fans All the participants that are following this Performer, is included here.
+     * @param idols The people that are following this Object.
+     * @param timestamp The date and time this ContactInfo was created.
+     */
+    public Band(
+            UUID id,
+            String username,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Liszt<Gig> gigs,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Liszt<Artist> members,
+            String runner,
+            Liszt<User> fans,
+            Liszt<User> idols,
+            LocalDateTime timestamp
+    ) {
         super(id, username, description, contactInfo, Authority.BAND, albums, ratings, events, gigs, chatRooms,
                 subscription, bulletins, fans, idols, timestamp);
+        if (members.isEmpty())
+            throw new InputMismatchException();
+
         _username = username;
         _members = members;
         _runner = runner;
-    }
-
-    public Band(String username, String description, Subscription subscription, ContactInfo contactInfo,
-                Liszt<Artist> members) throws InputMismatchException {
-        super(username, description, subscription, Authority.BAND);
-        _username = username;
-        _contactInfo = contactInfo;
-
-        _members = members;
-        if (_members.isEmpty())
-            throw new InputMismatchException();
     }
 
     /**
@@ -75,14 +101,14 @@ public class Band extends Performer {
      * @param artist An object of Artist, that is wished to be added.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> addMember(Artist artist) { return addMembers(new Artist[]{artist}); }
+    public Liszt<Artist> add(Artist artist) { return add(new Artist[]{artist}); }
 
     /**
      * Adds Artists to the Liszt of members.
      * @param artists An array of artists, that is wished to be added.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> addMembers(Artist[] artists) { return _members.Add(artists); }
+    public Liszt<Artist> add(Artist[] artists) { return _members.Add(artists); }
 
     /**
      * Removes an Artist of the Liszt of members.

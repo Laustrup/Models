@@ -26,21 +26,29 @@ public class Mail extends Message {
         super(mail);
         _chatRoom = new ChatRoom(mail.getChatRoom());
     }
-    public Mail(UUID id, ChatRoom chatRoom, User author, String content,
-                boolean isSent, Plato isEdited, boolean isPublic,
-                LocalDateTime timestamp) {
-        super(id, author, content, isSent, isEdited, isPublic, timestamp);
-        _chatRoom = chatRoom;
-    }
 
-    public Mail(UUID id, User author, String content,
-                boolean isSent, Plato isEdited, boolean isPublic,
-                LocalDateTime timestamp) {
+    /**
+     * A constructor with all the values of this Object.
+     * @param id The primary id that identifies this unique Object.
+     * @param chatRoom The ChatRoom that this message has been sent in.
+     * @param author The User that wrote the Message.
+     * @param content The content of the written Message.
+     * @param isSent True if the Message is sent.
+     * @param isEdited A Plato object, that will be true if the Message has been edited.
+     *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+     * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     * @param timestamp Specifies the time this entity was created.
+     */
+    public Mail(UUID id,
+                ChatRoom chatRoom,
+                User author,
+                String content,
+                boolean isSent,
+                Plato isEdited,
+                boolean isPublic,
+                LocalDateTime timestamp
+    ) {
         super(id, author, content, isSent, isEdited, isPublic, timestamp);
-    }
-
-    public Mail(ChatRoom chatRoom, User author) {
-        super(author);
         _chatRoom = chatRoom;
     }
 

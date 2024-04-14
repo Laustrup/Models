@@ -23,6 +23,10 @@ public class Address {
     /** The city of the postal. */
     private String _city;
 
+    /**
+     * Converts into this DTO Object.
+     * @param address The Object to be converted.
+     */
     public Address(DTO address) {
         _street = address.getStreet();
         _floor = address.getFloor();
@@ -30,6 +34,13 @@ public class Address {
         _city = address.getCity();
     }
 
+    /**
+     * A constructor with all the values of this Object.
+     * @param street The street and street number.
+     * @param floor The floor, if in an apartment, also include left or right.
+     * @param postal Some digits describing the city.
+     * @param city The city of the postal.
+     */
     public Address(String street, String floor, String postal, String city) {
         _street = street;
         _floor = floor;

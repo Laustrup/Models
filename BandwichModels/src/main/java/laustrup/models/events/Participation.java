@@ -34,6 +34,13 @@ public class Participation extends Model {
         _event = new Event(participation.getEvent());
         _type = ParticipationType.valueOf(participation.getType().toString());
     }
+
+    /**
+     * A constructor with all the values of this Object.
+     * @param participant The Participant of the participation.
+     * @param event The Event of the participation.
+     * @param type The type of which participant is participating in the participation.
+     */
     public Participation(Participant participant, Event event, ParticipationType type) {
         super(event.get_primaryId(), participant.get_primaryId(),
                 "Participation of participant " +
