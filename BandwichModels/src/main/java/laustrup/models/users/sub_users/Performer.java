@@ -13,6 +13,7 @@ import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -28,10 +29,10 @@ import java.util.UUID;
 public abstract class Performer extends Participant {
 
     /** Describes all the gigs, that the Performer is a part of an act. */
-    protected Liszt<Gig> _gigs;
+    protected Seszt<Gig> _gigs;
 
     /** All the participants that are following this Performer, is included here. */
-    protected Liszt<User> _fans;
+    protected Seszt<User> _fans;
 
     /**
      * Will translate a transport object of this object into a construct of this object.
@@ -41,32 +42,86 @@ public abstract class Performer extends Participant {
         super(performer);
         _authority = Authority.valueOf(performer.getAuthority().toString());
 
-        _gigs = new Liszt<>();
+        _gigs = new Seszt<>();
         for (Gig.DTO gig : performer.getGigs())
             _gigs.add(new Gig(gig));
 
-        _fans = new Liszt<>();
+        _fans = new Seszt<>();
         for (UserDTO fan : performer.getFans())
             _fans.add(DTOService.convert(fan));
     }
 
-    public Performer(UUID id, String username, String firstName, String lastName, String description,
-                     ContactInfo contactInfo, Authority authority, Liszt<Album> albums, Liszt<Rating> ratings,
-                     Liszt<Event> events, Liszt<Gig> gigs, Liszt<ChatRoom> chatRooms, Subscription subscription,
-                     Liszt<Bulletin> bulletins, Liszt<User> fans, Liszt<User> idols, LocalDateTime timestamp) {
-        super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events,
-                chatRooms, subscription, bulletins, idols, timestamp);
+    public Performer(
+            UUID id,
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            ContactInfo contactInfo,
+            Authority authority,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Seszt<Gig> gigs,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Seszt<User> fans,
+            Seszt<User> idols,
+            LocalDateTime timestamp
+    ) {
+        super(
+                id,
+                username,
+                firstName,
+                lastName,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                subscription,
+                bulletins,
+                idols,
+                timestamp
+        );
         _authority = authority;
         _gigs = gigs;
         _fans = fans;
     }
 
-    public Performer(UUID id, String username, String description, ContactInfo contactInfo, Authority authority,
-                     Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events, Liszt<Gig> gigs,
-                     Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins, Liszt<User> fans,
-                     Liszt<User> idols, LocalDateTime timestamp) {
-        super(id, username, description, contactInfo, albums, ratings, events,
-                chatRooms, subscription, bulletins, idols, timestamp);
+    public Performer(
+            UUID id,
+            String username,
+            String description,
+            ContactInfo contactInfo,
+            Authority authority,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Seszt<Gig> gigs,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Seszt<User> fans,
+            Seszt<User> idols,
+            LocalDateTime timestamp
+    ) {
+        super(
+                id,
+                username,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                subscription,
+                bulletins,
+                idols,
+                timestamp
+        );
         _authority = authority;
         _gigs = gigs;
         _fans = fans;

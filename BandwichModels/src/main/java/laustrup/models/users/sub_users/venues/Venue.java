@@ -11,8 +11,8 @@ import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.subscriptions.Subscription;
-import laustrup.models.users.subscriptions.SubscriptionOffer;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -35,9 +35,6 @@ public class Venue extends User {
     /** The description of the gear that the Venue posses. */
     @Setter
     private String _gearDescription;
-
-    /** All the Events that this Venue has planned. */
-    private Liszt<Event> _events;
 
     /** The size of the stage and room, that Events can be held at. */
     @Setter
@@ -99,23 +96,6 @@ public class Venue extends User {
     }
 
     /**
-     * Adds an Event to the Liszt of Events.
-     * @param event An object of Event, that is wished to be added.
-     * @return The whole Liszt of Events.
-     */
-    public Liszt<Event> add(Event event) { return add(new Event[]{event}); }
-
-    /**
-     * Adds Events to the Liszt of Events.
-     * @param events An array of events, that is wished to be added.
-     * @return The whole Liszt of Events.
-     */
-    public Liszt<Event> add(Event[] events) {
-        _events.add(events);
-        return _events;
-    }
-
-    /**
      * Adds a Request to the Liszt of Requests.
      * @param request An object of Request, that is wished to be added.
      * @return The whole Liszt of Requests.
@@ -137,33 +117,18 @@ public class Venue extends User {
      * @param request An object of Request, that is wished to be removed.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> remove(Request request) { return remove(new Request[]{request}); }
+    public Liszt<Request> remove(Request request) {
+        return remove(new Liszt<>(new Request[]{request}));
+    }
 
     /**
      * Removes Requests of the Liszt of Requests.
      * @param requests An array of Requests, that is wished to be removed.
      * @return The whole Liszt of Requests.
      */
-    public Liszt<Request> remove(Request[] requests) {
-        _requests.remove(requests);
+    public Liszt<Request> remove(Liszt<Request> requests) {
+        _requests.removeAll(requests);
         return _requests;
-    }
-
-    /**
-     * Removes an Event of the Liszt of Events.
-     * @param event An object of Event, that is wished to be removed.
-     * @return The whole Liszt of Events.
-     */
-    public Liszt<Event> removeEvent(Event event) { return removeEvents(new Event[]{event}); }
-
-    /**
-     * Removes Events of the Liszt of Events.
-     * @param events An array of events, that is wished to be removed.
-     * @return The whole Liszt of Events.
-     */
-    public Liszt<Event> removeEvents(Event[] events) {
-        _events.remove(events);
-        return _events;
     }
 
     @Override

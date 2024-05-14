@@ -14,6 +14,7 @@ import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.sub_users.Performer;
 import laustrup.models.users.subscriptions.Subscription;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -29,7 +30,7 @@ import java.util.UUID;
 public class Artist extends Performer {
 
     /** The Bands that the Artist is a member of. */
-    private Liszt<Band> _bands;
+    private Seszt<Band> _bands;
 
     /** A description of the gear, that the Artist possesses and what they require for an Event. */
     @Setter
@@ -44,7 +45,7 @@ public class Artist extends Performer {
      */
     public Artist(DTO artist) {
         super(artist);
-        _bands = new Liszt<>();
+        _bands = new Seszt<>();
         for (Band.DTO band : artist.getBands())
             _bands.add(new Band(band));
 
@@ -92,7 +93,7 @@ public class Artist extends Performer {
             Liszt<ChatRoom> chatRooms,
             Subscription subscription,
             Liszt<Bulletin> bulletins,
-            Liszt<Band> bands,
+            Seszt<Band> bands,
             String runner,
             Liszt<User> fans,
             Liszt<User> idols,
@@ -111,7 +112,7 @@ public class Artist extends Performer {
      * @param band A specific Band, that is wished to be added.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> add(Band band) {
+    public Seszt<Band> add(Band band) {
         return add(new Band[]{band});
     }
 
@@ -120,7 +121,7 @@ public class Artist extends Performer {
      * @param bands Some specific Bands, that is wished to be added.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> add(Band[] bands) {
+    public Seszt<Band> add(Band[] bands) {
         return _bands.Add(bands);
     }
 
@@ -129,7 +130,7 @@ public class Artist extends Performer {
      * @param band A specific Band, that is wished to be removed.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> remove(Band band) {
+    public Seszt<Band> remove(Band band) {
         return remove(new Band[]{band});
     }
 
@@ -138,7 +139,7 @@ public class Artist extends Performer {
      * @param bands Some specific Bands, that is wished to be removed.
      * @return The whole Liszt of bands.
      */
-    public Liszt<Band> remove(Band[] bands) {
+    public Seszt<Band> remove(Band[] bands) {
         return _bands.remove(bands);
     }
 

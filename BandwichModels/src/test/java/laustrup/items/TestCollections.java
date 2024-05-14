@@ -12,6 +12,7 @@ import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.sub_users.venues.Venue;
+import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.console.Printer;
 
 import lombok.Getter;
@@ -25,56 +26,41 @@ public abstract class TestCollections {
     /** Will be used to create values for attributes. */
     protected final Random _random = new Random();
 
-    /** Length determine of array collection. */
-    @Getter
-    protected int
-        _ratingAmount = 100,
-        _participantAmount = 10,
-        _artistAmount = 15,
-        _bandAmount = 10,
-        _venueAmount = 3,
-        _eventAmount = 8,
-        _albumAmount = (_artistAmount + _bandAmount + _participantAmount) * 2,
-        _addressAmount = _artistAmount + _participantAmount + _venueAmount + 5,
-        _phoneNumberAmount = _artistAmount + _participantAmount + _venueAmount + 5,
-        _contactInfoAmount = _albumAmount,
-        _chatRoomAmount = _bandAmount * _venueAmount * _artistAmount;
-
     /** A collection of the generated Participants. */
-    @Getter protected Participant[] _participants;
+    @Getter protected Seszt<Participant> _participants;
 
     /** A collection of the generated Artists. */
-    @Getter protected Artist[] _artists;
+    @Getter protected Seszt<Artist> _artists;
 
     /** A collection of the generated Bands. */
-    @Getter protected Band[] _bands;
+    @Getter protected Seszt<Band> _bands;
 
     /** A collection of the generated Venues. */
-    @Getter protected Venue[] _venues;
+    @Getter protected Seszt<Venue> _venues;
 
     /** A collection of the generated Events. */
-    @Getter protected Event[] _events;
+    @Getter protected Seszt<Event> _events;
 
     /** A collection of the generated Countries. */
-    @Getter protected Country[] _countries;
+    @Getter protected Seszt<Country> _countries;
 
     /** A collection of the generated phone numbers. */
-    @Getter protected Phone[] _phones;
+    @Getter protected Seszt<Phone> _phones;
 
     /** A collection of the generated Addresses. */
-    @Getter protected Address[] _addresses;
+    @Getter protected Seszt<Address> _addresses;
 
     /** A collection of the generated ContactInfos. */
-    @Getter protected ContactInfo[] _contactInfo;
+    @Getter protected Seszt<ContactInfo> _contactInfo;
 
     /** A collection of the generated Albums. */
-    @Getter protected Album[] _albums;
+    @Getter protected Seszt<Album> _albums;
 
     /** A collection of the generated Ratings. */
-    @Getter protected Rating[] _ratings;
+    @Getter protected Seszt<Rating> _ratings;
 
     /** A collection of the generated ChatRooms. */
-    @Getter protected ChatRoom[] _chatRooms;
+    @Getter protected Seszt<ChatRoom> _chatRooms;
 
     /**
      * Uses Printer to make a String of each collection in TestItems.
@@ -82,18 +68,18 @@ public abstract class TestCollections {
      */
     public String showItems() {
         return Printer.toString(new Object[]{
-                Arrays.toString(_participants),
-                Arrays.toString(_artists),
-                Arrays.toString(_bands),
-                Arrays.toString(_venues),
-                Arrays.toString(_events),
-                Arrays.toString(_countries),
-                Arrays.toString(_phones),
-                Arrays.toString(_addresses),
-                Arrays.toString(_contactInfo),
-                Arrays.toString(_albums),
-                Arrays.toString(_ratings),
-                Arrays.toString(_chatRooms)
+            _participants.toString(),
+            _artists.toString(),
+            _bands.toString(),
+            _venues.toString(),
+            _events.toString(),
+            _countries.toString(),
+            _phones.toString(),
+            _addresses.toString(),
+            _contactInfo.toString(),
+            _albums.toString(),
+            _ratings.toString(),
+            _chatRooms.toString()
         });
     }
 

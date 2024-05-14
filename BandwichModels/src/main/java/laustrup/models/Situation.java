@@ -8,9 +8,9 @@ import lombok.Getter;
  */
 @Getter
 public enum Situation {
-    /** In case that there haven't been any situation, this will be the initiation */
+    /** In case that there haven't been any situation, this will be the initiation. */
     NONE("There has not been any situation yet."),
-    /** When  */
+    /** When there were a situation, but it is no longer an issue. */
     RESOLVED("There were an situation before, but it has been fixed and/or resolved.");
 
     /** The message that comes with the situation, ment for the enduser. */

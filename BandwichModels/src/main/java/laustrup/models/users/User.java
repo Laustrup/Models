@@ -10,6 +10,7 @@ import laustrup.models.events.Event;
 import laustrup.models.users.contact_infos.ContactInfo;
 import laustrup.models.users.subscriptions.Subscription;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -55,7 +56,7 @@ public abstract class User extends Model {
     protected Liszt<Rating> _ratings;
 
     /** The Events that this user is included in. */
-    protected Liszt<Event> _events;
+    protected Seszt<Event> _events;
 
     /** These ChatRooms can be used to communicate with other users. */
     protected Liszt<ChatRoom> _chatRooms;
@@ -93,7 +94,7 @@ public abstract class User extends Model {
         for (Rating.DTO rating : user.getRatings())
             _ratings.add(new Rating(rating));
 
-        _events = new Liszt<>();
+        _events = new Seszt<>();
         for (Event.DTO event : user.getEvents())
             _events.add(new Event(event));
 
@@ -109,10 +110,22 @@ public abstract class User extends Model {
 
         _authority = Authority.valueOf(user.getAuthority().toString());
     }
-    public User(UUID id, String username, String firstName, String lastName, String description,
-                ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
-                Liszt<ChatRoom> chatRooms, Subscription subscription,
-                Liszt<Bulletin> bulletins, Authority authority, LocalDateTime timestamp) {
+    public User(
+            UUID id,
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Seszt<Event> events,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Authority authority,
+            LocalDateTime timestamp
+    ) {
         super(id,username + "-" + id,timestamp);
         _username = username;
         _firstName = firstName;
@@ -128,9 +141,20 @@ public abstract class User extends Model {
         _authority = authority;
     }
 
-    public User(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
-                Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, Subscription subscription,
-                Liszt<Bulletin> bulletins, Authority authority, LocalDateTime timestamp) {
+    public User(
+            UUID id,
+            String username,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Seszt<Event> events,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Authority authority,
+            LocalDateTime timestamp
+    ) {
         super(id,username + "-" + id,timestamp);
         _username = username;
         _contactInfo = contactInfo;
@@ -144,8 +168,14 @@ public abstract class User extends Model {
         _authority = authority;
     }
 
-    public User(String username, String firstName, String lastName, String description,
-                Subscription subscription, Authority authority) {
+    public User(
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            Subscription subscription,
+            Authority authority
+    ) {
         super(username);
         _username = username;
         _firstName = firstName;
@@ -154,7 +184,7 @@ public abstract class User extends Model {
 
         _albums = new Liszt<>();
         _ratings = new Liszt<>();
-        _events = new Liszt<>();
+        _events = new Seszt<>();
         _chatRooms = new Liszt<>();
         _bulletins = new Liszt<>();
 
@@ -169,7 +199,7 @@ public abstract class User extends Model {
 
         _albums = new Liszt<>();
         _ratings = new Liszt<>();
-        _events = new Liszt<>();
+        _events = new Seszt<>();
         _chatRooms = new Liszt<>();
         _bulletins = new Liszt<>();
 
@@ -214,9 +244,8 @@ public abstract class User extends Model {
      * @param event An Event object, that is wished to be added to this User.
      * @return All the Events of this User.
      */
-    public Liszt<Event> add(Event event) {
-        _events.add(event);
-        return _events;
+    public Seszt<Event> add(Event event) {
+        return _events.Add(event);
     }
 
     /**
@@ -225,8 +254,7 @@ public abstract class User extends Model {
      * @return All the ChatRooms of this User.
      */
     public Liszt<ChatRoom> add(ChatRoom chatRoom) {
-        _chatRooms.add(chatRoom);
-        return _chatRooms;
+        return _chatRooms.Add(chatRoom);
     }
 
     /**
@@ -234,7 +262,7 @@ public abstract class User extends Model {
      * @param event An Event object, that is wished to be added to this User.
      * @return All the Events of this User.
      */
-    public List<Event> remove(Event event) {
+    public Seszt<Event> remove(Event event) {
         for (int i = 1; i <= _events.size(); i++) {
             if (_events.Get(i).get_primaryId() == event.get_primaryId()) {
                 _events.remove(_events.Get(i));

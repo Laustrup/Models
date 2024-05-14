@@ -14,6 +14,7 @@ import laustrup.models.users.sub_users.Performer;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -27,7 +28,7 @@ import java.util.UUID;
 public class Band extends Performer {
 
     /** Contains all the Artists, that are members of this band. */
-    private Liszt<Artist> _members;
+    private Seszt<Artist> _members;
 
     /** A description of the gear, that the band possesses and what they require for an Event. */
     @Setter
@@ -41,7 +42,7 @@ public class Band extends Performer {
         super(band);
         _username = band.getUsername();
 
-        _members = new Liszt<>();
+        _members = new Seszt<>();
         for (Artist.DTO member : band.getMembers())
             _members.add(new Artist(member));
 
@@ -80,7 +81,7 @@ public class Band extends Performer {
             Liszt<ChatRoom> chatRooms,
             Subscription subscription,
             Liszt<Bulletin> bulletins,
-            Liszt<Artist> members,
+            Seszt<Artist> members,
             String runner,
             Liszt<User> fans,
             Liszt<User> idols,
@@ -101,35 +102,45 @@ public class Band extends Performer {
      * @param artist An object of Artist, that is wished to be added.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> add(Artist artist) { return add(new Artist[]{artist}); }
+    public Seszt<Artist> add(Artist artist) {
+        return add(new Artist[]{artist});
+    }
 
     /**
      * Adds Artists to the Liszt of members.
      * @param artists An array of artists, that is wished to be added.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> add(Artist[] artists) { return _members.Add(artists); }
+    public Seszt<Artist> add(Artist[] artists) {
+        return _members.Add(artists);
+    }
 
     /**
      * Removes an Artist of the Liszt of members.
      * @param artist An object of Artist, that is wished to be removed.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> remove(Artist artist) { return remove(new Artist[]{artist}); }
+    public Seszt<Artist> remove(Artist artist) {
+        return remove(new Artist[]{artist});
+    }
 
     /**
      * Removes Artists of the Liszt of members.
      * @param artists An array of artists, that is wished to be removed.
      * @return The whole Liszt of members.
      */
-    public Liszt<Artist> remove(Artist[] artists) { return _members.remove(artists); }
+    public Seszt<Artist> remove(Artist[] artists) {
+        return _members.remove(artists);
+    }
 
     /**
      * Removes a Fan of the Liszt of fans.
      * @param fan An object of Fan, that is wished to be removed.
      * @return The whole Liszt of fans.
      */
-    public Liszt<User> remove(Participant fan) { return _fans.remove(new Participant[]{fan}); }
+    public Liszt<User> remove(Participant fan) {
+        return _fans.remove(new Participant[]{fan});
+    }
 
     @Override
     public String toString() {

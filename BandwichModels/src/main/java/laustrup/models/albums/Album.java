@@ -22,7 +22,7 @@ import static laustrup.models.users.User.UserDTO;
 @Getter @FieldNameConstants
 public class Album extends Model {
 
-    /** These endpoints are being used for getting the image/music file. */
+    /** Items containing endpoints that are being used for getting the image/music file. */
     private Liszt<AlbumItem> _items;
 
     /**

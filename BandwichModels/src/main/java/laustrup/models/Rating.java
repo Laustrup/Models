@@ -56,32 +56,11 @@ public class Rating extends Model {
         _appointed = (User) ifExists(rating.getAppointed(), e -> DTOService.convert((UserDTO) e));
         _judge = (User) ifExists(rating.getJudge(), e -> DTOService.convert((UserDTO) e));
     }
-    public Rating(int value) {
-        _value = value;
-    }
-    public Rating(int value, User appointed, User judge, LocalDateTime timestamp) throws InputMismatchException {
-        super(appointed.get_primaryId(), judge.get_primaryId(), appointed.get_username()+"-"+judge.get_username(), timestamp);
-        _value = set_value(value);
-        _appointed = appointed;
-        _judge = judge;
-    }
 
-    public Rating(int value, UUID appointedId, UUID judgeId, LocalDateTime timestamp) throws InputMismatchException {
-        super(appointedId, judgeId, appointedId+"-"+judgeId, timestamp);
-        _value = set_value(value);
-    }
-
-    public Rating(int value, UUID appointedId, UUID judgeId, String comment, LocalDateTime timestamp) throws InputMismatchException {
+    public Rating(int value, UUID appointedId, UUID judgeId, String comment, LocalDateTime timestamp) {
         super(appointedId, judgeId, appointedId+"-"+judgeId, timestamp);
         _comment = comment;
         _value = set_value(value);
-    }
-
-    public Rating(int value, User appointed, User judge) throws InputMismatchException {
-        super(appointed.get_username() + "-" + judge.get_username() + "-" + value);
-        _value = set_value(value);
-        _appointed = appointed;
-        _judge = judge;
     }
 
     /**

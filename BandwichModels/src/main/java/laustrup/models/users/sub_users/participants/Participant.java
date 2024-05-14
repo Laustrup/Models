@@ -13,6 +13,7 @@ import laustrup.models.users.subscriptions.Subscription;
 import laustrup.models.users.subscriptions.SubscriptionOffer;
 import laustrup.services.DTOService;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -31,7 +32,7 @@ public class Participant extends User {
      * These are the Users that the Participant can follow,
      * indicating that new content will be shared with the Participant.
      */
-    private Liszt<User> _idols;
+    private Seszt<User> _idols;
 
     /**
      * Will translate a transport object of this object into a construct of this object.
@@ -39,39 +40,113 @@ public class Participant extends User {
      */
     public Participant(DTO participant) {
         super(participant);
-        _idols = new Liszt<>();
+        _idols = new Seszt<>();
         for (UserDTO idol : participant.getIdols())
             _idols.add(DTOService.convert(idol));
     }
 
-    public Participant(UUID id, String username, String firstName, String lastName, String description,
-                       ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
-                       Liszt<ChatRoom> chatRooms, Subscription.Status subscriptionStatus,
-                       SubscriptionOffer subscriptionOffer, UUID cardId, Liszt<Bulletin> bulletins, Liszt<User> idols,
-                       LocalDateTime timestamp) {
-        super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events, chatRooms,
-            new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
-            bulletins, Authority.PARTICIPANT, timestamp
+    public Participant(
+            UUID id,
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Liszt<ChatRoom> chatRooms,
+            Subscription.Status subscriptionStatus,
+            SubscriptionOffer subscriptionOffer,
+            UUID cardId,
+            Liszt<Bulletin> bulletins,
+            Seszt<User> idols,
+            LocalDateTime timestamp
+    ) {
+        super(
+                id,
+                username,
+                firstName,
+                lastName,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                new Subscription(id, Subscription.Type.FREEMIUM, subscriptionStatus, subscriptionOffer, cardId),
+                bulletins,
+                Authority.PARTICIPANT,
+                timestamp
         );
         _idols = idols;
         _subscription.set_user(this);
     }
 
-    public Participant(UUID id, String username, String firstName, String lastName, String description,
-                       ContactInfo contactInfo, Liszt<Album> albums, Liszt<Rating> ratings, Liszt<Event> events,
-                       Liszt<ChatRoom> chatRooms, Subscription subscription, Liszt<Bulletin> bulletins,
-                       Liszt<User> idols, LocalDateTime timestamp) {
-        super(id, username, firstName, lastName, description, contactInfo, albums, ratings, events, chatRooms,
-                subscription, bulletins, Authority.PARTICIPANT, timestamp);
+    public Participant(
+            UUID id,
+            String username,
+            String firstName,
+            String lastName,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Seszt<User> idols,
+            LocalDateTime timestamp
+    ) {
+        super(
+                id,
+                username,
+                firstName,
+                lastName,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                subscription,
+                bulletins,
+                Authority.PARTICIPANT,
+                timestamp
+        );
         _idols = idols;
         _subscription.set_user(this);
     }
 
-    public Participant(UUID id, String username, String description, ContactInfo contactInfo, Liszt<Album> albums,
-                       Liszt<Rating> ratings, Liszt<Event> events, Liszt<ChatRoom> chatRooms, Subscription subscription,
-                       Liszt<Bulletin> bulletins, Liszt<User> idols, LocalDateTime timestamp) {
-        super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
-                subscription, bulletins, Authority.PARTICIPANT, timestamp);
+    public Participant(
+            UUID id,
+            String username,
+            String description,
+            ContactInfo contactInfo,
+            Liszt<Album> albums,
+            Liszt<Rating> ratings,
+            Liszt<Event> events,
+            Liszt<ChatRoom> chatRooms,
+            Subscription subscription,
+            Liszt<Bulletin> bulletins,
+            Seszt<User> idols,
+            LocalDateTime timestamp
+    ) {
+        super(
+                id,
+                username,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                subscription,
+                bulletins,
+                Authority.PARTICIPANT,
+                timestamp
+        );
         _idols = idols;
     }
 
@@ -80,7 +155,7 @@ public class Participant extends User {
      * @param following A User, that is wished to be added.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> add(User following) {
+    public Seszt<User> add(User following) {
         return _idols.Add(following);
     }
 
@@ -89,7 +164,7 @@ public class Participant extends User {
      * @param following a User, that is wished to be removed.
      * @return All the followings of the Participant.
      */
-    public Liszt<User> remove(User following) {
+    public Seszt<User> remove(User following) {
         return _idols.remove(new User[]{following});
     }
 

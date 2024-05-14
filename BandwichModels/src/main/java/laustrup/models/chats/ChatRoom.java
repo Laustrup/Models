@@ -8,6 +8,7 @@ import laustrup.models.users.sub_users.bands.Artist;
 import laustrup.models.users.sub_users.bands.Band;
 import laustrup.services.DTOService;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
 
@@ -25,7 +26,7 @@ public class ChatRoom extends Model {
     private Liszt<Mail> _mails;
 
     /** The Users, except the responsible, that can write with each other. */
-    private Liszt<User> _chatters;
+    private Seszt<User> _chatters;
 
     /**
      * Converts a Data Transport Object into this object.
@@ -53,7 +54,7 @@ public class ChatRoom extends Model {
      * @param chatters The Data Transport Object that will be converted.
      */
     private void convert(UserDTO[] chatters) {
-        _chatters = new Liszt<>();
+        _chatters = new Seszt<>();
         for (UserDTO chatter : chatters)
             _chatters.add(DTOService.convert(chatter));
     }
@@ -66,7 +67,7 @@ public class ChatRoom extends Model {
      * @param chatters The chatters that are members of this ChatRoom.
      * @param timestamp The time this ChatRoom was created.
      */
-    public ChatRoom(UUID id, String title, Liszt<Mail> mails, Liszt<User> chatters, LocalDateTime timestamp) {
+    public ChatRoom(UUID id, String title, Liszt<Mail> mails, Seszt<User> chatters, LocalDateTime timestamp) {
         super(id, title, timestamp);
         _chatters = chatters;
         _title = determineChatRoomTitle(_title);
@@ -132,7 +133,9 @@ public class ChatRoom extends Model {
      * @param chatter A user that is wished to be added as a chatter of the ChatRoom.
      * @return All the chatters of the ChatRoom.
      */
-    public Liszt<User> add(User chatter) { return add(new User[]{chatter}); }
+    public Seszt<User> add(User chatter) {
+        return add(new User[]{chatter});
+    }
 
     /**
      * It will add some chatters, if they aren't already added.
@@ -141,7 +144,7 @@ public class ChatRoom extends Model {
      * @param chatters A users that is wished to be added as a chatter of the ChatRoom.
      * @return All the chatters of the ChatRoom.
      */
-    public Liszt<User> add(User[] chatters) {
+    public Seszt<User> add(User[] chatters) {
         ifExists(chatters,() -> {
             for (User chatter : chatters) {
                 if (chatter.getClass() == Band.class) {
@@ -195,7 +198,7 @@ public class ChatRoom extends Model {
      * @param chatter A user object that is wished to be removed.
      * @return All the chatters of this ChatRoom.
      */
-    public Liszt<User> remove(User chatter) {
+    public Seszt<User> remove(User chatter) {
         for (int i = 1; i <= _chatters.size(); i++) {
             if (_chatters.Get(i).get_primaryId() == chatter.get_primaryId()) {
                 _chatters.remove(_chatters.Get(i));

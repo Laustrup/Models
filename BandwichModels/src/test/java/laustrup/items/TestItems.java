@@ -22,10 +22,12 @@ import laustrup.models.users.subscriptions.Subscription;
 import laustrup.models.users.subscriptions.SubscriptionOffer;
 import laustrup.services.TimeService;
 import laustrup.utilities.collections.lists.Liszt;
+import laustrup.utilities.collections.sets.Seszt;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Contains different attributes that imitates models.
@@ -37,7 +39,7 @@ public class TestItems extends ItemGenerator {
     public TestItems() { setupItems(); }
 
 
-    /** Empties all variables and sets them up afterwards */
+    /** Empties all variables and sets them up afterward */
     public void resetItems() {
         reset();
         setupItems();
@@ -47,11 +49,10 @@ public class TestItems extends ItemGenerator {
     public void setupItems() {
         setupCountries();
         setupPhoneNumbers();
-        setupaddresses();
+        setupAddresses();
         setupContactInfo();
 
         setupAlbums();
-        setupRatings();
 
         setupParticipants();
         setupArtists();
@@ -64,10 +65,11 @@ public class TestItems extends ItemGenerator {
 
     /** Creates som indexes for Countries. */
     private void setupCountries() {
-        _countries = new Country[3];
-        _countries[0] = new Country("Denmark", Country.CountryIndexes.DK, 45);
-        _countries[1] = new Country("Sverige", Country.CountryIndexes.SE, 46);
-        _countries[2] = new Country("Tyskland", Country.CountryIndexes.DE, 49);
+        _countries = new Seszt<>(new Country[]{
+            new Country("Denmark", Country.CountryIndexes.DK, 45),
+            new Country("Sverige", Country.CountryIndexes.SE, 46),
+            new Country("Tyskland", Country.CountryIndexes.DE, 49)
+        });
     }
 
     /** Creates som indexes for Phones. */
@@ -75,18 +77,24 @@ public class TestItems extends ItemGenerator {
         _phones = new Phone[_phoneNumberAmount];
 
         for (int i = 0; i < _phones.length; i++)
-            _phones[i] = new Phone(_countries[_random.nextInt(_countries.length)],
-                    _random.nextInt(89999999)+10000000, _random.nextBoolean());
+            _phones[i] = new Phone(
+                _countries[_random.nextInt(_countries.length)],
+                _random.nextInt(89999999)+10000000,
+                _random.nextBoolean()
+            );
     }
 
     /** Creates som indexes for Addresses. */
-    private void setupaddresses() {
+    private void setupAddresses() {
         _addresses = new Address[_addressAmount];
 
         for (int i = 0; i < _addresses.length; i++)
-            _addresses[i] = new Address("Nørrevang " + _random.nextInt(100),
-                    _random.nextInt(10) + (_random.nextBoolean() ? ". tv." : ". th."),
-                    String.valueOf(_random.nextInt(8999)+1000), "Holbæk");
+            _addresses[i] = new Address(
+                "Nørrevang " + _random.nextInt(100),
+                _random.nextInt(10) + (_random.nextBoolean() ? ". tv." : ". th."),
+                String.valueOf(_random.nextInt(8999)+1000),
+                "Holbæk"
+            );
     }
 
     /** Creates som indexes for ContactInfos. */
@@ -94,10 +102,13 @@ public class TestItems extends ItemGenerator {
         _contactInfo = new ContactInfo[_contactInfoAmount];
 
         for (int i = 0; i < _contactInfo.length; i++)
-            _contactInfo[i] = new ContactInfo("cool@gmail.com",
-                    _phones[_random.nextInt(_phones.length)],
-                    _addresses[_random.nextInt(_addresses.length)],
-                    _countries[_random.nextInt(_countries.length)]);
+            _contactInfo[i] = new ContactInfo(
+                UUID.randomUUID(),
+                "cool@gmail.com",
+                _phones[_random.nextInt(_phones.length)],
+                _addresses[_random.nextInt(_addresses.length)],
+                _countries[_random.nextInt(_countries.length)]
+            );
     }
 
     /** Creates som indexes for Albums. */
@@ -105,16 +116,29 @@ public class TestItems extends ItemGenerator {
         _albums = new Album[_albumAmount];
 
         for (int i = 0; i < _albums.length; i++)
-            _albums[i] = new Album(i+1, "Album title",generateAlbumItems(),
-                    new Participant(0), LocalDateTime.now());
+            _albums[i] = new Album(
+                UUID.randomUUID(),
+                "Album title",
+                generateAlbumItems(),
+                null,
+                LocalDateTime.now()
+            );
     }
 
     /** Creates som indexes for Ratings. */
-    private void setupRatings() {
+    private void setupRatings(UUID appointedId, UUID judgeId) {
         _ratings = new Rating[_ratingAmount];
 
-        for (int i = 0; i < _ratings.length; i++)
-            _ratings[i] = new Rating(_random.nextInt(5)+1,new Band(0), new Participant(0));
+        for (int i = 0; i < _ratings.length; i++) {
+            int rating = _random.nextInt(5) + 1;
+            _ratings[i] = new Rating(
+                rating,
+                appointedId,
+                judgeId,
+                rating > 2 ? "Good" : "Bad",
+                LocalDateTime.now()
+            );
+        }
     }
 
     /** Creates som indexes for Participants. */

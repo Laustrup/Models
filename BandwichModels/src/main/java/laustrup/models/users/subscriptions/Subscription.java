@@ -62,15 +62,6 @@ public class Subscription extends Model {
         _cardId = subscription.getCardId();
     }
 
-    /**
-     *
-     * @param user
-     * @param type
-     * @param status
-     * @param offer
-     * @param cardId
-     * @param timestamp
-     */
     public Subscription(User user, Type type, Status status, SubscriptionOffer offer, UUID cardId, LocalDateTime timestamp) {
         super(user.get_primaryId(), cardId, user.get_username()+"-Subscription: " + user.get_primaryId(), timestamp);
         _type = defineType(type);

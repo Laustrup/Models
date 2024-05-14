@@ -17,11 +17,13 @@ import laustrup.models.users.sub_users.bands.Band;
 import laustrup.models.users.sub_users.participants.Participant;
 import laustrup.models.users.subscriptions.Subscription;
 import laustrup.utilities.collections.lists.Liszt;
+import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Contains functions that will generate items.
@@ -44,7 +46,7 @@ public abstract class ItemGenerator extends TestCollections {
                 kind = AlbumItem.Kind.IMAGE;
 
             items.add(new AlbumItem(kind == AlbumItem.Kind.MUSIC ? "Debut title" : "Gig photos title",
-                    kind == AlbumItem.Kind.MUSIC ? "MusicEndpoint" : "PhotoEndpoint", kind, new Liszt<>(),
+                    kind == AlbumItem.Kind.MUSIC ? "MusicEndpoint" : "PhotoEndpoint", kind, new Seszt<>(),
                     null, LocalDateTime.now()));
         }
 
@@ -65,10 +67,10 @@ public abstract class ItemGenerator extends TestCollections {
         LocalDateTime start = latestGig;
 
         for (int i = 0; i < amount; i++) {
-            Performer[] act = generateAct();
+            Seszt<Performer> act = generateAct();
             LocalDateTime end = start.plusMinutes(gigLengths);
 
-            gigs.add(new Gig(gigs.size()+i+1, event, act, start, end, LocalDateTime.now()));
+            gigs.add(new Gig(UUID.randomUUID(), event, act, start, end, LocalDateTime.now()));
 
             start = start.minusMinutes(gigLengths);
         }
@@ -81,20 +83,13 @@ public abstract class ItemGenerator extends TestCollections {
      * Bands and Artists needs to be generated beforehand.
      * @return The generated Acts.
      */
-    public Performer[] generateAct() {
-        Performer[] performers = new Performer[_random.nextInt(3)+1];
-        Set<Performer> set = new HashSet<>();
+    public Seszt<Performer> generateAct() {
+        Seszt<Performer> performers = new Seszt<>();
 
-        for (int i = 0; i < performers.length; i++) {
-            Performer performer = _random.nextBoolean() ? _bands[_random.nextInt(_bands.length)] :
-                    _artists[_random.nextInt(_artists.length)];
-            while (set.contains(performer))
-                performer = _random.nextBoolean() ? _bands[_random.nextInt(_bands.length)] :
-                    _artists[_random.nextInt(_artists.length)];
-
-            set.add(performer);
-            performers[i] = performer;
-        }
+        for (int i = 0; i < _random.nextInt(10) + 1; i++)
+            performers.add(_random.nextBoolean()
+                ? _bands.get(_random.nextInt(_bands.size()))
+                : _artists.get(_random.nextInt(_artists.size())));
 
         return performers;
     }
@@ -108,8 +103,10 @@ public abstract class ItemGenerator extends TestCollections {
      */
     public Request[] generateRequests(Liszt<Performer> performers, Event event) {
         Request[] requests = new Request[performers.size()];
-        for (int i = 0; i < performers.size(); i++)
-            requests[i] = new Request(performers.get(i), event, generatePlato());
+        for (int i = 0; i < performers.size(); i++) {
+            Plato approved = generatePlato();
+            requests[i] = new Request(performers.get(i), event, approved, approved.get_truth() ? "Approved" : "Declined", LocalDateTime.now());
+        }
 
         return requests;
     }
@@ -121,20 +118,17 @@ public abstract class ItemGenerator extends TestCollections {
      * @param event The Event the Participation is at.
      * @return The generated Participations.
      */
-    public Liszt<Participation> generateParticipations(Event event) {
-        Liszt<Participation> participations = new Liszt<>();
-        Set<Participant> set = new HashSet<>();
-        int amount = _random.nextInt(_artistAmount+_participantAmount);
+    public Seszt<Participation> generateParticipations(Event event) {
+        Seszt<Participation> participations = new Seszt<>();
 
-        for (int i = 0; i < amount; i++) {
-            Participant participant = _random.nextBoolean() ? _artists[_random.nextInt(_artists.length)] :
-                    _participants[_random.nextInt(_participantAmount)];
-            while (set.contains(participant)) participant = _random.nextBoolean() ? _artists[_random.nextInt(_artists.length)] :
-                    _participants[_random.nextInt(_participantAmount)];
-            set.add(participant);
-
-            participations.add(new Participation(participant,event,generateParticipationType()));
-        }
+        for (int i = 0; i < _random.nextInt(_artists.size() + _participants.size()); i++)
+            participations.add(
+                new Participation(_random.nextBoolean()
+                    ? _artists.get(_random.nextInt(_artists.size()))
+                    : _participants.get(_random.nextInt(_participants.size())),
+                event,
+                generateParticipationType())
+            );
 
         return participations;
     }
@@ -158,14 +152,20 @@ public abstract class ItemGenerator extends TestCollections {
      * @param model The model that receives the Bulletin.
      * @return The generated Bulletins.
      */
-    public Bulletin[] generateBulletins(Model model) {
-        Bulletin[] bulletins = new Bulletin[_random.nextInt(101)];
+    public Liszt<Bulletin> generateBulletins(Model model) {
+        Liszt<Bulletin> bulletins = new Liszt<>();
 
-        for (int i = 0; i < bulletins.length; i++) {
-            long id = i+1;
-            bulletins[i] = new Bulletin(id, generateUser(), model, "Content "+id, _random.nextBoolean(),
-                    generatePlato(), _random.nextBoolean(), LocalDateTime.now());
-        }
+        for (int i = 0; i < bulletins.size(); i++)
+            bulletins.add(
+                new Bulletin(UUID.randomUUID(),
+                generateUser(),
+                model,
+                "Content "+ i,
+                _random.nextBoolean(),
+                generatePlato(),
+                _random.nextBoolean(),
+                LocalDateTime.now())
+            );
 
         return bulletins;
     }
@@ -177,9 +177,9 @@ public abstract class ItemGenerator extends TestCollections {
      */
     public User generateUser() {
         return switch (_random.nextInt(3) + 1) {
-            case 1 -> _participants[_random.nextInt(_participants.length)];
-            case 2 -> _artists[_random.nextInt(_artists.length)];
-            default -> _venues[_random.nextInt(_venues.length)];
+            case 1 -> _participants.get(_random.nextInt(_participants.size()));
+            case 2 -> _artists.get(_random.nextInt(_artists.size()));
+            default -> _venues.get(_random.nextInt(_venues.size()));
         };
     }
 
@@ -206,8 +206,18 @@ public abstract class ItemGenerator extends TestCollections {
 
             content.append("Test ".repeat(contentAmount));
 
-            mails.add(new Mail(i+1, null, members.Get(_random.nextInt(members.size())+1),
-                    content.toString(), _random.nextBoolean(), generatePlato(), _random.nextBoolean(), LocalDateTime.now()));
+            mails.add(
+                new Mail(
+                    UUID.randomUUID(),
+                    null,
+                    members.get(_random.nextInt(members.size())),
+                    content.toString(),
+                    _random.nextBoolean(),
+                    generatePlato(),
+                    _random.nextBoolean(),
+                    LocalDateTime.now()
+                )
+            );
         }
 
         return mails;
@@ -221,11 +231,24 @@ public abstract class ItemGenerator extends TestCollections {
      * @param subscription The Subscription for the Band.
      * @return The generated Band.
      */
-    protected Band generateBand(long id, Liszt<Artist> members, Liszt<User> fans, Subscription subscription) {
-        return new Band(id, "Band "+id, "Description "+id,
-                _contactInfo[_random.nextInt(_contactInfo.length)], new Liszt<>(new Album[]{_albums[_random.nextInt(_albums.length)]}),
-                randomizeRatings(), new Liszt<>(), new Liszt<>(), new Liszt<>(), subscription, new Liszt<>(),
-                members, "Gear "+id,fans, new Liszt<>(), LocalDateTime.now()
+    protected Band generateBand(UUID id, Seszt<Artist> members, Liszt<User> fans, Subscription subscription) {
+        return new Band(
+            id,
+            "Band "+id,
+            "Description "+id,
+            _contactInfo.get(_random.nextInt(_contactInfo.size())),
+            new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+            randomizeRatings(),
+            new Liszt<>(),
+            new Liszt<>(),
+            new Liszt<>(),
+            subscription,
+            new Liszt<>(),
+            members,
+            "Gear " + id,
+            fans,
+            new Liszt<>(),
+            LocalDateTime.now()
         );
     }
 
@@ -235,9 +258,9 @@ public abstract class ItemGenerator extends TestCollections {
      */
     public Liszt<Rating> randomizeRatings() {
         Liszt<Rating> ratings = new Liszt<>();
-        int amount = _random.nextInt(_ratings.length)+1;
 
-        for (int i = 0; i < amount; i++) ratings.add(_ratings[_random.nextInt(_ratings.length)]);
+        for (int i = 0; i < _random.nextInt(_ratings.size())+1; i++)
+            ratings.add(_ratings.get(_random.nextInt(_ratings.size())));
 
         return ratings;
     }

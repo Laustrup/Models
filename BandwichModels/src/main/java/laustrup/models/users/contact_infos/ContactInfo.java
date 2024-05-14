@@ -40,6 +40,22 @@ public class ContactInfo extends Model {
     }
 
     /**
+     * Generates a timestamp of now.
+     * @param id The primary id that identifies this unique Object.
+     * @param email The email that the User wants to be contacted through outside the application.
+     * @param phone A Phone object that is used to have information about how to contact the User through Phone.
+     * @param address An Address object with info about the location of the User.
+     * @param country A Country object for the information of which Country the User is living in.
+     */
+    public ContactInfo(UUID id, String email, Phone phone, Address address, Country country) {
+        super(id, "Contact-info: "+id, LocalDateTime.now());
+        _email = email;
+        _phone = phone;
+        _address = address;
+        _country = country;
+    }
+
+    /**
      * A constructor with all the values of this Object.
      * @param id The primary id that identifies this unique Object.
      * @param email The email that the User wants to be contacted through outside the application.

@@ -3,8 +3,8 @@ package laustrup.models.events;
 import laustrup.models.Model;
 import laustrup.models.users.sub_users.Performer;
 import laustrup.services.DTOService;
-import laustrup.utilities.collections.lists.Liszt;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -22,7 +22,7 @@ public class Gig extends Model {
     private Event _event;
 
     /** This act is of a Gig and can both be assigned as artists or bands. */
-    private Liszt<Performer> _act;
+    private Seszt<Performer> _act;
 
     /** The start of the Gig, where the act will begin. */
     private LocalDateTime _start;
@@ -41,8 +41,8 @@ public class Gig extends Model {
         _start = gig.getStart();
         _end = gig.getEnd();
     }
-    private Liszt<Performer> convert(Performer.DTO[] act) {
-        Liszt<Performer> performances = new Liszt<>();
+    private Seszt<Performer> convert(Performer.DTO[] act) {
+        Seszt<Performer> performances = new Seszt<>();
         for (Performer.DTO performerDTO : act)
             performances.add((Performer) DTOService.convert(performerDTO));
 
@@ -58,10 +58,10 @@ public class Gig extends Model {
      * @param end The end of the Gig, where the act will end.
      * @param timestamp The time this Object was created.
      */
-    public Gig(UUID id, Event event, Performer[] act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
+    public Gig(UUID id, Event event, Seszt<Performer> act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
         super(id, "Gig:" + id, timestamp);
         _event = event;
-        _act = new Liszt<>(act);
+        _act = act;
         _start = start;
         _end = end;
     }
@@ -85,7 +85,7 @@ public class Gig extends Model {
      * @param performance The Performer object that is wished to be added.
      * @return All the Performers of the act.
      */
-    public Liszt<Performer> add(Performer performance) {
+    public Seszt<Performer> add(Performer performance) {
         return _act.Add(performance);
     }
 
@@ -94,7 +94,7 @@ public class Gig extends Model {
      * @param performance The performance that should be removed from the act.
      * @return The act of this Gig.
      */
-    public Liszt<Performer> remove(Performer performance) {
+    public Seszt<Performer> remove(Performer performance) {
         _act.remove(performance);
         return _act;
     }

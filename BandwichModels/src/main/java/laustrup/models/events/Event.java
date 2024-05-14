@@ -1,6 +1,7 @@
 package laustrup.models.events;
 
 import laustrup.utilities.collections.lists.Liszt;
+import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.console.Printer;
 import laustrup.utilities.parameters.Plato;
 import laustrup.models.Model;
@@ -138,7 +139,7 @@ public class Event extends Model {
      * The people that will participate in the Event,
      * not including venues or acts.
      */
-    private Liszt<Participation> _participations;
+    private Seszt<Participation> _participations;
 
     /** Post from different people, that will mention contents. */
     private Liszt<Bulletin> _bulletins;
@@ -199,7 +200,7 @@ public class Event extends Model {
         });
 
         ifExists(event.getParticipations(), () -> {
-            _participations = new Liszt<>();
+            _participations = new Seszt<>();
             for (Participation.DTO participation : event.getParticipations())
                 _participations.add(new Participation(participation));
         });
@@ -257,7 +258,7 @@ public class Event extends Model {
             Liszt<Gig> gigs,
             Venue venue,
             Liszt<Request> requests,
-            Liszt<Participation> participations,
+            Seszt<Participation> participations,
             Liszt<Bulletin> bulletins,
             Liszt<Album> albums,
             LocalDateTime timestamp
@@ -306,7 +307,7 @@ public class Event extends Model {
      * @param participation A User that will join this Event.
      * @return All the Participations of this Event.
      */
-    public Liszt<Participation> add(Participation participation) {
+    public Seszt<Participation> add(Participation participation) {
         return _participations.Add(participation);
     }
 
@@ -558,7 +559,7 @@ public class Event extends Model {
      * @param participation Determines a specific participant, that is wished to be added.
      * @return All the Participations of the current Event.
      */
-    public Liszt<Participation> addParticipation(Participation participation) {
+    public Seszt<Participation> addParticipation(Participation participation) {
         return addParticipation(new Participation[]{participation});
     }
 
@@ -567,7 +568,7 @@ public class Event extends Model {
      * @param participations Determines some specific participants, that is wished to be added.
      * @return All the Participations of the current Event.
      */
-    public Liszt<Participation> addParticipation(Participation[] participations) {
+    public Seszt<Participation> addParticipation(Participation[] participations) {
         return _participations.Add(participations);
     }
 
@@ -576,7 +577,7 @@ public class Event extends Model {
      * @param participation Determines a specific participant, that is wished to be removed.
      * @return All the Participations of the current Event.
      */
-    public Liszt<Participation> removeParticipation(Participation participation) {
+    public Seszt<Participation> removeParticipation(Participation participation) {
         _participations.remove(participation);
         return _participations;
     }

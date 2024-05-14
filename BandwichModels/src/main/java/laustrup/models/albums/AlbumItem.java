@@ -1,11 +1,11 @@
 package laustrup.models.albums;
 
-import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
 import laustrup.models.events.Event;
 import laustrup.models.users.User;
 import laustrup.services.DTOService;
 
+import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -22,7 +22,7 @@ import static laustrup.models.users.User.UserDTO;
 public class AlbumItem extends Model {
 
     /** Categories the tagged people, who have participated on the item of the album. */
-    private Liszt<User> _tags;
+    private Seszt<User> _tags;
 
     /** The endpoint for a URL, that is used to get the file of the item. */
     private String _endpoint;
@@ -45,7 +45,7 @@ public class AlbumItem extends Model {
         super(albumItem);
         _endpoint = albumItem.getEndpoint();
         _kind = Kind.valueOf(albumItem.getKind().toString());
-        _tags = new Liszt<>();
+        _tags = new Seszt<>();
         convert(albumItem.getTags());
     }
     private void convert(User.UserDTO[] tags) {
@@ -62,7 +62,7 @@ public class AlbumItem extends Model {
      * @param event The Event that is joined at this item.
      * @param timestamp The date this item is posted.
      */
-    public AlbumItem(String title, String endpoint, Kind kind, Liszt<User> tags, Event event, LocalDateTime timestamp) {
+    public AlbumItem(String title, String endpoint, Kind kind, Seszt<User> tags, Event event, LocalDateTime timestamp) {
         super(title, timestamp);
         _endpoint = endpoint;
         _kind = kind;
@@ -75,7 +75,7 @@ public class AlbumItem extends Model {
      * @param tag The User that will be added as a tag.
      * @return All the tags of the item.
      */
-    public Liszt<User> add(User tag) {
+    public Seszt<User> add(User tag) {
         return add(new User[]{tag});
     }
 
@@ -84,7 +84,7 @@ public class AlbumItem extends Model {
      * @param tags The Users that will be added as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> add(User[] tags) {
+    public Seszt<User> add(User[] tags) {
         return _tags.Add(tags);
     }
 
@@ -93,7 +93,7 @@ public class AlbumItem extends Model {
      * @param tag The User that will be removed as a tag.
      * @return All the tags of the item.
      */
-    public Liszt<User> remove(User tag) {
+    public Seszt<User> remove(User tag) {
         return remove(new User[]{tag});
     }
 
@@ -102,7 +102,7 @@ public class AlbumItem extends Model {
      * @param tags The Users that will be removed as tags.
      * @return All the tags of the item.
      */
-    public Liszt<User> remove(User[] tags) {
+    public Seszt<User> remove(User[] tags) {
         return _tags.remove(tags);
     }
 
