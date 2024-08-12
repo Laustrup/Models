@@ -3,29 +3,35 @@ package laustrup.models.chats;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
 import laustrup.models.chats.messages.Mail;
-import laustrup.models.users.User;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
+import laustrup.models.User;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
 import laustrup.services.DTOService;
-
 import laustrup.utilities.collections.sets.Seszt;
+
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.User.UserDTO;
 import static laustrup.services.ObjectService.ifExists;
 
-/** This is used for multiple Users to communicate with each other through Mails. */
+/**
+ * This is used for multiple Users to communicate with each other through Mails.
+ */
 @Getter @FieldNameConstants
 public class ChatRoom extends Model {
 
-    /** All the Mails that has been sent will be stored here. */
+    /**
+     * All the Mails that has been sent will be stored here.
+     */
     private Liszt<Mail> _mails;
 
-    /** The Users, except the responsible, that can write with each other. */
+    /**
+     * The Users, except the responsible, that can write with each other.
+     */
     private Seszt<User> _chatters;
 
     /**
@@ -72,6 +78,19 @@ public class ChatRoom extends Model {
         _chatters = chatters;
         _title = determineChatRoomTitle(_title);
         _mails = mails;
+    }
+
+    /**
+     * Will generate a new ChatRoom.
+     * Timestamp will be of now.
+     * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
+     * @param mails The Mails with relations to this ChatRoom.
+     * @param chatters The chatters that are members of this ChatRoom.
+     */
+    public ChatRoom(String title, Liszt<Mail> mails, Seszt<User> chatters) {
+        super(title);
+        _mails = mails;
+        _chatters = chatters;
     }
 
     /**
@@ -171,7 +190,10 @@ public class ChatRoom extends Model {
      */
     public boolean chatterExists(User chatter) {
         for (User user : _chatters)
-            if (user.getClass() == chatter.getClass() && user.get_primaryId() == chatter.get_primaryId())
+            if (
+                user.getClass() == chatter.getClass()
+                && user.get_primaryId() == chatter.get_primaryId()
+            )
                 return true;
 
         return false;

@@ -1,14 +1,12 @@
 package laustrup.models;
 
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.models.events.Event;
-import laustrup.models.users.User;
 import laustrup.services.DTOService;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.User.UserDTO;
 
 /**
  * Is used for response of a search request,

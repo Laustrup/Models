@@ -1,7 +1,7 @@
 package laustrup.models.chats.messages;
 
 import laustrup.models.Model;
-import laustrup.models.users.User;
+import laustrup.models.User;
 import laustrup.services.DTOService;
 import laustrup.utilities.parameters.Plato;
 
@@ -12,21 +12,29 @@ import lombok.experimental.FieldNameConstants;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.User.UserDTO;
 
-/** An abstract class that contains common attributes for Messages. */
+/**
+ * An abstract class that contains common attributes for Messages.
+ */
 @Getter @FieldNameConstants
 public abstract class Message extends Model {
 
-    /** The User that wrote the Message. */
+    /**
+     * The User that wrote the Message.
+     */
     @Getter
     protected User _author;
 
-    /** The content of the written Message. */
+    /**
+     * The content of the written Message.
+     */
     @Setter
     protected String _content;
 
-    /** True if the Message is sent. */
+    /**
+     * True if the Message is sent.
+     */
     @Setter
     protected boolean _sent;
 
@@ -36,7 +44,9 @@ public abstract class Message extends Model {
      */
     protected Plato _edited;
 
-    /** Can be switched between both true and false, if true the message is public for every User. */
+    /**
+     * Can be switched between both true and false, if true the message is public for every User.
+     */
     @Setter
     protected boolean _public;
 
@@ -82,6 +92,25 @@ public abstract class Message extends Model {
     }
 
     /**
+     * Generating a new Message as a draft.
+     * Timestamp will be of now.
+     * @param author The User that wrote the Message.
+     * @param content The content of the written Message.
+     * @param isSent True if the Message is sent.
+     * @param isEdited A Plato object, that will be true if the Message has been edited.
+     *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+     * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     */
+    public Message(User author, String content, boolean isSent, Plato isEdited, boolean isPublic) {
+        super(null, "New Message");
+        _author = author;
+        _content = content;
+        _sent = isSent;
+        _edited = isEdited;
+        _public = isPublic;
+    }
+
+    /**
      * Will set the sent attribute to true.
      * @return The sent attribute.
      */
@@ -103,17 +132,25 @@ public abstract class Message extends Model {
         return _content;
     }
 
-    /** An abstract class that contains common attributes for Messages. */
+    /**
+     * An abstract class that contains common attributes for Messages.
+     */
     @Getter
     protected static class DTO extends ModelDTO {
 
-        /** The User that wrote the Message. */
+        /**
+         * The User that wrote the Message.
+         */
         protected UserDTO author;
 
-        /** The content of the written Message. */
+        /**
+         * The content of the written Message.
+         */
         protected String content;
 
-        /** True if the Message is sent. */
+        /**
+         * True if the Message is sent.
+         */
         protected boolean isSent;
 
         /**
@@ -122,7 +159,9 @@ public abstract class Message extends Model {
          */
         protected Plato.Argument isEdited;
 
-        /** Can be switched between both true and false, if true the message is public for every User. */
+        /**
+         * Can be switched between both true and false, if true the message is public for every User.
+         */
         protected boolean isPublic;
 
         /**

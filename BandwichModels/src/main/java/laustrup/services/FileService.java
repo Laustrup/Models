@@ -16,27 +16,11 @@ import java.util.Arrays;
 public class FileService extends Service {
 
     /**
-     * Singleton instance of the Service.
-     */
-    private static FileService _instance = null;
-    /**
-     * Checks first if instance is null, otherwise will create a new instance of the object.
-     * Created as a lazyfetch.
-     * @return The instance of the object, as meant as a singleton.
-     */
-    public static FileService get_instance() {
-        if (_instance == null) _instance = new FileService();
-        return _instance;
-    }
-
-    private FileService() {}
-
-    /**
      * Will gather the content of a file without excluding any characters.
      * @param path The path including directories and file with / or \ as separators and filetype at the end.
      * @return The gathered content of a file.
      */
-    public String getContent(String path) {
+    public static String getContent(String path) {
         return getContent(path, new String[][]{});
     }
 
@@ -48,7 +32,7 @@ public class FileService extends Service {
      *                  Can start with or without a /.
      * @return The gathered content of a file.
      */
-    public String getContent(String directory, String file) {
+    public static String getContent(String directory, String file) {
         return getContent(directory, file, new String[][]{});
     }
 
@@ -62,7 +46,7 @@ public class FileService extends Service {
      *                 first index is the value that will be replaced with the other index.
      * @return The gathered content of a file.
      */
-    public String getContent(String directory, String file, String[][] replacings) {
+    public static String getContent(String directory, String file, String[][] replacings) {
         return getContent(configurePath(directory, file), replacings);
     }
 
@@ -73,7 +57,7 @@ public class FileService extends Service {
      *                 first index is the value that will be replaced with the other index.
      * @return The gathered content of a file.
      */
-    public String getContent(String path, String[][] replacings) {
+    public static String getContent(String path, String[][] replacings) {
         String content = null;
 
         try {
@@ -100,7 +84,7 @@ public class FileService extends Service {
      * @param content The content that will be written into the file.
      * @return The Path of the file.
      */
-    public Path write(String directory, String file, String content) {
+    public static Path write(String directory, String file, String content) {
         return write(configurePath(directory, file),content);
     }
 
@@ -111,7 +95,7 @@ public class FileService extends Service {
      * @param content The content that will be written into the file.
      * @return The Path of the file.
      */
-    public Path write(String path, String content) {
+    public static Path write(String path, String content) {
         try {
             return Files.write(Paths.get(path), content.getBytes());
         } catch (IOException e) {
@@ -128,7 +112,7 @@ public class FileService extends Service {
      *                  Can start with or without a /.
      * @return True if the file existed and is deleted.
      */
-    public boolean delete(String directory, String file) {
+    public static boolean delete(String directory, String file) {
         return delete(configurePath(directory, file));
     }
 
@@ -137,7 +121,7 @@ public class FileService extends Service {
      * @param path The path including directories and file with / or \ as separators and filetype at the end.
      * @return True if the file existed and is deleted.
      */
-    public boolean delete(String path) {
+    public static boolean delete(String path) {
         File file = new File(path);
 
         if (!file.exists())
@@ -154,7 +138,7 @@ public class FileService extends Service {
      *                  Can start with or without a /.
      * @return The generated path.
      */
-    private String configurePath(String directory, String file) {
+    private static String configurePath(String directory, String file) {
         return directory.charAt(directory.length()-1) == '/' || file.charAt(0) == '/' ? directory + file : directory + "/" + file;
     }
 }

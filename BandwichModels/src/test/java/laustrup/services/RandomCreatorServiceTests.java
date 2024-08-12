@@ -12,7 +12,7 @@ class RandomCreatorServiceTests extends ServiceTester {
 
     /** Sets the Service as a RandomCreatorService for testing. */
     protected RandomCreatorServiceTests() {
-        super(RandomCreatorService.get_instance());
+        super(new RandomCreatorService());
     }
 
     @ParameterizedTest

@@ -1,27 +1,26 @@
 package laustrup.models.events;
 
 import laustrup.ModelTester;
-import laustrup.dtos.events.EventDTO;
 
-import laustrup.models.albums.Album;
+import laustrup.models.Album;
+import laustrup.models.Event;
 import laustrup.models.chats.Request;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.users.sub_users.Performer;
+import laustrup.models.users.Performer;
 import laustrup.services.RandomCreatorService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
-import java.util.function.Supplier;
+import java.util.UUID;
 
-class EventTest extends ModelTester<Event, EventDTO> {
+class EventTest extends ModelTester<Event, Event.DTO> {
 
     @ParameterizedTest
     @CsvSource(value = {
@@ -33,30 +32,34 @@ class EventTest extends ModelTester<Event, EventDTO> {
     void correctlyInitiates(LocalDateTime openDoors, LocalDateTime lastGig, boolean noGigs, String location) {
         test(() -> {
             Event arrangement = arrange(() -> {
-                long eventId = _random.nextLong();
-                Liszt<Gig> gigs = !noGigs
-                        ? _items.generateGigs(new Event(eventId),lastGig, _random.nextInt(10), _random.nextInt(30))
+                UUID eventId = UUID.randomUUID();
+                Liszt<Event.Gig> gigs = !noGigs
+                        ? _items.generateGigs(null, lastGig, _random.nextInt(10), _random.nextInt(30))
                         : new Liszt<>();
                 Seszt<Performer> performers = new Seszt<>();
                 if (!noGigs)
-                    for (Gig gig : gigs)
+                    for (Event.Gig gig : gigs)
                         performers.addAll(gig.get_act());
                 Liszt<Request> requests = new Liszt<>();
                 if (!noGigs)
                     for (Performer performer : performers)
-                        requests.add(new Request(performer, new Event(eventId), new Plato(), "", LocalDateTime.now()));
+                        requests.add(new Request(performer, null, new Plato(), "", LocalDateTime.now()));
 
                 try {
                     return new Event(
-                        eventId,RandomCreatorService.get_instance().generateString(),
-                        RandomCreatorService.get_instance().generateString(), openDoors,
-                        _items.generatePlato(),_items.generatePlato(),_items.generatePlato(),_items.generatePlato(),
-                        location.equals("null") ? null : location,_random.nextDouble(1000),
-                        RandomCreatorService.get_instance().generateString(),
-                        _items.get_contactInfo()[_random.nextInt(_items.get_contactInfoAmount())], gigs,
-                        _items.get_venues()[_random.nextInt(_items.get_venueAmount())], requests,
-                        _items.generateParticipations(new Event(eventId)),
-                        new Liszt<>(_items.generateBulletins(new Event(eventId))), new Liszt<>(),LocalDateTime.now()
+                            eventId,RandomCreatorService.generateString(),
+                            RandomCreatorService.generateString(), openDoors,
+                            _items.generatePlato(),_items.generatePlato(),_items.generatePlato(),_items.generatePlato(),
+                            location.equals("null")
+                                    ? null
+                                    : location,_random.nextDouble(1000),
+                            RandomCreatorService.generateString(),
+                            _items.get_contactInfo().get(_random.nextInt(_items.get_contactInfo().size())), gigs,
+                            _items.get_venues().get(_random.nextInt(_items.get_venues().size())), requests,
+                            _items.generateParticipations(null),
+                            _items.generateBulletins(null),
+                            new Seszt<>(),
+                            LocalDateTime.now()
                     );
                 } catch (InputMismatchException e) {
                     asserting(lastGig.isBefore(openDoors) && !gigs.isEmpty());
@@ -76,7 +79,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     @Test
     void canCalculateEventLength() {
-        test(() -> assureTimes(arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())])));
+        test(() -> assureTimes(arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())))));
     }
 
     /**
@@ -86,7 +89,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
     private void assureTimes(Event event) {
         LocalDateTime firstGig = null, latestGig = null;
         if (!event.get_gigs().isEmpty())
-            for (Gig gig : event.get_gigs()) {
+            for (Event.Gig gig : event.get_gigs()) {
                 if (firstGig == null || gig.get_start().isBefore(firstGig))
                     firstGig = gig.get_start();
                 if (latestGig == null || gig.get_end().isAfter(latestGig))
@@ -102,14 +105,10 @@ class EventTest extends ModelTester<Event, EventDTO> {
         );
     }
 
-    @Override @Test //TODO Event stackoverflow from items, temporarily fixed.
+    @Override @Test
     protected void dataTransportObjectTranslate() {
         test(() -> {
-            Event expected = arrange(() -> {
-                Event event = fixStackOverflow(_items.get_events()[_random.nextInt(_items.get_eventAmount())]);
-                _dto = new EventDTO(event);
-                return event;
-            });
+            Event expected = arrange(() -> _items.get_events().getFirst());
 
             Event actual = act(() -> new Event(_dto));
 
@@ -118,59 +117,10 @@ class EventTest extends ModelTester<Event, EventDTO> {
             addToPrint("The two Events are:\n \n" + expected + "\n" + actual);
         });
     }
-
-    private Event fixStackOverflow(Event event) {
-        return fixBulletinStackOverflow(fixParticipationStackOverflow(fixRequestStackOverflow(event)));
-    }
-
-    private Event fixRequestStackOverflow(Event event) {
-        Liszt<Request> requests = new Liszt<>();
-        for (Request request : event.get_requests()) {
-            requests.add(new Request(
-                    request.get_user(),
-                    new Event(request.get_event().get_primaryId()),
-                    request.get_approved(),
-                    request.get_message(),
-                    request.get_timestamp())
-            );
-        }
-
-        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),requests,event.get_participations(),event.get_bulletins(),event.get_albums(),event.get_timestamp());
-    }
-
-    private Event fixParticipationStackOverflow(Event event) {
-        Liszt<Participation> participations = new Liszt<>();
-        for (Participation participation : event.get_participations())
-            participations.add(new Participation(
-                    participation.get_participant(),
-                    new Event(participation.get_event().get_primaryId()),
-                    participation.get_type(),
-                    participation.get_timestamp()
-            ));
-
-        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),event.get_requests(),participations,event.get_bulletins(),event.get_albums(),event.get_timestamp());
-    }
-
-    private Event fixBulletinStackOverflow(Event event) {
-        Liszt<Bulletin> bulletins = new Liszt<>();
-        for (Bulletin bulletin : event.get_bulletins())
-            bulletins.add(new Bulletin(
-                    bulletin.get_primaryId(),
-                    bulletin.get_author(),
-                    new Event(bulletin.get_receiver().get_primaryId()),
-                    bulletin.get_content(),
-                    bulletin.is_sent(),
-                    bulletin.get_edited(),
-                    bulletin.is_public(),
-                    bulletin.get_timestamp()
-            ));
-
-        return new Event(event.get_primaryId(),event.get_title(),event.get_description(),event.get_openDoors(),event.get_voluntary(),event.get_public(),event.get_cancelled(),event.get_soldOut(),event.get_location(),event.get_price(),event.get_ticketsURL(),event.get_contactInfo(),event.get_gigs(),event.get_venue(),event.get_requests(),event.get_participations(),bulletins,event.get_albums(),event.get_timestamp());
-    }
-
+    
     @Override @Test
     protected void toStringTest() {
-        Event event = _items.get_events()[_random.nextInt(_items.get_eventAmount())];
+        Event event = _items.get_events().get(_random.nextInt(_items.get_events().size()));
 
         testToString(event,new String[]{
             "id",
@@ -198,23 +148,27 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddGigs() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int previousSize = event.get_gigs().size();
-            Gig[] gigs = new Gig[]{
-                new Gig(
+            Event.Gig[] gigs = new Event.Gig[]{
+                new Event.Gig(
                     event,
-                    new Performer[]{
-                            _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
-                            _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
-                    },
+                    new Seszt<>(
+                        new Performer[]{
+                            _items.get_bands().get(_random.nextInt(_items.get_bands().size())),
+                            _items.get_artists().get(_random.nextInt(_items.get_artists().size()))
+                        }
+                    ),
                     LocalDateTime.now(), LocalDateTime.now().plusHours(1)
                 ),
-                new Gig(
+                new Event.Gig(
                     event,
-                    new Performer[]{
-                            _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
-                            _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
-                    },
+                    new Seszt<>(
+                        new Performer[]{
+                            _items.get_bands().get(_random.nextInt(_items.get_bands().size())),
+                            _items.get_artists().get(_random.nextInt(_items.get_artists().size()))
+                        }
+                    ),
                     LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2)
                 )
             };
@@ -230,14 +184,15 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddRequests() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int previousSize = event.get_requests().size();
             Request[] requests = _items.generateRequests(
-                    new Liszt<>(new Performer[]{
-                        _items.get_bands()[_random.nextInt(_items.get_bandAmount())],
-                                _items.get_artists()[_random.nextInt(_items.get_artistAmount())]
-                    }),
-                    event
+                new Seszt<>(
+                    new Performer[]{
+                        _items.get_bands().get(_random.nextInt(_items.get_bands().size())),
+                        _items.get_artists().get(_random.nextInt(_items.get_artists().size()))
+                }),
+                event
             );
 
             act(() -> event.add(requests));
@@ -251,9 +206,9 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddParticipation() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int previousSize = event.get_participations().size();
-            Participation participation = _items.generateParticipations(event).getFirst();
+            Event.Participation participation = _items.generateParticipations(event).getFirst();
 
             act(() -> event.add(participation));
 
@@ -266,9 +221,9 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddBulletin() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int previousSize = event.get_bulletins().size();
-            Bulletin bulletin = _items.generateBulletins(event)[0];
+            Bulletin bulletin = _items.generateBulletins(event).getFirst();
 
             act(() -> event.add(bulletin));
 
@@ -281,12 +236,12 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canAddAlbums() {
         test(() -> {
-            Event event = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int previousSize = event.get_albums().size();
             Album album = new Album(
-                    RandomCreatorService.get_instance().generateString(),
-                    _items.generateAlbumItems(),
-                    event.get_venue()
+                RandomCreatorService.generateString(),
+                _items.generateAlbumItems(),
+                event.get_venue().get_primaryId()
             );
 
             act(() -> event.add(album));
@@ -309,9 +264,9 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetGigs() {
         test(() -> {
-            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int index = _random.nextInt(arrangement.get_gigs().size());
-            Gig updated = arrangement.get_gigs().get(index);
+            Event.Gig updated = arrangement.get_gigs().get(index);
             updated.set_title("This gig has been changed!");
 
             act(() -> arrangement.set(updated));
@@ -322,7 +277,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetRequest() {
         test(() -> {
-            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int index = _random.nextInt(arrangement.get_requests().size());
             Request request = arrangement.get_requests().get(index);
             request.set_title("This request has been changed!");
@@ -335,19 +290,14 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetParticipation() {
         test(() -> {
-            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int index = _random.nextInt(arrangement.get_participations().size());
-            Participation participation = arrangement.get_participations().get(index);
-            participation.set_type(new Supplier<Participation.ParticipationType>() {
-                @Override
-                public Participation.ParticipationType get() {
-                    Participation.ParticipationType type = Participation.ParticipationType.CANCELED;
-                    if (type == participation.get_type())
-                        type = Participation.ParticipationType.ACCEPTED;
+            Event.Participation participation = arrangement.get_participations().get(index);
+            Event.Participation.Type type = Event.Participation.Type.CANCELED;
+            if (type == participation.get_type())
+                type = Event.Participation.Type.ACCEPTED;
 
-                    return type;
-                }
-            }.get());
+            participation.set_type(type);
 
             act(() -> arrangement.set(participation));
 
@@ -357,7 +307,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetBulletin() {
         test(() -> {
-            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int bulletinIndex = _random.nextInt(arrangement.get_bulletins().size());
             Bulletin bulletin = arrangement.get_bulletins().get(bulletinIndex);
             bulletin.set_title("This bulletin has been changed!");
@@ -370,7 +320,7 @@ class EventTest extends ModelTester<Event, EventDTO> {
 
     private void canSetAlbum() {
         test(() -> {
-            Event arrangement = arrange(() -> _items.get_events()[_random.nextInt(_items.get_eventAmount())]);
+            Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
             int index = _random.nextInt(arrangement.get_albums().size());
             Album album = arrangement.get_albums().get(index);
             album.set_title("This album has been changed!");

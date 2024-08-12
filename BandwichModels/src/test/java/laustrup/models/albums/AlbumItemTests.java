@@ -2,25 +2,29 @@ package laustrup.models.albums;
 
 import laustrup.ModelTester;
 
-import laustrup.models.users.User;
+import laustrup.models.Album;
+import laustrup.models.Model;
+import laustrup.models.User;
 import laustrup.services.RandomCreatorService;
-import laustrup.utilities.collections.lists.Liszt;
+import laustrup.utilities.collections.sets.Seszt;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.UUID;
 
-class AlbumItemTests extends ModelTester<AlbumItem, AlbumItem.DTO> {
+class AlbumItemTests extends ModelTester<Album.Item, Album.Item.DTO> {
 
     @Test @Override
     public void dataTransportObjectTranslate() {
         test(() -> {
-            AlbumItem expected = arrange(() -> {
-                AlbumItem item = _items.get_albums()[0].get_items().Get(1);
-                _dto = new AlbumItem.DTO(item);
+            Album.Item expected = arrange(() -> {
+                Album.Item item = _items.get_albums().getFirst().get_items().Get(1);
+                _dto = new Album.Item.DTO(item);
                 return item;
             });
 
-            AlbumItem actual = act(() -> new AlbumItem(_dto));
+            Album.Item actual = act(() -> new Album.Item(_dto));
 
             asserting(expected.toString(),actual.toString());
 
@@ -30,7 +34,7 @@ class AlbumItemTests extends ModelTester<AlbumItem, AlbumItem.DTO> {
 
     @Override
     protected void toStringTest() {
-        AlbumItem arrangement = _items.get_albums()[0].get_items().Get(1);
+        Album.Item arrangement = _items.get_albums().getFirst().get_items().Get(1);
 
         testToString(arrangement, new String[]{
                 "endpoint",
@@ -48,10 +52,10 @@ class AlbumItemTests extends ModelTester<AlbumItem, AlbumItem.DTO> {
         User[] tags = generateTags();
 
         test(() -> {
-            AlbumItem arrangement = arrange(() -> _items.get_albums()[0].get_items().Get(1));
+            Album.Item arrangement = arrange(() -> _items.get_albums().getFirst().get_items().Get(1));
             int previousSize = arrangement.get_tags().size();
 
-            act(() -> arrangement.add(tags));
+            act(() -> arrangement.add((UUID[]) Arrays.stream(tags).map(Model::get_primaryId).toArray()));
 
             asserting(arrangement.get_tags().size() == previousSize + tags.length);
         });
@@ -60,15 +64,19 @@ class AlbumItemTests extends ModelTester<AlbumItem, AlbumItem.DTO> {
     @Test @Override
     public void canRemove() {
         test(() -> {
-            AlbumItem arranged = arrange(() -> new AlbumItem(
-                    RandomCreatorService.get_instance().generateString(false,10),
-                    RandomCreatorService.get_instance().generateString(false,10),
-                    _random.nextBoolean() ? AlbumItem.Kind.IMAGE : AlbumItem.Kind.MUSIC,
-                    new Liszt<>(generateTags()), _items.get_events()[0], LocalDateTime.now()
-                    )
+            Album.Item arranged = arrange(() -> new Album.Item(
+                    RandomCreatorService.generateString(false,10),
+                    RandomCreatorService.generateString(false,10),
+                    _random.nextBoolean()
+                            ? Album.Item.Kind.IMAGE
+                            : Album.Item.Kind.MUSIC,
+                    new Seszt<>((UUID[]) Arrays.stream(generateTags()).map(Model::get_primaryId).toArray()),
+                    _items.get_events().getFirst(),
+                    LocalDateTime.now()
+                )
             );
             int previousSize = arranged.get_tags().size();
-            User[] tags = new User[_random.nextInt(arranged.get_tags().size())];
+            UUID[] tags = Arrays.stream(new User[_random.nextInt(arranged.get_tags().size())]).map(Model::get_primaryId).toList().toArray(new UUID[0]);
             for (int i = 0; i < tags.length; i++)
                 tags[i] = arranged.get_tags().get(i);
 

@@ -1,7 +1,5 @@
 package laustrup.models;
 
-import laustrup.models.users.User;
-
 import laustrup.services.DTOService;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,28 +9,14 @@ import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.UUID;
 
-import static laustrup.models.users.User.UserDTO;
-import static laustrup.services.ObjectService.ifExists;
-
 /**
  * Can be added to a model to indicate the rating that the model is appreciated.
+ * The first id is the appointed and the second is the judge.
  * Is created by a user.
  */
 @Getter
 @FieldNameConstants
 public class Rating extends Model {
-
-    /**
-     * The id of the user, that has received this rating.
-     * Is used for when inserting the rating to the user.
-     */
-    private User _appointed;
-
-    /**
-     * The id of the user, that has given this rating.
-     * Is used for when inserting the rating to the user.
-     */
-    private User _judge;
 
     /**
      * The value of the rating that is appointed.
@@ -53,14 +37,32 @@ public class Rating extends Model {
     public Rating(DTO rating) throws InputMismatchException {
         super(rating);
         _value = set_value(rating.getValue());
-        _appointed = (User) ifExists(rating.getAppointed(), e -> DTOService.convert((UserDTO) e));
-        _judge = (User) ifExists(rating.getJudge(), e -> DTOService.convert((UserDTO) e));
     }
 
+    /**
+     * Constructor with all values.
+     * @param value The value of the Rating given.
+     * @param appointedId The one receiving the Rating.
+     * @param judgeId The one giving the Rating.
+     * @param comment A comment that is attached to the Rating.
+     * @param timestamp Specifies the time the Rating was created.
+     */
     public Rating(int value, UUID appointedId, UUID judgeId, String comment, LocalDateTime timestamp) {
         super(appointedId, judgeId, appointedId+"-"+judgeId, timestamp);
         _comment = comment;
         _value = set_value(value);
+    }
+
+    /**
+     * For generating a new Rating.
+     * Timestamp is of now.
+     * @param value The value of the Rating given.
+     * @param appointedId The one receiving the Rating.
+     * @param judgeId The one giving the Rating.
+     * @param comment A comment that is attached to the Rating.
+     */
+    public Rating(int value, UUID appointedId, UUID judgeId, String comment) {
+        this(value, appointedId, judgeId, comment, LocalDateTime.now());
     }
 
     /**
@@ -83,14 +85,10 @@ public class Rating extends Model {
         return defineToString(
             getClass().getSimpleName(),
             new String[] {
-                Fields._appointed,
-                Fields._judge,
                 Fields._value,
                 Model.Fields._timestamp
             },
             new String[] {
-                get_appointed() != null ? get_appointed().get_title() : String.valueOf(get_primaryId()),
-                get_judge() != null ? get_judge().get_title() : String.valueOf(get_secondaryId()),
                 String.valueOf(get_value()),
                 String.valueOf(get_timestamp())
             }
@@ -104,18 +102,6 @@ public class Rating extends Model {
      */
     @Getter @Setter
     public static class DTO extends ModelDTO {
-
-        /**
-         * The id of the user, that has received this rating.
-         * Is used for when inserting the rating to the user.
-         */
-        private UserDTO appointed;
-
-        /**
-         * The id of the user, that has given this rating.
-         * Is used for when inserting the rating to the user.
-         */
-        private UserDTO judge;
 
         /**
          * The value of the rating that is appointed.
@@ -132,9 +118,6 @@ public class Rating extends Model {
             super(rating);
             value = rating.get_value();
             comment = rating.get_comment();
-            appointed = DTOService.convert(rating.get_appointed());
-            judge = DTOService.convert(rating.get_judge());
         }
     }
-
 }

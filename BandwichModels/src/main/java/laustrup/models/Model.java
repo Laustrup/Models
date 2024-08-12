@@ -39,7 +39,7 @@ public abstract class Model {
      * @return The gathered id.
      */
     public UUID get_secondaryId() {
-        return _secondaryId == null ? get_primaryId() : _secondaryId;
+        return !hasSecondaryId() ? get_primaryId() : _secondaryId;
     }
 
     /**
@@ -50,7 +50,9 @@ public abstract class Model {
     @Getter @Setter
     protected String _title;
 
-    /** Specifies the time this entity was created. */
+    /**
+     * Specifies the time this entity was created.
+     */
     @Getter
     protected LocalDateTime _timestamp;
 
@@ -125,6 +127,15 @@ public abstract class Model {
     }
 
     /**
+     * @param id A hex decimal value identifying this item uniquely.
+     * @param title A title describing this entity internally.
+     */
+    public Model(UUID id, String title) {
+        _primaryId = id;
+        _title = title;
+    }
+
+    /**
      * Will generate a timestamp of the moment now in datetime.
      * @param primaryId A hex decimal value identifying this item uniquely.
      * @param secondaryId Another hex decimal value identifying another item uniquely.
@@ -155,7 +166,9 @@ public abstract class Model {
      * Checks if secondary id is null.
      * @return True if secondary id isn't null.
      */
-    public boolean hasSecondaryId() { return _secondaryId != null; }
+    public boolean hasSecondaryId() {
+        return _secondaryId != null;
+    }
 
     /**
      * Will generate a toString from the attributes and values.

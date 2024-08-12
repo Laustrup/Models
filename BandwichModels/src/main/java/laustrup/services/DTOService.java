@@ -1,14 +1,14 @@
 package laustrup.services;
 
 import laustrup.models.Model;
-import laustrup.models.events.Event;
-import laustrup.models.users.User;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
-import laustrup.models.users.sub_users.participants.Participant;
-import laustrup.models.users.sub_users.venues.Venue;
+import laustrup.models.Event;
+import laustrup.models.User;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
+import laustrup.models.users.Participant;
+import laustrup.models.users.Venue;
 
-import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.User.UserDTO;
 import static laustrup.models.Model.ModelDTO;
 
 /** Mostly used to convert Objects. */

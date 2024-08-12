@@ -1,25 +1,18 @@
 package laustrup.items;
 
 import laustrup.models.Rating;
-import laustrup.models.albums.Album;
+import laustrup.models.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
 import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.events.Event;
-import laustrup.models.events.Gig;
-import laustrup.models.events.Participation;
-import laustrup.models.users.User;
-import laustrup.models.users.contact_infos.Address;
-import laustrup.models.users.contact_infos.ContactInfo;
-import laustrup.models.users.contact_infos.Country;
-import laustrup.models.users.contact_infos.Phone;
-import laustrup.models.users.sub_users.Performer;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
-import laustrup.models.users.sub_users.participants.Participant;
-import laustrup.models.users.sub_users.venues.Venue;
-import laustrup.models.users.subscriptions.Subscription;
-import laustrup.models.users.subscriptions.SubscriptionOffer;
+import laustrup.models.Event;
+import laustrup.models.User;
+import laustrup.models.users.ContactInfo;
+import laustrup.models.users.Performer;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
+import laustrup.models.users.Participant;
+import laustrup.models.users.Venue;
 import laustrup.services.TimeService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
@@ -65,253 +58,362 @@ public class TestItems extends ItemGenerator {
 
     /** Creates som indexes for Countries. */
     private void setupCountries() {
-        _countries = new Seszt<>(new Country[]{
-            new Country("Denmark", Country.CountryIndexes.DK, 45),
-            new Country("Sverige", Country.CountryIndexes.SE, 46),
-            new Country("Tyskland", Country.CountryIndexes.DE, 49)
-        });
+        _countries = new Seszt<>(
+                new ContactInfo.Country[] {
+                        new ContactInfo.Country("Denmark", 45),
+                        new ContactInfo.Country("Sverige", 46),
+                        new ContactInfo.Country("Tyskland", 49)
+                }
+        );
     }
 
     /** Creates som indexes for Phones. */
     private void setupPhoneNumbers() {
-        _phones = new Phone[_phoneNumberAmount];
+        _phones = new Seszt<>();
 
-        for (int i = 0; i < _phones.length; i++)
-            _phones[i] = new Phone(
-                _countries[_random.nextInt(_countries.length)],
-                _random.nextInt(89999999)+10000000,
-                _random.nextBoolean()
+        for (int i = 0; i < _phones.size(); i++)
+            _phones.add(
+                    new ContactInfo.Phone(
+                            _countries.get(_random.nextInt(_countries.size())),
+                            _random.nextInt(89999999)+10000000,
+                            _random.nextBoolean()
+                    )
             );
     }
 
-    /** Creates som indexes for Addresses. */
+    /**
+     * Creates som indexes for Addresses.
+     */
     private void setupAddresses() {
-        _addresses = new Address[_addressAmount];
+        _addresses = new Seszt<>();
 
-        for (int i = 0; i < _addresses.length; i++)
-            _addresses[i] = new Address(
-                "Nørrevang " + _random.nextInt(100),
-                _random.nextInt(10) + (_random.nextBoolean() ? ". tv." : ". th."),
-                String.valueOf(_random.nextInt(8999)+1000),
-                "Holbæk"
+        for (int i = 0; i < _addresses.size(); i++)
+            _addresses.add(
+                    new ContactInfo.Address(
+                            "Nørrevang " + _random.nextInt(100),
+                            _random.nextInt(10) + (_random.nextBoolean()
+                                    ? ". tv."
+                                    : ". th."
+                            ),
+                            String.valueOf(_random.nextInt(8999) + 1000),
+                            "Holbæk"
+                    )
             );
     }
 
-    /** Creates som indexes for ContactInfos. */
+    /**
+     * Creates som indexes for ContactInfos.
+     */
     private void setupContactInfo() {
-        _contactInfo = new ContactInfo[_contactInfoAmount];
+        _contactInfo = new Seszt<>();
 
-        for (int i = 0; i < _contactInfo.length; i++)
-            _contactInfo[i] = new ContactInfo(
-                UUID.randomUUID(),
-                "cool@gmail.com",
-                _phones[_random.nextInt(_phones.length)],
-                _addresses[_random.nextInt(_addresses.length)],
-                _countries[_random.nextInt(_countries.length)]
+        for (int i = 0; i < _contactInfo.size(); i++)
+            _contactInfo.add(
+                    new ContactInfo(
+                            UUID.randomUUID(),
+                            "cool@gmail.com",
+                            _phones,
+                            _addresses.get(_random.nextInt(_addresses.size())),
+                            _countries.get(_random.nextInt(_countries.size()))
+                    )
             );
     }
 
     /** Creates som indexes for Albums. */
     private void setupAlbums() {
-        _albums = new Album[_albumAmount];
+        _albums = new Seszt<>();
 
-        for (int i = 0; i < _albums.length; i++)
-            _albums[i] = new Album(
+        for (int i = 0; i < _albums.size(); i++)
+            _albums.add(new Album(
                 UUID.randomUUID(),
                 "Album title",
                 generateAlbumItems(),
                 null,
                 LocalDateTime.now()
-            );
+            ));
     }
 
     /** Creates som indexes for Ratings. */
     private void setupRatings(UUID appointedId, UUID judgeId) {
-        _ratings = new Rating[_ratingAmount];
+        _ratings = new Seszt<>();
 
-        for (int i = 0; i < _ratings.length; i++) {
+        for (int i = 0; i < _ratings.size(); i++) {
             int rating = _random.nextInt(5) + 1;
-            _ratings[i] = new Rating(
+            _ratings.add(new Rating(
                 rating,
                 appointedId,
                 judgeId,
                 rating > 2 ? "Good" : "Bad",
                 LocalDateTime.now()
-            );
+            ));
         }
     }
 
     /** Creates som indexes for Participants. */
     private void setupParticipants() {
-        _participants = new Participant[_participantAmount];
+        _participants = new Seszt<>();
 
-        for (int i = 0; i < _participants.length; i++) {
-            int id = i+1;
+        for (int i = 0; i < _participants.size(); i++) {
+            UUID id = UUID.randomUUID();
             boolean gender = _random.nextBoolean();
-            _participants[i] = new Participant(id, gender ? "Hansinator "+id : "Ursulanator "+id,
-                    gender ? "Hans "+id : "Ursula "+id, "Hansen "+id, "Description "+id,
-                    _contactInfo[_random.nextInt(_contactInfo.length)],
-                    new Liszt<>(new Album[]{_albums[_random.nextInt(_albums.length)]}),
-                    randomizeRatings(), new Liszt<>(), new Liszt<>(), Subscription.Status.ACCEPTED,
-                    new SubscriptionOffer(TimeService.get_instance().generateRandom(),
-                            _random.nextBoolean() ? SubscriptionOffer.Type.SALE : SubscriptionOffer.Type.FREE_TRIAL,
-                            _random.nextDouble(1)), _random.nextLong(3)+1, new Liszt<>(), new Liszt<>(), LocalDateTime.now());
+            _participants.add(
+                new Participant(
+                    id,
+                    gender
+                        ? "Hansinator " + id
+                        : "Ursulanator " + id,
+                    gender
+                        ? "Hans " + id
+                        : "Ursula " + id,
+                    "Hansen " + id,
+                    "Description " + id,
+                    _contactInfo.get(_random.nextInt(_contactInfo.size())),
+                    new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+                    randomizeRatings(),
+                    new Seszt<>(),
+                    new Seszt<>(),
+                    new User.Subscription(
+                            id,
+                            User.Subscription.Type.FREEMIUM,
+                            User.Subscription.Status.ACCEPTED,
+                            new User.Subscription.Offer(
+                                    TimeService.generateRandom(),
+                                    _random.nextBoolean()
+                                            ? User.Subscription.Offer.Type.SALE
+                                            : User.Subscription.Offer.Type.FREE_TRIAL,
+                                    1
+                            ),
+                            LocalDateTime.now()
+                    ),
+                    new Liszt<>(),
+                    new Seszt<>(),
+                    LocalDateTime.now()
+                )
+            );
         }
     }
 
     /** Creates som indexes for Artists. */
     private void setupArtists() {
-        _artists = new Artist[_artistAmount];
+        _artists = new Seszt<>();
 
-        for (int i = 0; i < _artists.length; i++) {
-            long id = i+1;
+        for (int i = 0; i < _artists.size(); i++) {
+            UUID id = UUID.randomUUID();
             boolean gender = _random.nextBoolean();
-            _artists[i] = new Artist(id, gender ? "Hansinator "+id : "Ursulanator "+id,
-                    gender ? "Hans "+id : "Ursula "+id, "Hansen "+id, "Description "+id,
-                    _contactInfo[_random.nextInt(_contactInfo.length)], new Liszt<>(new Album[]{_albums[_random.nextInt(_albums.length)]}),
-                    randomizeRatings(), new Liszt<>(), new Liszt<>(), new Liszt<>(), setupSubscription(new Artist(0)), new Liszt<>(),
-                    new Liszt<>(), "Gear "+id, new Liszt<>(), new Liszt<>(), new Liszt<>(), LocalDateTime.now());
+            _artists.add(
+                new Artist(
+                    id,
+                    gender
+                        ? "Hansinator " + id
+                        : "Ursulanator " + id,
+                    gender
+                        ? "Hans " + id
+                        : "Ursula " + id,
+                    "Hansen " + id,
+                    "Description " + id,
+                    _contactInfo.get(_random.nextInt(_contactInfo.size())),
+                    new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+                    randomizeRatings(),
+                    new Seszt<>(),
+                    new Seszt<>(),
+                    new Seszt<>(),
+                    setupSubscription(null),
+                    new Liszt<>(),
+                    new Seszt<>(),
+                    "Gear " + id,
+                    new Seszt<>(),
+                    new Seszt<>(),
+                    new Liszt<>(),
+                    LocalDateTime.now()
+                )
+            );
         }
     }
 
     /** Creates som indexes for Bands. */
     private void setupBands() {
-        _bands = new Band[_bandAmount];
+        _bands = new Seszt<>();
 
-        for (int i = 0; i < _bands.length; i++) {
-            int id = i+1;
-            Liszt<Artist> members = new Liszt<>();
-            int memberAmount = _random.nextInt(_artists.length-1)+1;
+        for (int i = 0; i < _bands.size(); i++) {
+            UUID id = UUID.randomUUID();
+            Seszt<Artist> members = new Seszt<>();
+            int memberAmount = _random.nextInt(_artists.size()-1)+1;
             Set<Integer> alreadyTakenIndexes = new HashSet<>();
 
             for (int j = 0; j < memberAmount; j++) {
-                int index = _random.nextInt(_artists.length);
+                int index = _random.nextInt(_artists.size());
 
-                while (alreadyTakenIndexes.contains(index)) index = _random.nextInt(_artists.length);
+                while (alreadyTakenIndexes.contains(index))
+                    index = _random.nextInt(_artists.size());
                 alreadyTakenIndexes.add(index);
 
-                members.add(_artists[index]);
+                members.add(_artists.get(index));
             }
 
-            Liszt<User> fans = new Liszt<>();
-            int fanAmount = _random.nextInt(_participants.length);
+            Seszt<User> fans = new Seszt<>();
+            int fanAmount = _random.nextInt(_participants.size());
             alreadyTakenIndexes = new HashSet<>();
 
             for (int j = 0; j < fanAmount; j++) {
-                int index = _random.nextInt(_participants.length);
+                int index = _random.nextInt(_participants.size());
 
-                while (alreadyTakenIndexes.contains(index)) index = _random.nextInt(_participants.length);
+                while (alreadyTakenIndexes.contains(index))
+                    index = _random.nextInt(_participants.size());
                 alreadyTakenIndexes.add(index);
 
-                fans.add(_participants[index]);
+                fans.add(_participants.get(index));
             }
 
-            _bands[i] = generateBand(id, members, fans, setupSubscription(new Band(id)));
+            _bands.add(generateBand(id, members, fans, setupSubscription(null)));
 
-            for (Artist member : _bands[i].get_members())
-                _artists[(int) (member.get_primaryId()-1)].addBand(generateBand(id, new Liszt<>(), fans, setupSubscription(new Band(id))));
-            for (User fan : _bands[i].get_fans())
-                _participants[(int) (fan.get_primaryId() - 1)].add(generateBand(id, new Liszt<>(), fans, setupSubscription(new Band(id))));
+            for (Artist member : _bands.get(i).get_members())
+                _artists.get(member.toString()).add(generateBand(id, new Seszt<>(), fans, setupSubscription(null)));
+            for (User fan : _bands.get(i).get_fans())
+                _participants.get(fan.toString()).add(generateBand(id, new Seszt<>(), fans, setupSubscription(null)));
         }
     }
 
 
 
     /** Creates som indexes for Subscriptions. */
-    public Subscription setupSubscription(User user) {
-        Subscription.Type type = _random.nextBoolean() ? Subscription.Type.PREMIUM_ARTIST : Subscription.Type.PREMIUM_BAND;
-        type = _random.nextBoolean() ? type : Subscription.Type.FREEMIUM;
-        return new Subscription(user, type, Subscription.Status.ACCEPTED, new SubscriptionOffer(TimeService.get_instance().generateRandom(),
-                _random.nextBoolean() ? SubscriptionOffer.Type.SALE : SubscriptionOffer.Type.FREE_TRIAL,
-                _random.nextDouble(1)), _random.nextBoolean() ? _random.nextLong(101) : null);
+    public User.Subscription setupSubscription(UUID id) {
+        User.Subscription.Type type = _random.nextBoolean()
+                ? User.Subscription.Type.PREMIUM_ARTIST
+                : User.Subscription.Type.PREMIUM_BAND
+        ;
+        type = _random.nextBoolean()
+                ? type
+                : User.Subscription.Type.FREEMIUM
+        ;
+        LocalDateTime timestamp = TimeService.generateRandom();
+
+        return new User.Subscription(
+                id == null ? UUID.randomUUID() : id,
+                type,
+                User.Subscription.Status.ACCEPTED,
+                new User.Subscription.Offer(
+                        timestamp,
+                        _random.nextBoolean()
+                                ? User.Subscription.Offer.Type.SALE
+                                : User.Subscription.Offer.Type.FREE_TRIAL,
+                        _random.nextDouble(1)
+                ),
+                timestamp
+        );
     }
 
     /** Creates som indexes for Venues. */
     private void setupVenues() {
-        _venues = new Venue[_venueAmount];
+        _venues = new Seszt<>();
 
-        for (int i = 0; i < _venues.length; i++) {
-            int id = i+1;
-            _venues[i] = new Venue(id, "Venue "+id, "Description "+id,
-                    _contactInfo[_random.nextInt(_contactInfo.length)],
-                    new Liszt<>(new Album[]{_albums[_random.nextInt(_albums.length)]}), randomizeRatings(),
-                    new Liszt<>(), new Liszt<>(), "Location "+id,
-                    "Gear "+id, Subscription.Status.ACCEPTED,
-                    new SubscriptionOffer(TimeService.get_instance().generateRandom(),
-                            _random.nextBoolean() ? SubscriptionOffer.Type.SALE : SubscriptionOffer.Type.FREE_TRIAL,
-                            _random.nextDouble(1)),
-                    new Liszt<>(), _random.nextInt(101), new Liszt<>(), LocalDateTime.now());
+        for (int i = 0; i < _venues.size(); i++) {
+            UUID id = UUID.randomUUID();
+            _venues.add(
+                    new Venue(
+                            id,
+                            "Venue " + id,
+                            "Description " + id,
+                            _contactInfo.get(_random.nextInt(_contactInfo.size())),
+                            new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+                            randomizeRatings(),
+                            new Seszt<>(),
+                            new Seszt<>(),
+                            "Location " + id,
+                            "Gear " + id,
+                            setupSubscription(null),
+                            new Liszt<>(),
+                            _random.nextInt(101),
+                            new Liszt<>(),
+                            LocalDateTime.now()
+                    )
+            );
         }
     }
 
     /** Creates som indexes for Events. */
     private void setupEvents() {
-        _events = new Event[_eventAmount];
+        _events = new Seszt<>();
 
-        for (int i = 0; i < _events.length; i++) {
-            int id = i+1;
-            int gigAmount = _random.nextInt(5)+1;
-            int gigLengths = _random.nextInt(35)+11;
-            LocalDateTime startOfLatestGig = TimeService.get_instance().generateRandom();
+        for (int i = 0; i < _events.size(); i++) {
+            UUID id = UUID.randomUUID();
+            int gigAmount = _random.nextInt(5)+1,
+                gigSize = _random.nextInt(35)+11;
+            LocalDateTime startOfLatestGig = TimeService.generateRandom();
 
-            _events[i] = new Event(id,"Event title " + id, "Event description " + id,
-                    startOfLatestGig.minusMinutes(gigAmount*gigAmount).minusHours(5),
-                    generatePlato(), generatePlato(), generatePlato(), generatePlato(), "Location " + id,
-                    _random.nextDouble(498)+1, "https://www.Billetlugen.dk/"+id,
-                    _contactInfo[_random.nextInt(_contactInfo.length)],
-                    generateGigs(new Event(id), startOfLatestGig, gigAmount, gigLengths),
-                    _venues[_random.nextInt(_venues.length)], new Liszt<>(), new Liszt<>(), new Liszt<>(),
-                    new Liszt<>(new Album[]{_albums[_random.nextInt(_albums.length)]}), LocalDateTime.now());
+            _events.add(
+                new Event(
+                        id,
+                        "Event title " + id,
+                        "Event description " + id,
+                        startOfLatestGig.minusMinutes(gigAmount*gigAmount).minusHours(5),
+                        generatePlato(),
+                        generatePlato(),
+                        generatePlato(),
+                        generatePlato(),
+                        "Location " + id,
+                        _random.nextDouble(498)+1,
+                        "https://www.Billetlugen.dk/"+id,
+                        _contactInfo.get(_random.nextInt(_contactInfo.size())),
+                        generateGigs(null, startOfLatestGig, gigAmount, gigSize),
+                        _venues.get(_random.nextInt(_venues.size())),
+                        new Liszt<>(),
+                        new Seszt<>(),
+                        new Seszt<>(),
+                        new Seszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+                        LocalDateTime.now()
+                )
+            );
 
-            for (Gig gig : _events[i].get_gigs())
-                _events[i].add(generateRequests(gig.get_act(), _events[i]));
+            for (Event.Gig gig : _events.get(i).get_gigs())
+                _events.get(i).add(generateRequests(gig.get_act(), _events.get(i)));
 
-            for (Bulletin bulletin : generateBulletins(_events[i]))
-                _events[i].add(bulletin);
+            for (Bulletin bulletin : generateBulletins(_events.get(i)))
+                _events.get(i).add(bulletin);
 
-            for (Participation participation : generateParticipations(_events[i]))
-                _events[i].add(participation);
+            for (Event.Participation participation : generateParticipations(_events.get(i)))
+                _events.get(i).add(participation);
         }
     }
 
     /** Puts Performers into Events. */
     private void setPerformersForEvents(Event event) {
-        for (Gig gig : event.get_gigs()) {
+        for (Event.Gig gig : event.get_gigs()) {
             for (Performer performer : gig.get_act()) {
                 if (performer.getClass() == Band.class) {
-                    _bands[(int) performer.get_primaryId()-1].add(event);
-                    _bands[(int) performer.get_primaryId()-1].add(gig);
-                    for (Artist artist : _bands[(int) performer.get_primaryId()-1].get_members()) {
-                        _artists[(int) artist.get_primaryId()-1].add(event);
-                        _artists[(int) artist.get_primaryId()-1].add(gig);
+                    _bands.get(performer.toString()).add(event);
+                    _bands.get(performer.toString()).add(gig);
+                    for (Artist artist : _bands.get(performer.toString()).get_members()) {
+                        _artists.get(artist.toString()).add(event);
+                        _artists.get(artist.toString()).add(gig);
                     }
                 }
-                else if (performer.getClass() == Artist.class)
-                    _artists[(int) performer.get_primaryId()-1].add(event);
-                _artists[(int) performer.get_primaryId()-1].add(gig);
+                else if (performer.getClass() == Artist.class) {
+                    _artists.get(performer.toString()).add(event);
+                    _artists.get(performer.toString()).add(gig);
+                }
             }
         }
         for (Request request : event.get_requests()) {
             User user = request.get_user();
 
             if (user.getClass() == Venue.class)
-                _venues[(int) user.get_primaryId()-1].add(request);
+                _venues.get(user.toString()).add(request);
             else if (user.getClass() == Artist.class)
-                _artists[(int) user.get_primaryId()-1].add(request);
+                _artists.get(user.toString()).add(request);
             else if (user.getClass() == Band.class)
                 for (Artist artist : ((Band) user).get_members())
-                    _artists[(int) artist.get_primaryId()-1].add(request);
+                    _artists.get(artist.toString()).add(request);
         }
     }
 
     /** Creates som indexes for ChatRooms. */
     private void setupChatRooms() {
-        _chatRooms = new ChatRoom[_chatRoomAmount];
+        _chatRooms = new Seszt<>();
 
-        for (int i = 0; i < _chatRooms.length; i++) {
-            long id = i+1;
-            Liszt<User> members = new Liszt<>();
-            int memberAmount = _random.nextInt(_venues.length+_artists.length - 1) + 1;
+        for (int i = 0; i < _chatRooms.size(); i++) {
+            UUID id = UUID.randomUUID();
+            Seszt<User> members = new Seszt<>();
+            int memberAmount = _random.nextInt(_venues.size()+_artists.size() - 1) + 1;
             Set<User> memberSet = new HashSet<>();
 
             for (int j = 0; j < memberAmount; j++) {
@@ -323,8 +425,7 @@ public class TestItems extends ItemGenerator {
                 members.add(user);
             }
 
-            _chatRooms[i] = new ChatRoom(id, "Chatroom "+id, generateMails(members), members, LocalDateTime.now()
-            );
+            _chatRooms.add(new ChatRoom(id, "Chatroom "+id, generateMails(members), members, LocalDateTime.now()));
         }
     }
 

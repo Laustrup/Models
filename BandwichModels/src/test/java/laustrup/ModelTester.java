@@ -15,9 +15,9 @@ import java.util.Arrays;
  * @param <T> The type of the DTO.
  */
 @NoArgsConstructor
-public abstract class ModelTester<R,T> extends Tester<R> {
+public abstract class ModelTester<R, T> extends Tester<R> {
 
-    /** can be set to be and used as the DTO of a model class. */
+    /** Can be set to be and used as the DTO of a model class. */
     protected T _dto;
 
     /**

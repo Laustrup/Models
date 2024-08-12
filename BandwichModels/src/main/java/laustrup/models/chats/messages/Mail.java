@@ -2,7 +2,7 @@ package laustrup.models.chats.messages;
 
 import laustrup.models.Model;
 import laustrup.models.chats.ChatRoom;
-import laustrup.models.users.User;
+import laustrup.models.User;
 import laustrup.utilities.parameters.Plato;
 
 import lombok.Getter;
@@ -11,11 +11,15 @@ import lombok.experimental.FieldNameConstants;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** A Message that are sent in a ChatRoom. */
+/**
+ * A Message that are sent in a ChatRoom.
+ */
 @Getter @FieldNameConstants
 public class Mail extends Message {
 
-    /** The ChatRoom that this message has been sent in. */
+    /**
+     * The ChatRoom that this message has been sent in.
+     */
     private ChatRoom _chatRoom;
 
     /**
@@ -39,16 +43,33 @@ public class Mail extends Message {
      * @param isPublic Can be switched between both true and false, if true the message is public for every User.
      * @param timestamp Specifies the time this entity was created.
      */
-    public Mail(UUID id,
-                ChatRoom chatRoom,
-                User author,
-                String content,
-                boolean isSent,
-                Plato isEdited,
-                boolean isPublic,
-                LocalDateTime timestamp
+    public Mail(
+            UUID id,
+            ChatRoom chatRoom,
+            User author,
+            String content,
+            boolean isSent,
+            Plato isEdited,
+            boolean isPublic,
+            LocalDateTime timestamp
     ) {
         super(id, author, content, isSent, isEdited, isPublic, timestamp);
+        _chatRoom = chatRoom;
+    }
+
+    /**
+     * Generating a new Mail as a draft.
+     * Timestamp will be of now.
+     * @param chatRoom The ChatRoom forum that are having the Mail posted.
+     * @param author The User that wrote the Message.
+     * @param content The content of the written Message.
+     */
+    public Mail(
+            ChatRoom chatRoom,
+            User author,
+            String content
+    ) {
+        super(author, content, false, new Plato(false), false);
         _chatRoom = chatRoom;
     }
 

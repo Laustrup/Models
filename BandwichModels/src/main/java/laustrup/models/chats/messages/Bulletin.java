@@ -1,7 +1,7 @@
 package laustrup.models.chats.messages;
 
 import laustrup.models.Model;
-import laustrup.models.users.User;
+import laustrup.models.User;
 import laustrup.utilities.parameters.Plato;
 import laustrup.services.DTOService;
 
@@ -11,11 +11,15 @@ import lombok.experimental.FieldNameConstants;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** A kind of post that can be posted at any Model Object. */
+/**
+ * A kind of post that can be posted at any Model Object.
+ */
 @Getter @FieldNameConstants
 public class Bulletin extends Message {
 
-    /** The Model receiver that are having the Bulletin posted at its dashboard. */
+    /**
+     * The Model receiver that are having the Bulletin posted at its dashboard.
+     */
     public Model _receiver;
 
     /**
@@ -53,6 +57,22 @@ public class Bulletin extends Message {
         _receiver = receiver;
     }
 
+    /**
+     * Generating a new Bulletin as a draft.
+     * Timestamp will be of now.
+     * @param author The User that wrote the Message.
+     * @param receiver The Model receiver that are having the Bulletin posted at its dashboard.
+     * @param content The content of the written Message.
+     */
+    public Bulletin(
+            User author,
+            Model receiver,
+            String content
+    ) {
+        super(author, content, false, new Plato(false), false);
+        _receiver = receiver;
+    }
+
     @Override
     public String toString() {
         return defineToString(
@@ -84,7 +104,9 @@ public class Bulletin extends Message {
     @Getter
     public static class DTO extends Message.DTO {
 
-        /** The Model that are receiving this Bulletin. */
+        /**
+         * The Model that are receiving this Bulletin.
+         */
         public ModelDTO receiver;
 
         /**

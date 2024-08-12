@@ -1,7 +1,7 @@
 package laustrup.items;
 
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
 import laustrup.quality_assurance.Tester;
 
 import org.junit.jupiter.api.Test;
@@ -57,18 +57,18 @@ public class ItemTester extends Tester<Object> {
      * @return True if they are the same.
      */
     private boolean compare(TestItems before, TestItems after) {
-        if (!itemsAreTheSame(before.get_participants(),after.get_participants())) return false;
-        if (!itemsAreTheSame(before.get_artists(),after.get_artists())) return false;
-        if (!itemsAreTheSame(before.get_bands(),after.get_bands())) return false;
-        if (!itemsAreTheSame(before.get_venues(),after.get_venues())) return false;
-        if (!itemsAreTheSame(before.get_events(),after.get_events())) return false;
-        if (!itemsAreTheSame(before.get_countries(),after.get_countries())) return false;
-        if (!itemsAreTheSame(before.get_phones(),after.get_phones())) return false;
-        if (!itemsAreTheSame(before.get_addresses(),after.get_addresses())) return false;
-        if (!itemsAreTheSame(before.get_contactInfo(),after.get_contactInfo())) return false;
-        if (!itemsAreTheSame(before.get_albums(),after.get_albums())) return false;
-        if (!itemsAreTheSame(before.get_ratings(),after.get_ratings())) return false;
-        return itemsAreTheSame(before.get_chatRooms(), after.get_chatRooms());
+        if (!itemsAreTheSame(before.get_participants().toArray(), after.get_participants().toArray())) return false;
+        if (!itemsAreTheSame(before.get_artists().toArray(), after.get_artists().toArray())) return false;
+        if (!itemsAreTheSame(before.get_bands().toArray(), after.get_bands().toArray())) return false;
+        if (!itemsAreTheSame(before.get_venues().toArray(), after.get_venues().toArray())) return false;
+        if (!itemsAreTheSame(before.get_events().toArray(), after.get_events().toArray())) return false;
+        if (!itemsAreTheSame(before.get_countries().toArray(), after.get_countries().toArray())) return false;
+        if (!itemsAreTheSame(before.get_phones().toArray(), after.get_phones().toArray())) return false;
+        if (!itemsAreTheSame(before.get_addresses().toArray(), after.get_addresses().toArray())) return false;
+        if (!itemsAreTheSame(before.get_contactInfo().toArray(), after.get_contactInfo().toArray())) return false;
+        if (!itemsAreTheSame(before.get_albums().toArray(), after.get_albums().toArray())) return false;
+        if (!itemsAreTheSame(before.get_ratings().toArray(), after.get_ratings().toArray())) return false;
+        return itemsAreTheSame(before.get_chatRooms().toArray(), after.get_chatRooms().toArray());
     }
 
     /**

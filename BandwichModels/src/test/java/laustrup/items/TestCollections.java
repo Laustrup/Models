@@ -1,66 +1,114 @@
 package laustrup.items;
 
 import laustrup.models.Rating;
-import laustrup.models.albums.Album;
+import laustrup.models.Album;
+import laustrup.models.User;
 import laustrup.models.chats.ChatRoom;
-import laustrup.models.events.Event;
-import laustrup.models.users.contact_infos.Address;
-import laustrup.models.users.contact_infos.ContactInfo;
-import laustrup.models.users.contact_infos.Country;
-import laustrup.models.users.contact_infos.Phone;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
-import laustrup.models.users.sub_users.participants.Participant;
-import laustrup.models.users.sub_users.venues.Venue;
+import laustrup.models.Event;
+import laustrup.models.users.ContactInfo;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
+import laustrup.models.users.Participant;
+import laustrup.models.users.Venue;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.console.Printer;
-
 import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Stream;
 
-/** Contains the elements needed for TestItem. */
+/**
+ * Contains the elements needed for TestItem.
+ */
 public abstract class TestCollections {
 
-    /** Will be used to create values for attributes. */
+    /**
+     * Will be used to create values for attributes.
+     */
     protected final Random _random = new Random();
 
-    /** A collection of the generated Participants. */
-    @Getter protected Seszt<Participant> _participants;
+    /**
+     * A collection of the generated Participants.
+     */
+    @Getter
+    protected Seszt<Participant> _participants;
 
-    /** A collection of the generated Artists. */
-    @Getter protected Seszt<Artist> _artists;
+    /**
+     * A collection of the generated Artists.
+     */
+    @Getter
+    protected Seszt<Artist> _artists;
 
-    /** A collection of the generated Bands. */
-    @Getter protected Seszt<Band> _bands;
+    /**
+     * A collection of the generated Bands.
+     */
+    @Getter
+    protected Seszt<Band> _bands;
 
-    /** A collection of the generated Venues. */
-    @Getter protected Seszt<Venue> _venues;
+    /**
+     * A collection of the generated Venues.
+     */
+    @Getter
+    protected Seszt<Venue> _venues;
 
-    /** A collection of the generated Events. */
-    @Getter protected Seszt<Event> _events;
+    /**
+     * A collection of the generated Events.
+     */
+    @Getter
+    protected Seszt<Event> _events;
 
-    /** A collection of the generated Countries. */
-    @Getter protected Seszt<Country> _countries;
+    /**
+     * A collection of the generated Countries.
+     */
+    @Getter
+    protected Seszt<ContactInfo.Country> _countries;
 
-    /** A collection of the generated phone numbers. */
-    @Getter protected Seszt<Phone> _phones;
+    /**
+     * A collection of the generated phone numbers.
+     */
+    @Getter
+    protected Seszt<ContactInfo.Phone> _phones;
 
-    /** A collection of the generated Addresses. */
-    @Getter protected Seszt<Address> _addresses;
+    /**
+     * A collection of the generated Addresses.
+     */
+    @Getter
+    protected Seszt<ContactInfo.Address> _addresses;
 
-    /** A collection of the generated ContactInfos. */
-    @Getter protected Seszt<ContactInfo> _contactInfo;
+    /**
+     * A collection of the generated ContactInfos.
+     */
+    @Getter
+    protected Seszt<ContactInfo> _contactInfo;
 
-    /** A collection of the generated Albums. */
-    @Getter protected Seszt<Album> _albums;
+    /**
+     * A collection of the generated Albums.
+     */
+    @Getter
+    protected Seszt<Album> _albums;
 
-    /** A collection of the generated Ratings. */
-    @Getter protected Seszt<Rating> _ratings;
+    /**
+     * A collection of the generated Ratings.
+     */
+    @Getter
+    protected Seszt<Rating> _ratings;
 
-    /** A collection of the generated ChatRooms. */
-    @Getter protected Seszt<ChatRoom> _chatRooms;
+    /**
+     * A collection of the generated ChatRooms.
+     */
+    @Getter
+    protected Seszt<ChatRoom> _chatRooms;
+
+    public Seszt<User> get_users() {
+        Seszt<User> users = new Seszt<>();
+
+        users.addAll(_bands);
+        users.addAll(_artists);
+        users.addAll(_participants);
+        users.addAll(_venues);
+
+        return users;
+    }
 
     /**
      * Uses Printer to make a String of each collection in TestItems.

@@ -1,29 +1,26 @@
 package laustrup.models.albums;
 
 import laustrup.ModelTester;
-import laustrup.dtos.albums.AlbumDTO;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.participants.Participant;
+import laustrup.models.Album;
 import laustrup.quality_assurance.TestMessage;
 import laustrup.services.RandomCreatorService;
-import laustrup.utilities.collections.lists.Liszt;
-
+import laustrup.utilities.collections.sets.Seszt;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-class AlbumTests extends ModelTester<Album, AlbumDTO> {
+class AlbumTests extends ModelTester<laustrup.models.Album, laustrup.models.Album.DTO> {
 
     @Test @Override
     public void dataTransportObjectTranslate() {
         test(() -> {
-            Album expected = arrange(() -> {
-                Album album = _items.get_albums()[0];
-                _dto = new AlbumDTO(album);
+            laustrup.models.Album expected = arrange(() -> {
+                laustrup.models.Album album = _items.get_albums().getFirst();
+                _dto = new laustrup.models.Album.DTO(album);
                 return album;
             });
 
-            Album actual = act(() -> new Album(_dto));
+            laustrup.models.Album actual = act(() -> new laustrup.models.Album(_dto));
 
 
             asserting(expected.toString(),actual.toString());
@@ -34,7 +31,7 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
     @Override @Test
     protected void toStringTest() {
-        Album arrangement = _items.get_albums()[0];
+        laustrup.models.Album arrangement = _items.get_albums().getFirst();
 
         testToString(arrangement,new String[]{
                 "id",
@@ -49,20 +46,12 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
     @Test @Override
     public void canAdd() {
-        AlbumItem[] items = generateItems();
+        Album.Item[] items = generateItems();
 
         test(() -> {
-            Album arrangement = arrange(() -> {
-                for (int i = 0; i < _items.get_albums().length; i++)
-                    if (_items.get_albums()[i].get_author().getClass() != Participant.class)
-                        return _items.get_albums()[i];
-
-                return new Album(1, RandomCreatorService.get_instance().generateString(
-                                false, _random.nextInt(10)+1
-                            ), new Liszt<>(generateItems()), new Artist(1), LocalDateTime.now());
-            });
-            if (arrangement.get_author().getClass() == Participant.class)
-                return TestMessage.WRONG_ARRANGEMENT.get_content();
+            Album arrangement = arrange(() ->
+                _items.get_participants().getFirst().get_albums().getFirst()
+            );
 
             int previousSize = arrangement.get_items().size();
 
@@ -76,18 +65,12 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
 
     @Test
     void participantCanNotAddMusicItem() {
-        AlbumItem[] items = generateItems(AlbumItem.Kind.MUSIC);
+        Album.Item[] items = generateItems(Album.Item.Kind.MUSIC);
 
         test(() -> {
-            Album arrangement = arrange(() -> {
-                for (int i = 0; i < _items.get_albums().length; i++)
-                    if (_items.get_albums()[i].get_author().getClass() == Participant.class)
-                        return _items.get_albums()[i];
-
-                return null;
-            });
-            if (arrangement == null)
-                return TestMessage.WRONG_ARRANGEMENT.get_content();
+            laustrup.models.Album arrangement = arrange(() ->
+                    _items.get_participants().getFirst().get_albums().getFirst()
+            );
 
             int previousSize = arrangement.get_items().size();
 
@@ -102,8 +85,8 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
     @Test @Override
     public void canSet() {
         test(() -> {
-            Album arranged = arrange(() -> _items.get_albums()[0]);
-            Liszt<AlbumItem> items = arranged.get_items();
+            Album arranged = arrange(() -> _items.get_albums().getFirst());
+            Seszt<Album.Item> items = arranged.get_items();
             for (int i = 1; i <= _random.nextInt(items.size())+1; i++)
                 items.set(i, generateItem(arranged.get_items().Get(i).get_endpoint()));
 
@@ -118,9 +101,9 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
     @Test @Override
     public void canRemove() {
         test(() -> {
-            Album arranged = arrange(() -> _items.get_albums()[0]);
+            Album arranged = arrange(() -> _items.get_albums().getFirst());
             int previousSize = arranged.get_items().size();
-            AlbumItem[] items = new AlbumItem[_random.nextInt(arranged.get_items().size())+1];
+            Album.Item[] items = new Album.Item[_random.nextInt(arranged.get_items().size()) + 1];
             for (int i = 0; i < items.length; i++)
                 items[i] = arranged.get_items().get(i);
 
@@ -134,11 +117,14 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
      * Will generate some random AlbumItems.
      * @return The generated AlbumItems.
      */
-    private AlbumItem[] generateItems() {
-        AlbumItem[] items = new AlbumItem[_random.nextInt(10)+1];
+    private Album.Item[] generateItems() {
+        Album.Item[] items = new Album.Item[_random.nextInt(10)+1];
         for (int i = 0; i < items.length; i++)
-            items[i] = generateItem(RandomCreatorService.get_instance().generateString(
-                    false,_random.nextInt(20)+1)
+            items[i] = generateItem(
+                    RandomCreatorService.generateString(
+                            false,
+                            _random.nextInt(20) + 1
+                    )
             );
 
         return items;
@@ -149,11 +135,15 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
      * @param kind The kind of items that should be generated.
      * @return The generated AlbumItems.
      */
-    private AlbumItem[] generateItems(AlbumItem.Kind kind) {
-        AlbumItem[] items = new AlbumItem[_random.nextInt(10)+1];
+    private Album.Item[] generateItems(Album.Item.Kind kind) {
+        Album.Item[] items = new Album.Item[_random.nextInt(10)+1];
         for (int i = 0; i < items.length; i++)
-            items[i] = generateItem(RandomCreatorService.get_instance().generateString(
-                    false,_random.nextInt(20)+1), kind
+            items[i] = generateItem(
+                    RandomCreatorService.generateString(
+                            false,
+                            _random.nextInt(20) + 1
+                    ),
+                    kind
             );
 
         return items;
@@ -164,12 +154,14 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
      * @param endpoint The endpoint for the generated item, in case it is wish to be a specific item.
      * @return The generated AlbumItem.
      */
-    private AlbumItem generateItem(String endpoint) {
-        return new AlbumItem(
-                RandomCreatorService.get_instance().generateString(false,_random.nextInt(10)+1),
+    private Album.Item generateItem(String endpoint) {
+        return new Album.Item(
+                RandomCreatorService.generateString(false,_random.nextInt(10)+1),
                 endpoint,
-                _random.nextBoolean() ? AlbumItem.Kind.MUSIC : AlbumItem.Kind.IMAGE,
-                new Liszt<>(), null, LocalDateTime.now()
+                _random.nextBoolean()
+                        ? Album.Item.Kind.MUSIC
+                        : Album.Item.Kind.IMAGE,
+                new Seszt<>(), null, LocalDateTime.now()
         );
     }
 
@@ -179,10 +171,10 @@ class AlbumTests extends ModelTester<Album, AlbumDTO> {
      * @param kind The kind of item that should be generated.
      * @return The generated AlbumItem.
      */
-    private AlbumItem generateItem(String endpoint, AlbumItem.Kind kind) {
-        return new AlbumItem(
-                RandomCreatorService.get_instance().generateString(false,_random.nextInt(10)+1),
-                endpoint, kind, new Liszt<>(), null, LocalDateTime.now()
+    private Album.Item generateItem(String endpoint, Album.Item.Kind kind) {
+        return new Album.Item(
+                RandomCreatorService.generateString(false,_random.nextInt(10)+1),
+                endpoint, kind, new Seszt<>(), null, LocalDateTime.now()
         );
     }
 }

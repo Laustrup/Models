@@ -1,8 +1,8 @@
 package laustrup.models.chats;
 
 import laustrup.models.Model;
-import laustrup.models.events.Event;
-import laustrup.models.users.User;
+import laustrup.models.Event;
+import laustrup.models.User;
 import laustrup.utilities.parameters.Plato;
 import laustrup.services.DTOService;
 
@@ -12,29 +12,43 @@ import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
 
-import static laustrup.models.users.User.UserDTO;
+import static laustrup.models.User.UserDTO;
 
-/** Determines if a User have approved to be a part of the Event. */
+/**
+ * Determines if a User have approved to be a part of the Event.
+ */
 @Getter @FieldNameConstants
 public class Request extends Model {
 
-    /** The User that needs to approve the Event. */
+    /**
+     * The User that needs to approve the Event.
+     */
     private User _user;
 
-    /** The Event that has been requested for. */
+    /**
+     * The Event that has been requested for.
+     */
     private Event _event;
 
-    /** The value that indicates if the request for the Event has been approved. */
+    /**
+     * The value that indicates if the request for the Event has been approved.
+     */
     @Setter
     private Plato _approved;
 
-    /** Will set the approved to true. */
+    /**
+     * Will set the approved to true.
+     */
     public void approve() { _approved.set_argument(true); }
 
-    /** Will set the approved to false. */
+    /**
+     * Will set the approved to false.
+     */
     public void deny() { _approved.set_argument(false); }
 
-    /** This message will be shown for the user, in order to inform of the request. */
+    /**
+     * This message will be shown for the user, in order to inform of the request.
+     */
     @Setter
     private String _message;
 

@@ -5,32 +5,16 @@ import java.util.Random;
 public class RandomCreatorService extends Service {
 
     /**
-     * Singleton instance of the Service.
-     */
-    private static RandomCreatorService _instance = null;
-    /**
-     * Checks first if instance is null, otherwise will create a new instance of the object.
-     * Created as a lazyfetch.
-     * @return The instance of the object, as meant as a singleton.
-     */
-    public static RandomCreatorService get_instance() {
-        if (_instance == null) _instance = new RandomCreatorService();
-        return _instance;
-    }
-
-    private RandomCreatorService() {}
-
-    /**
      * Random utility for making random elements.
      */
-    private Random _random = new Random();
+    private static Random _random = new Random();
 
     /**
      * Generates a random String with or without unique characters and
      * a random number up with 1 as lower bound and 10 as higher bound.
      * @return The generated String.
      */
-    public String generateString() {
+    public static String generateString() {
         return generateString(_random.nextBoolean(), _random.nextInt(10)+1);
     }
 
@@ -38,7 +22,7 @@ public class RandomCreatorService extends Service {
      * Generates a random String.
      * @return The generated string.
      */
-    public String generateString(boolean uniqueCharacter, int length) {
+    public static String generateString(boolean uniqueCharacter, int length) {
         int min = !uniqueCharacter ? 97 : 123, // letter a
             max = !uniqueCharacter ? 122 : 122 * 2; // letter z
         StringBuilder buffer = new StringBuilder(length);
@@ -54,7 +38,7 @@ public class RandomCreatorService extends Service {
      * @param string The String that the substring will be generated from.
      * @return The generated substring.
      */
-    public String generateSubString(String string) {
+    public static String generateSubString(String string) {
         if (string.length() > 1) {
             int start = _random.nextInt(string.length())+1;
             int end = _random.nextInt(start)+1;
@@ -74,7 +58,7 @@ public class RandomCreatorService extends Service {
      * Will generate a String containing a random password with generateString() with special characters and length of 13.
      * @return The generated password.
      */
-    public String generatePassword() {
+    public static String generatePassword() {
         String password = new String();
 
         password += generateString(false,5);
@@ -92,7 +76,7 @@ public class RandomCreatorService extends Service {
      * @param bound The limit of the highest possible value.
      * @return The generated integer. If bound isn't larger than 1, it will return the same integer value.
      */
-    public int generateDifferent(int integer, int bound) {
+    public static int generateDifferent(int integer, int bound) {
         int generated = _random.nextInt(bound);
 
         if (bound > 1)

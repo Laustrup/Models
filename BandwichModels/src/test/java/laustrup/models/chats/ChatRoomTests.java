@@ -1,11 +1,10 @@
 package laustrup.models.chats;
 
 import laustrup.ModelTester;
-import laustrup.dtos.chats.ChatRoomDTO;
 import laustrup.models.chats.messages.Mail;
-import laustrup.models.users.User;
-import laustrup.models.users.sub_users.bands.Artist;
-import laustrup.models.users.sub_users.bands.Band;
+import laustrup.models.User;
+import laustrup.models.users.Artist;
+import laustrup.models.users.Band;
 import laustrup.services.RandomCreatorService;
 import laustrup.services.TimeService;
 import laustrup.utilities.collections.lists.Liszt;
@@ -15,20 +14,20 @@ import laustrup.utilities.parameters.Plato;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
+class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
     @Override @Test
     protected void dataTransportObjectTranslate() {
         test(() -> {
             ChatRoom expected = arrange(() -> {
-                ChatRoom chatRoom = _items.get_chatRooms()[0];
+                ChatRoom chatRoom = _items.get_chatRooms().getFirst();
 
-                _dto = new ChatRoomDTO(chatRoom);
+                _dto = new ChatRoom.DTO(chatRoom);
                 return chatRoom;
             });
 
             ChatRoom actual = act(() -> new ChatRoom(_dto));
-
 
             asserting(expected.toString(),actual.toString());
 
@@ -38,7 +37,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
 
     @Override @Test
     protected void toStringTest() {
-        ChatRoom arrangement = _items.get_chatRooms()[0];
+        ChatRoom arrangement = _items.get_chatRooms().getFirst();
 
         testToString(arrangement,new String[]{
                 "id",
@@ -64,11 +63,11 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
     private void emptyTitleTest(boolean isNull) {
         test(() -> {
             ChatRoom chatRoom = arrange(() -> new ChatRoom(
-                    _random.nextLong(),
-                    isNull ? null : new String(),
+                    UUID.randomUUID(),
+                    isNull ? null : "",
                     new Liszt<>(),
-                    _items.get_chatRooms()[_random.nextInt(_items.get_chatRoomAmount())].get_chatters(),
-                    TimeService.get_instance().generateRandom()
+                    _items.get_chatRooms().get(_random.nextInt(_items.get_chatRooms().size())).get_chatters(),
+                    TimeService.generateRandom()
                 )
             );
 
@@ -107,7 +106,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
 
     @Override @Test
     protected void canAdd() {
-        ChatRoom arrangement = _items.get_chatRooms()[0];
+        ChatRoom arrangement = _items.get_chatRooms().getFirst();
 
         canAddMails(arrangement);
         canNotAddMails(arrangement);
@@ -231,8 +230,8 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
      */
     private Mail generateMail(ChatRoom chatRoom, User author) {
         return new Mail(
-                1, chatRoom, author,
-                RandomCreatorService.get_instance().generateString(false,_random.nextInt(9)+1),
+                UUID.randomUUID(), chatRoom, author,
+                RandomCreatorService.generateString(false,_random.nextInt(9)+1),
                 false, new Plato(false), _random.nextBoolean(), LocalDateTime.now()
         );
     }
@@ -246,7 +245,8 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoomDTO> {
         User[] chatters = new User[_random.nextInt(9)+1];
         for (int i = 0; i < chatters.length; i++) {
             User chatter = authority != User.Authority.BAND
-                    ? _items.generateUser() : _items.get_bands()[_random.nextInt(_items.get_bandAmount())];
+                    ? _items.generateUser()
+                    : _items.get_bands().get(_random.nextInt(_items.get_bands().size()));
             while (!chatter.get_authority().toString().equals(authority.toString()))
                 chatter = _items.generateUser();
 
