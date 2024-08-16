@@ -34,6 +34,9 @@ public class Band extends Performer {
      */
     public Band(Band.DTO band) {
         super(band);
+        if (band.getMembers().length == 0)
+            throw new InputMismatchException("There is no members in the band");
+
         _username = band.getUsername();
 
         _members = new Seszt<>();
@@ -84,7 +87,7 @@ public class Band extends Performer {
         super(id, username, description, contactInfo, Authority.BAND, albums, ratings, events, gigs, chatRooms,
                 subscription, bulletins, fans, idols, timestamp);
         if (members.isEmpty())
-            throw new InputMismatchException();
+            throw new InputMismatchException("There is no members in this band");
 
         _username = username;
         _members = members;

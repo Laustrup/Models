@@ -255,7 +255,7 @@ public abstract class ItemGenerator extends TestCollections {
             "Description "+id,
             _contactInfo.get(_random.nextInt(_contactInfo.size())),
             new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
-            randomizeRatings(),
+            new Liszt<>(),
             new Seszt<>(),
             new Seszt<>(),
             new Seszt<>(),
@@ -276,7 +276,7 @@ public abstract class ItemGenerator extends TestCollections {
     public Liszt<Rating> randomizeRatings() {
         Liszt<Rating> ratings = new Liszt<>();
 
-        for (int i = 0; i < _random.nextInt(_ratings.size())+1; i++)
+        for (int i = 0; i < _random.nextInt(_ratings.size()) + 1; i++)
             ratings.add(_ratings.get(_random.nextInt(_ratings.size())));
 
         return ratings;

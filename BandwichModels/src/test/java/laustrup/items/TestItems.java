@@ -16,6 +16,8 @@ import laustrup.models.users.Venue;
 import laustrup.services.TimeService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,18 +30,108 @@ import java.util.UUID;
  */
 public class TestItems extends ItemGenerator {
 
-    /** Will start with all inheritances being reset. */
-    public TestItems() { setupItems(); }
+    /**
+     * Are used for the building of elements for the Test item.
+     */
+    @Getter @AllArgsConstructor
+    public static class Configuration {
 
-
-    /** Empties all variables and sets them up afterward */
-    public void resetItems() {
-        reset();
-        setupItems();
+        /**
+         * Defines the amount of units of the element for the Test Item.
+         */
+        private int
+            phonesAmount,
+            addressAmount,
+            contactInfoAmount,
+            albumAmount,
+            ratingsAmount,
+            participantAmount,
+            artistAmount,
+            bandAmount,
+            venueAmount,
+            chatRoomAmount,
+            eventAmount
+        ;
     }
 
-    /** Generates items from scratch */
-    public void setupItems() {
+    private Configuration _configuration;
+
+    /**
+     * Starts the TestsItems being with default configurations.
+     */
+    public TestItems() {
+        this((Integer) null);
+    }
+
+    /**
+     * Simply creates a configuration for the items before building the items with the given param.
+     * @param userAmount The amount of user objects that the items should be built of, the rest of the objects use this as a reference.
+     *                   If null they will simply be of <b>200</b> as default.
+     */
+    public TestItems(Integer userAmount) {
+        setupDefaultConfiguration(userAmount);
+        buildItems();
+    }
+
+    /**
+     * Before building the items, the configurations will be set.
+     * @param configuration Defining different build values should as amounts of each item.
+     */
+    public TestItems(Configuration configuration) {
+        _configuration = configuration;
+        buildItems();
+    }
+
+    /**
+     * Will create a configuration with default settings.
+     */
+    private void setupDefaultConfiguration(Integer userAmount) {
+        userAmount = userAmount == null
+                ? 200
+                : userAmount
+        ;
+
+        double
+                participantPercentage = 0.5,
+                artistPercentage = 0.3,
+                bandPercentage = 0.1,
+                venuePercentage = 0.1
+        ;
+
+        int collectionOfPercentages = (int) (participantPercentage + artistPercentage + bandPercentage + venuePercentage);
+
+        if (collectionOfPercentages != 1)
+            throw new IllegalStateException("""
+                    Users aren't divided equally for test item configuration in setup. Which is @collectionPercentages% of the users!
+                    """.replace("@collectionPercentages", String.valueOf(collectionOfPercentages * 100)));
+
+        _configuration = new Configuration(
+                userAmount,
+                userAmount,
+                userAmount,
+                userAmount * 3,
+                userAmount,
+                (int) (userAmount * participantPercentage),
+                (int) (userAmount * artistPercentage),
+                (int) (userAmount * bandPercentage),
+                (int) (userAmount * venuePercentage),
+                userAmount * 2,
+                userAmount * 3
+        );
+    }
+
+    /**
+     * Empties all variables and sets them up afterward
+     */
+    public void resetItems() {
+        reset();
+        buildItems();
+    }
+
+    /**
+     * Generates items from scratch
+     */
+    private void buildItems() {
         setupCountries();
         setupPhoneNumbers();
         setupAddresses();
@@ -54,6 +146,8 @@ public class TestItems extends ItemGenerator {
         setupChatRooms();
 
         setupEvents();
+
+        setupRatings();
     }
 
     /** Creates som indexes for Countries. */
@@ -67,15 +161,17 @@ public class TestItems extends ItemGenerator {
         );
     }
 
-    /** Creates som indexes for Phones. */
+    /**
+     * Creates som indexes for Phones.
+     */
     private void setupPhoneNumbers() {
         _phones = new Seszt<>();
 
-        for (int i = 0; i < _phones.size(); i++)
+        for (int i = 1; i <= _configuration.getPhonesAmount(); i++)
             _phones.add(
                     new ContactInfo.Phone(
                             _countries.get(_random.nextInt(_countries.size())),
-                            _random.nextInt(89999999)+10000000,
+                            _random.nextInt(89999999) + 10000000,
                             _random.nextBoolean()
                     )
             );
@@ -87,7 +183,7 @@ public class TestItems extends ItemGenerator {
     private void setupAddresses() {
         _addresses = new Seszt<>();
 
-        for (int i = 0; i < _addresses.size(); i++)
+        for (int i = 1; i <= _configuration.getAddressAmount(); i++)
             _addresses.add(
                     new ContactInfo.Address(
                             "Nørrevang " + _random.nextInt(100),
@@ -107,7 +203,7 @@ public class TestItems extends ItemGenerator {
     private void setupContactInfo() {
         _contactInfo = new Seszt<>();
 
-        for (int i = 0; i < _contactInfo.size(); i++)
+        for (int i = 1; i <= _configuration.getContactInfoAmount(); i++)
             _contactInfo.add(
                     new ContactInfo(
                             UUID.randomUUID(),
@@ -119,41 +215,70 @@ public class TestItems extends ItemGenerator {
             );
     }
 
-    /** Creates som indexes for Albums. */
+    /**
+     * Creates som indexes for Albums.
+     */
     private void setupAlbums() {
         _albums = new Seszt<>();
 
-        for (int i = 0; i < _albums.size(); i++)
-            _albums.add(new Album(
-                UUID.randomUUID(),
-                "Album title",
-                generateAlbumItems(),
-                null,
-                LocalDateTime.now()
-            ));
+        for (int i = 1; i <= _configuration.getAlbumAmount(); i++)
+            _albums.add(
+                    new Album(
+                        UUID.randomUUID(),
+                        "Album title",
+                        generateAlbumItems(),
+                        null,
+                        LocalDateTime.now()
+                    )
+            );
     }
 
-    /** Creates som indexes for Ratings. */
-    private void setupRatings(UUID appointedId, UUID judgeId) {
+    /**
+     * Creates som indexes for Ratings.
+     */
+    private void setupRatings() {
         _ratings = new Seszt<>();
 
-        for (int i = 0; i < _ratings.size(); i++) {
-            int rating = _random.nextInt(5) + 1;
-            _ratings.add(new Rating(
-                rating,
-                appointedId,
-                judgeId,
-                rating > 2 ? "Good" : "Bad",
-                LocalDateTime.now()
-            ));
+        Set<UUID> appointedIds = new HashSet<>(),
+                judgeIds = new HashSet<>();
+
+        Seszt<User> users = get_users();
+
+        for (int i = 1; i <= _configuration.getRatingsAmount(); i++) {
+            User appointed = users.get(_random.nextInt(users.size())),
+                    judge = users.get(_random.nextInt(users.size()));
+
+            while (
+                    appointed.get_primaryId().equals(judge.get_primaryId()) ||
+                    (appointedIds.contains(appointed.get_primaryId()) && judgeIds.contains(judge.get_primaryId()))
+            ) {
+                appointed = users.get(_random.nextInt(users.size()));
+                judge = users.get(_random.nextInt(users.size()));
+            }
+
+            appointedIds.add(appointed.get_primaryId());
+            judgeIds.add(judge.get_primaryId());
+
+            int value = _random.nextInt(5) + 1;
+            Rating rating = new Rating(
+                    value,
+                    appointed.get_primaryId(),
+                    judge.get_primaryId(),
+                    value > 2 ? "Good" : "Bad",
+                    LocalDateTime.now()
+            );
+            _ratings.add(rating);
+            users.get(appointed.toString()).add(rating);
         }
     }
 
-    /** Creates som indexes for Participants. */
+    /**
+     * Creates som indexes for Participants.
+     */
     private void setupParticipants() {
         _participants = new Seszt<>();
 
-        for (int i = 0; i < _participants.size(); i++) {
+        for (int i = 1; i <= _configuration.getParticipantAmount(); i++) {
             UUID id = UUID.randomUUID();
             boolean gender = _random.nextBoolean();
             _participants.add(
@@ -169,7 +294,7 @@ public class TestItems extends ItemGenerator {
                     "Description " + id,
                     _contactInfo.get(_random.nextInt(_contactInfo.size())),
                     new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
-                    randomizeRatings(),
+                    new Liszt<>(),
                     new Seszt<>(),
                     new Seszt<>(),
                     new User.Subscription(
@@ -193,11 +318,13 @@ public class TestItems extends ItemGenerator {
         }
     }
 
-    /** Creates som indexes for Artists. */
+    /**
+     * Creates som indexes for Artists.
+     */
     private void setupArtists() {
         _artists = new Seszt<>();
 
-        for (int i = 0; i < _artists.size(); i++) {
+        for (int i = 1; i <= _configuration.getArtistAmount(); i++) {
             UUID id = UUID.randomUUID();
             boolean gender = _random.nextBoolean();
             _artists.add(
@@ -213,7 +340,7 @@ public class TestItems extends ItemGenerator {
                     "Description " + id,
                     _contactInfo.get(_random.nextInt(_contactInfo.size())),
                     new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
-                    randomizeRatings(),
+                    new Liszt<>(),
                     new Seszt<>(),
                     new Seszt<>(),
                     new Seszt<>(),
@@ -230,11 +357,13 @@ public class TestItems extends ItemGenerator {
         }
     }
 
-    /** Creates som indexes for Bands. */
+    /**
+     * Creates som indexes for Bands.
+     */
     private void setupBands() {
         _bands = new Seszt<>();
 
-        for (int i = 0; i < _bands.size(); i++) {
+        for (int i = 1; i <= _configuration.getBandAmount(); i++) {
             UUID id = UUID.randomUUID();
             Seszt<Artist> members = new Seszt<>();
             int memberAmount = _random.nextInt(_artists.size()-1)+1;
@@ -266,16 +395,18 @@ public class TestItems extends ItemGenerator {
 
             _bands.add(generateBand(id, members, fans, setupSubscription(null)));
 
-            for (Artist member : _bands.get(i).get_members())
-                _artists.get(member.toString()).add(generateBand(id, new Seszt<>(), fans, setupSubscription(null)));
-            for (User fan : _bands.get(i).get_fans())
-                _participants.get(fan.toString()).add(generateBand(id, new Seszt<>(), fans, setupSubscription(null)));
+            for (Artist member : _bands.Get(i).get_members())
+                _artists.get(member.toString()).add(generateBand(id, _bands.Get(i).get_members(), fans, setupSubscription(null)));
+            for (User fan : _bands.Get(i).get_fans())
+                _participants.get(fan.toString()).add(generateBand(id, _bands.Get(i).get_members(), fans, setupSubscription(null)));
         }
     }
 
 
 
-    /** Creates som indexes for Subscriptions. */
+    /**
+     * Creates som indexes for Subscriptions.
+     */
     public User.Subscription setupSubscription(UUID id) {
         User.Subscription.Type type = _random.nextBoolean()
                 ? User.Subscription.Type.PREMIUM_ARTIST
@@ -288,7 +419,9 @@ public class TestItems extends ItemGenerator {
         LocalDateTime timestamp = TimeService.generateRandom();
 
         return new User.Subscription(
-                id == null ? UUID.randomUUID() : id,
+                id == null
+                        ? UUID.randomUUID()
+                        : id,
                 type,
                 User.Subscription.Status.ACCEPTED,
                 new User.Subscription.Offer(
@@ -302,11 +435,13 @@ public class TestItems extends ItemGenerator {
         );
     }
 
-    /** Creates som indexes for Venues. */
+    /**
+     * Creates som indexes for Venues.
+     */
     private void setupVenues() {
         _venues = new Seszt<>();
 
-        for (int i = 0; i < _venues.size(); i++) {
+        for (int i = 1; i <= _configuration.getVenueAmount(); i++) {
             UUID id = UUID.randomUUID();
             _venues.add(
                     new Venue(
@@ -315,7 +450,7 @@ public class TestItems extends ItemGenerator {
                             "Description " + id,
                             _contactInfo.get(_random.nextInt(_contactInfo.size())),
                             new Liszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
-                            randomizeRatings(),
+                            new Liszt<>(),
                             new Seszt<>(),
                             new Seszt<>(),
                             "Location " + id,
@@ -330,14 +465,16 @@ public class TestItems extends ItemGenerator {
         }
     }
 
-    /** Creates som indexes for Events. */
+    /**
+     * Creates som indexes for Events.
+     */
     private void setupEvents() {
         _events = new Seszt<>();
 
-        for (int i = 0; i < _events.size(); i++) {
+        for (int i = 1; i <= _configuration.getEventAmount(); i++) {
             UUID id = UUID.randomUUID();
-            int gigAmount = _random.nextInt(5)+1,
-                gigSize = _random.nextInt(35)+11;
+            int gigAmount = _random.nextInt(5) + 1,
+                gigSize = _random.nextInt(35) + 11;
             LocalDateTime startOfLatestGig = TimeService.generateRandom();
 
             _events.add(
@@ -351,7 +488,7 @@ public class TestItems extends ItemGenerator {
                         generatePlato(),
                         generatePlato(),
                         "Location " + id,
-                        _random.nextDouble(498)+1,
+                        _random.nextDouble(498) + 1,
                         "https://www.Billetlugen.dk/"+id,
                         _contactInfo.get(_random.nextInt(_contactInfo.size())),
                         generateGigs(null, startOfLatestGig, gigAmount, gigSize),
@@ -364,18 +501,20 @@ public class TestItems extends ItemGenerator {
                 )
             );
 
-            for (Event.Gig gig : _events.get(i).get_gigs())
-                _events.get(i).add(generateRequests(gig.get_act(), _events.get(i)));
+            for (Event.Gig gig : _events.Get(i).get_gigs())
+                _events.Get(i).add(generateRequests(gig.get_act(), _events.Get(i)));
 
-            for (Bulletin bulletin : generateBulletins(_events.get(i)))
-                _events.get(i).add(bulletin);
+            for (Bulletin bulletin : generateBulletins(_events.Get(i)))
+                _events.Get(i).add(bulletin);
 
-            for (Event.Participation participation : generateParticipations(_events.get(i)))
-                _events.get(i).add(participation);
+            for (Event.Participation participation : generateParticipations(_events.Get(i)))
+                _events.Get(i).add(participation);
         }
     }
 
-    /** Puts Performers into Events. */
+    /**
+     * Puts Performers into Events.
+     */
     private void setPerformersForEvents(Event event) {
         for (Event.Gig gig : event.get_gigs()) {
             for (Performer performer : gig.get_act()) {
@@ -406,11 +545,13 @@ public class TestItems extends ItemGenerator {
         }
     }
 
-    /** Creates som indexes for ChatRooms. */
+    /**
+     * Creates som indexes for ChatRooms.
+     */
     private void setupChatRooms() {
         _chatRooms = new Seszt<>();
 
-        for (int i = 0; i < _chatRooms.size(); i++) {
+        for (int i = 1; i <= _configuration.getChatRoomAmount(); i++) {
             UUID id = UUID.randomUUID();
             Seszt<User> members = new Seszt<>();
             int memberAmount = _random.nextInt(_venues.size()+_artists.size() - 1) + 1;
