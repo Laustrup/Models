@@ -2,15 +2,18 @@ package laustrup.models.events;
 
 import laustrup.ModelTester;
 
+import laustrup.items.ItemGenerator;
 import laustrup.models.Album;
 import laustrup.models.Event;
+import laustrup.models.History;
+import laustrup.models.Ticket;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
+import laustrup.models.chats.messages.Post;
 import laustrup.models.users.Performer;
+import laustrup.models.users.Venue;
 import laustrup.services.RandomCreatorService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
-import laustrup.utilities.parameters.Plato;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +22,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.UUID;
+
+import static laustrup.assertions.Asserter.asserting;
 
 class EventTest extends ModelTester<Event, Event.DTO> {
 
@@ -33,6 +38,7 @@ class EventTest extends ModelTester<Event, Event.DTO> {
         test(() -> {
             Event arrangement = arrange(() -> {
                 UUID eventId = UUID.randomUUID();
+                Venue venue = _items.get_venues().get(_random.nextInt(_items.get_venues().size()));
                 Liszt<Event.Gig> gigs = !noGigs
                         ? _items.generateGigs(null, lastGig, _random.nextInt(10), _random.nextInt(30))
                         : new Liszt<>();
@@ -43,22 +49,42 @@ class EventTest extends ModelTester<Event, Event.DTO> {
                 Liszt<Request> requests = new Liszt<>();
                 if (!noGigs)
                     for (Performer performer : performers)
-                        requests.add(new Request(performer, null, new Plato(), "", LocalDateTime.now()));
+                        requests.add(new Request(performer, null, _random.nextBoolean() ? LocalDateTime.now() : null, "", new History(), LocalDateTime.now()));
+                Seszt<Ticket.Option> ticketOptions = ItemGenerator.generateTicketOptions(new Seszt<>(eventId), venue.get_primaryId());
 
                 try {
                     return new Event(
-                            eventId,RandomCreatorService.generateString(),
-                            RandomCreatorService.generateString(), openDoors,
-                            _items.generatePlato(),_items.generatePlato(),_items.generatePlato(),_items.generatePlato(),
+                            eventId,
+                            RandomCreatorService.generateString(),
+                            RandomCreatorService.generateString(),
+                            openDoors,
+                            _items.generatePlato(),
+                            _random.nextBoolean()
+                                    ? LocalDateTime.now()
+                                    : null,
+                            _random.nextBoolean()
+                                    ? LocalDateTime.now()
+                                    : null,
+                            _random.nextBoolean()
+                                    ? LocalDateTime.now()
+                                    : null,
                             location.equals("null")
                                     ? null
-                                    : location,_random.nextDouble(1000),
-                            RandomCreatorService.generateString(),
-                            _items.get_contactInfo().get(_random.nextInt(_items.get_contactInfo().size())), gigs,
-                            _items.get_venues().get(_random.nextInt(_items.get_venues().size())), requests,
+                                    : location,
+                            ticketOptions,
+                            ItemGenerator.generateTickets(
+                                    ticketOptions,
+                                    _items.get_participants(),
+                                    eventId
+                            ),
+                            _items.get_contactInfo().get(_random.nextInt(_items.get_contactInfo().size())),
+                            gigs,
+                            _items.get_venues().get(_random.nextInt(_items.get_venues().size())),
+                            requests,
                             _items.generateParticipations(null),
                             _items.generateBulletins(null),
                             new Seszt<>(),
+                            new History(),
                             LocalDateTime.now()
                     );
                 } catch (InputMismatchException e) {
@@ -126,13 +152,11 @@ class EventTest extends ModelTester<Event, Event.DTO> {
             "id",
             "title",
             "description",
-            "price",
             "timestamp"
         },new String[]{
             String.valueOf(event.get_primaryId()),
             event.get_title(),
             event.get_description(),
-            String.valueOf(event.get_price()),
             String.valueOf(event.get_timestamp())
         });
     }
@@ -222,14 +246,14 @@ class EventTest extends ModelTester<Event, Event.DTO> {
     private void canAddBulletin() {
         test(() -> {
             Event event = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
-            int previousSize = event.get_bulletins().size();
-            Bulletin bulletin = _items.generateBulletins(event).getFirst();
+            int previousSize = event.get_posts().size();
+            Post post = _items.generateBulletins(event).getFirst();
 
-            act(() -> event.add(bulletin));
+            act(() -> event.add(post));
 
             asserting(
-                    event.get_bulletins().size() == previousSize + 1 &&
-                            event.get_bulletins().contains(bulletin)
+                    event.get_posts().size() == previousSize + 1 &&
+                            event.get_posts().contains(post)
             );
         });
     }
@@ -308,13 +332,13 @@ class EventTest extends ModelTester<Event, Event.DTO> {
     private void canSetBulletin() {
         test(() -> {
             Event arrangement = arrange(() -> _items.get_events().get(_random.nextInt(_items.get_events().size())));
-            int bulletinIndex = _random.nextInt(arrangement.get_bulletins().size());
-            Bulletin bulletin = arrangement.get_bulletins().get(bulletinIndex);
-            bulletin.set_title("This bulletin has been changed!");
+            int bulletinIndex = _random.nextInt(arrangement.get_posts().size());
+            Post post = arrangement.get_posts().get(bulletinIndex);
+            post.set_title("This bulletin has been changed!");
 
-            act(() -> arrangement.set(bulletin));
+            act(() -> arrangement.set(post));
 
-            asserting(arrangement.get_bulletins().get(bulletinIndex).get_title(),bulletin.get_title());
+            asserting(arrangement.get_posts().get(bulletinIndex).get_title(), post.get_title());
         });
     }
 

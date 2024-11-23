@@ -2,12 +2,15 @@ package laustrup.models.albums;
 
 import laustrup.ModelTester;
 import laustrup.models.Album;
+import laustrup.models.History;
 import laustrup.quality_assurance.TestMessage;
 import laustrup.services.RandomCreatorService;
 import laustrup.utilities.collections.sets.Seszt;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+
+import static laustrup.assertions.Asserter.asserting;
 
 class AlbumTests extends ModelTester<laustrup.models.Album, laustrup.models.Album.DTO> {
 
@@ -92,7 +95,7 @@ class AlbumTests extends ModelTester<laustrup.models.Album, laustrup.models.Albu
 
             act(() -> arranged.set(items));
 
-            asserting(items,arranged.get_items());
+            asserting(items.get_data(), arranged.get_items().get_data());
 
             addToPrint("The two AlbumItems are:\n \n" + items + "\n" + arranged.get_items());
         });
@@ -161,7 +164,10 @@ class AlbumTests extends ModelTester<laustrup.models.Album, laustrup.models.Albu
                 _random.nextBoolean()
                         ? Album.Item.Kind.MUSIC
                         : Album.Item.Kind.IMAGE,
-                new Seszt<>(), null, LocalDateTime.now()
+                new Seszt<>(),
+                null,
+                new History(),
+                LocalDateTime.now()
         );
     }
 
@@ -174,7 +180,12 @@ class AlbumTests extends ModelTester<laustrup.models.Album, laustrup.models.Albu
     private Album.Item generateItem(String endpoint, Album.Item.Kind kind) {
         return new Album.Item(
                 RandomCreatorService.generateString(false,_random.nextInt(10)+1),
-                endpoint, kind, new Seszt<>(), null, LocalDateTime.now()
+                endpoint,
+                kind,
+                new Seszt<>(),
+                null,
+                new History(),
+                LocalDateTime.now()
         );
     }
 }

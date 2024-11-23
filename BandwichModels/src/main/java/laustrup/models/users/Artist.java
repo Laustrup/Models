@@ -1,14 +1,10 @@
 package laustrup.models.users;
 
-import laustrup.models.Model;
+import laustrup.models.*;
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.models.Rating;
-import laustrup.models.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.chats.messages.Post;
 import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,12 +26,6 @@ public class Artist extends Performer {
     private Seszt<Band> _bands;
 
     /**
-     * A description of the gear, that the Artist possesses and what they require for an Event.
-     */
-    @Setter
-    private String _runner;
-
-    /**
      * The Requests requested for this Artist.
      */
     private Liszt<Request> _requests;
@@ -49,8 +39,6 @@ public class Artist extends Performer {
         _bands = new Seszt<>();
         for (Band.DTO band : artist.getBands())
             _bands.add(new Band(band));
-
-        _runner = artist.getRunner();
 
         _requests = new Liszt<>();
         for (Request.DTO request : artist.getRequests())
@@ -72,12 +60,13 @@ public class Artist extends Performer {
      * @param gigs Describes all the gigs, that the Performer is a part of an act.
      * @param chatRooms These ChatRooms can be used to communicate with other users.
      * @param subscription The Subscription of this Artist.
-     * @param bulletins Messages by other Users.
+     * @param posts Messages by other Users.
      * @param bands The Bands that the Artist is a member of.
      * @param runner A description of the gear, that the Artist possesses and what they require for an Event.
      * @param fans All the participants that are following this Performer, is included here.
      * @param idols The people that are following this Object.
      * @param requests The Requests requested for this Artist.
+     * @param history The Events for this object.
      * @param timestamp The date and time this ContactInfo was created.
      */
     public Artist(
@@ -93,18 +82,36 @@ public class Artist extends Performer {
             Seszt<Event.Gig> gigs,
             Seszt<ChatRoom> chatRooms,
             Subscription subscription,
-            Liszt<Bulletin> bulletins,
+            Liszt<Post> posts,
             Seszt<Band> bands,
             String runner,
             Seszt<User> fans,
             Seszt<User> idols,
             Liszt<Request> requests,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, username, firstName, lastName, description, contactInfo, Authority.ARTIST, albums, ratings,
-                events, gigs, chatRooms, subscription, bulletins, fans, idols, timestamp);
+        super(
+                id,
+                username,
+                firstName,
+                lastName,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                gigs,
+                chatRooms,
+                subscription,
+                posts,
+                fans,
+                idols,
+                runner,
+                history,
+                timestamp
+        );
         _bands = bands;
-        _runner = runner;
         _requests = requests;
     }
 
@@ -170,14 +177,12 @@ public class Artist extends Performer {
                 Model.Fields._primaryId,
                 User.Fields._username,
                 User.Fields._description,
-                Fields._runner,
                 Model.Fields._timestamp
             },
             new String[] {
                 String.valueOf(get_primaryId()),
                 get_username(),
                 get_description(),
-                get_runner(),
                 String.valueOf(get_timestamp())
             });
     }
@@ -190,13 +195,14 @@ public class Artist extends Performer {
     @Getter @Setter
     public static class DTO extends PerformerDTO {
 
-        /** The Bands that the Artist is a member of. */
+        /**
+         * The Bands that the Artist is a member of.
+         */
         private Band.DTO[] bands;
 
-        /** A description of the gear, that the Artist possesses and what they require for an Event. */
-        private String runner;
-
-        /** The Requests requested for this Artist. */
+        /**
+         * The Requests requested for this Artist.
+         */
         private Request.DTO[] requests;
 
         /**
@@ -208,7 +214,6 @@ public class Artist extends Performer {
             bands = new Band.DTO[artist.get_bands().size()];
             for (int i = 0; i < bands.length; i++)
                 bands[i] = new Band.DTO(artist.get_bands().Get(i+1));
-            runner = artist.get_runner();
             requests = new Request.DTO[artist.get_requests().size()];
             for (int i = 0; i < requests.length; i++)
                 requests[i] = new Request.DTO(artist.get_requests().Get(i+1));

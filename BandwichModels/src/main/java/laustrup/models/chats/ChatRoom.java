@@ -1,5 +1,6 @@
 package laustrup.models.chats;
 
+import laustrup.models.History;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.Model;
 import laustrup.models.chats.messages.Mail;
@@ -8,7 +9,6 @@ import laustrup.models.users.Artist;
 import laustrup.models.users.Band;
 import laustrup.services.DTOService;
 import laustrup.utilities.collections.sets.Seszt;
-
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
 
@@ -62,7 +62,7 @@ public class ChatRoom extends Model {
     private void convert(UserDTO[] chatters) {
         _chatters = new Seszt<>();
         for (UserDTO chatter : chatters)
-            _chatters.add(DTOService.convert(chatter));
+            _chatters.add((User) DTOService.convert(chatter));
     }
 
     /**
@@ -71,10 +71,18 @@ public class ChatRoom extends Model {
      * @param title The title of the ChatRoom, if it is null or empty, it will be the usernames of the chatters.
      * @param mails The Mails with relations to this ChatRoom.
      * @param chatters The chatters that are members of this ChatRoom.
+     * @param history The Events for this object.
      * @param timestamp The time this ChatRoom was created.
      */
-    public ChatRoom(UUID id, String title, Liszt<Mail> mails, Seszt<User> chatters, LocalDateTime timestamp) {
-        super(id, title, timestamp);
+    public ChatRoom(
+            UUID id,
+            String title,
+            Liszt<Mail> mails,
+            Seszt<User> chatters,
+            History history,
+            LocalDateTime timestamp
+    ) {
+        super(id, title, history, timestamp);
         _chatters = chatters;
         _title = determineChatRoomTitle(_title);
         _mails = mails;
@@ -138,7 +146,7 @@ public class ChatRoom extends Model {
     public Liszt<Mail> add(Mail[] mails) {
         ifExists(mails, () -> {
             for (Mail mail : mails)
-                if (chatterExists(mail.get_author()))
+                if (exists(mail.get_author()))
                     _mails.add(mail);
         });
 
@@ -188,7 +196,7 @@ public class ChatRoom extends Model {
      * @param chatter A User, that should be checked, if it already exists in the ChatRoom.
      * @return True if the chatter exists in the ChatRoom.
      */
-    public boolean chatterExists(User chatter) {
+    public boolean exists(User chatter) {
         for (User user : _chatters)
             if (
                 user.getClass() == chatter.getClass()
@@ -274,19 +282,6 @@ public class ChatRoom extends Model {
 
         /** The Users, except the responsible, that can write with each other. */
         private UserDTO[] chatters;
-
-        /** This responsible are being calculated for answeringTime. */
-        private UserDTO responsible;
-
-        /**
-         * The amount of time it takes, before the responsible have answered the chatroom,
-         * measured from the first message.
-         * Is calculated in minutes.
-         */
-        private Long answeringTime;
-
-        /** Is true if the responsible has answered with a message. */
-        private boolean answered;
 
         /**
          * Converts into this DTO Object.

@@ -65,6 +65,12 @@ public abstract class Model {
     protected Situation _situation = Situation.NONE;
 
     /**
+     * Contains stories that consists of events or logs.
+     */
+    @Getter
+    protected History _history;
+
+    /**
      * Sets the Situation.
      * The situation mustn't become none after it has had a situation,
      * then it must be resolved, which this method insures to prevent misinformation.
@@ -84,12 +90,17 @@ public abstract class Model {
     private final String _toStringFieldSplitter = ",\n \t",
             _toStringKeyValueSplitter = ":\t";
 
+    /**
+     * Converts the data transport object into this model.
+     * @param model The data transport model to be converted.
+     */
     public Model(ModelDTO model) {
         _primaryId = model.getPrimaryId();
         _secondaryId = model.getSecondaryId();
         _title = model.getClass().getSimpleName() + " \"" + model.getPrimaryId() + "\"";
-        _timestamp = model.getTimestamp();
         _situation = model.getSituation();
+        _history = model.getHistory();
+        _timestamp = model.getTimestamp();
     }
 
     /** Will generate a timestamp of the moment now in datetime. */
@@ -108,21 +119,25 @@ public abstract class Model {
 
     /**
      * @param title A title describing this entity internally.
+     * @param history A collection of events that has occurred.
      * @param timestamp Specifies the time this entity was created.
      */
-    public Model(String title, LocalDateTime timestamp) {
+    public Model(String title, History history, LocalDateTime timestamp) {
         _title = title;
+        _history = history;
         _timestamp = timestamp;
     }
 
     /**
      * @param id A hex decimal value identifying this item uniquely.
      * @param title A title describing this entity internally.
+     * @param history A collection of events that has occurred.
      * @param timestamp Specifies the time this entity was created.
      */
-    public Model(UUID id, String title, LocalDateTime timestamp) {
+    public Model(UUID id, String title, History history, LocalDateTime timestamp) {
         _primaryId = id;
         _title = title;
+        _history = history;
         _timestamp = timestamp;
     }
 
@@ -133,6 +148,7 @@ public abstract class Model {
     public Model(UUID id, String title) {
         _primaryId = id;
         _title = title;
+        _timestamp = LocalDateTime.now();
     }
 
     /**
@@ -151,13 +167,21 @@ public abstract class Model {
     /**
      * @param primaryId A hex decimal value identifying this item uniquely.
      * @param secondaryId Another hex decimal value identifying another item uniquely.
+     * @param history A collection of events that has occurred.
      * @param title A title describing this entity internally.
      * @param timestamp Specifies the time this entity was created.
      */
-    public Model(UUID primaryId, UUID secondaryId, String title, LocalDateTime timestamp) {
+    public Model(
+            UUID primaryId,
+            UUID secondaryId,
+            String title,
+            History history,
+            LocalDateTime timestamp
+    ) {
         _primaryId = primaryId;
         _secondaryId = secondaryId;
         _title = title;
+        _history = history;
         _timestamp = timestamp;
     }
 
@@ -217,8 +241,8 @@ public abstract class Model {
      * When it is created through a constructor, that doesn't ask for a DateTime.
      * It will use the DateTime of now.
      */
-    @Getter @Setter
-    public static class ModelDTO {
+    @Getter
+    public abstract static class ModelDTO {
 
         /**
          * The identification value in the database for a specific entity.
@@ -240,7 +264,13 @@ public abstract class Model {
          * Can be of different purposes,
          * such as username or simply for naming a unit.
          */
+        @Setter
         protected String title;
+
+        /**
+         * A collection of events that has occurred.
+         */
+        protected History history;
 
         /** Specifies the time this entity was created. */
         protected LocalDateTime timestamp;
@@ -250,12 +280,14 @@ public abstract class Model {
          * Useful to identify an incident or change.
          * Is added to the Response entity class when answering.
          */
+        @Setter
         protected Situation situation;
 
         public ModelDTO(Model model) {
             primaryId = model.get_primaryId();
             secondaryId = model.get_secondaryId();
             title = model.get_title();
+            history = model.get_history();
             timestamp = model.get_timestamp();
             situation = model.get_situation();
         }

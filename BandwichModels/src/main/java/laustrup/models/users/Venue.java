@@ -1,14 +1,10 @@
 package laustrup.models.users;
 
-import laustrup.models.Model;
+import laustrup.models.*;
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.models.Rating;
-import laustrup.models.Album;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.chats.messages.Post;
 
 import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
@@ -26,19 +22,28 @@ import java.util.UUID;
 @Getter @FieldNameConstants
 public class Venue extends User {
 
-    /** The location that the Venue is located at, which could be an address or simple a place. */
+    /**
+     * The location that the Venue is located at, which could be an address or simple a place.
+     */
     @Setter
     private String _location;
 
-    /** The description of the gear that the Venue posses. */
+    /**
+     * The description of the gear that the Venue posses.
+     * Kind of the opposite of a runner.
+     */
     @Setter
-    private String _gearDescription;
+    private String _stageSetup;
 
-    /** The size of the stage and room, that Events can be held at. */
+    /**
+     * The size of the stage and room, that Events can be held at.
+     */
     @Setter
     private int _size;
 
-    /** The Requests requested for this Venue. */
+    /**
+     * The Requests requested for this Venue.
+     */
     private Liszt<Request> _requests;
 
     /**
@@ -50,7 +55,7 @@ public class Venue extends User {
 
         _location = venue.getLocation() == null ? _contactInfo.getAddressInfo() : venue.getLocation();
 
-        _gearDescription = venue.getGearDescription();
+        _stageSetup = venue.getGearDescription();
         _size = venue.getSize();
 
         _requests = new Liszt<>();
@@ -72,9 +77,10 @@ public class Venue extends User {
      * @param location The location that the Venue is located at, which could be an address or simple a place.
      * @param gearDescription The description of the gear that the Venue posses.
      * @param subscription The Subscription of this Artist.
-     * @param bulletins Messages by other Users.
+     * @param posts Messages by other Users.
      * @param size The size of the stage and room, that Events can be held at.
      * @param requests The Requests requested for this Artist.
+     * @param history The Events for this object.
      * @param timestamp The date and time this ContactInfo was created.
      */
     public Venue(
@@ -89,17 +95,30 @@ public class Venue extends User {
             String location,
             String gearDescription,
             Subscription subscription,
-            Liszt<Bulletin> bulletins,
+            Liszt<Post> posts,
             int size,
             Liszt<Request> requests,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, username, description, contactInfo, albums, ratings, events, chatRooms,
-                subscription, bulletins, Authority.VENUE, timestamp);
+        super(
+                id,
+                username,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                chatRooms,
+                subscription,
+                posts,
+                history,
+                timestamp
+        );
 
         _location = location == null ? _contactInfo.getAddressInfo() : location;
 
-        _gearDescription = gearDescription;
+        _stageSetup = gearDescription;
         _size = size;
         _requests = requests;
     }
@@ -149,7 +168,7 @@ public class Venue extends User {
                     User.Fields._username,
                     Fields._location,
                     User.Fields._description,
-                    Fields._gearDescription,
+                    Fields._stageSetup,
                     Model.Fields._timestamp
                 },
                 new String[] {
@@ -157,7 +176,7 @@ public class Venue extends User {
                     get_username(),
                     get_location(),
                     get_description(),
-                    get_gearDescription(),
+                    get_stageSetup(),
                     String.valueOf(get_timestamp())
                 }
         );
@@ -191,25 +210,33 @@ public class Venue extends User {
          */
         private Request.DTO[] requests;
 
+        /**
+         * Converts into this DTO Object.
+         * @param venue The Object to be converted.
+         */
         public DTO(Venue venue) {
             super(venue);
 
             location = venue.get_location();
 
-            gearDescription = venue.get_gearDescription();
+            gearDescription = venue.get_stageSetup();
             size = venue.get_size();
             requests = new Request.DTO[venue.get_requests().size()];
             for (int i = 0; i < requests.length; i++)
                 requests[i] = new Request.DTO(venue.get_requests().Get(i+1));
         }
 
+        /**
+         * Converts into this DTO Object.
+         * @param user The Object to be converted.
+         */
         public DTO(User user) {
             super(user);
 
-            if (user.get_authority() == User.Authority.VENUE) {
+            if (user.getClass() == Venue.class) {
                 location = ((Venue) user).get_location();
 
-                gearDescription = ((Venue) user).get_gearDescription();
+                gearDescription = ((Venue) user).get_stageSetup();
                 size = ((Venue) user).get_size();
                 requests = new Request.DTO[((Venue) user).get_requests().size()];
                 for (int i = 0; i < requests.length; i++)

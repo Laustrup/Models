@@ -1,13 +1,11 @@
 package laustrup.items;
 
-import laustrup.models.Model;
-import laustrup.models.Rating;
-import laustrup.models.Album;
+import com.sun.java.accessibility.util.EventID;
+import laustrup.models.*;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
+import laustrup.models.chats.messages.Post;
 import laustrup.models.chats.messages.Mail;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.users.Participant;
 import laustrup.models.users.Performer;
 import laustrup.models.users.Artist;
 import laustrup.models.users.Band;
@@ -15,6 +13,7 @@ import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.parameters.Plato;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -50,6 +49,7 @@ public abstract class ItemGenerator extends TestCollections {
                             kind,
                             new Seszt<>(),
                             null,
+                            new History(),
                             LocalDateTime.now()
                     )
             );
@@ -82,6 +82,7 @@ public abstract class ItemGenerator extends TestCollections {
                             act,
                             start,
                             end,
+                            new History(),
                             LocalDateTime.now()
                     )
             );
@@ -118,8 +119,14 @@ public abstract class ItemGenerator extends TestCollections {
     public Request[] generateRequests(Seszt<Performer> performers, Event event) {
         Request[] requests = new Request[performers.size()];
         for (int i = 0; i < performers.size(); i++) {
-            Plato approved = generatePlato();
-            requests[i] = new Request(performers.get(i), event, approved, approved.get_truth() ? "Approved" : "Declined", LocalDateTime.now());
+            requests[i] = new Request(
+                    performers.get(i),
+                    event,
+                    LocalDateTime.now(),
+                    _random.nextBoolean() ? "Approved" : "Declined",
+                    new History(),
+                    LocalDateTime.now()
+            );
         }
 
         return requests;
@@ -143,11 +150,69 @@ public abstract class ItemGenerator extends TestCollections {
                                     ? _artists.get(_random.nextInt(_artists.size()))
                                     : _participants.get(_random.nextInt(_participants.size())),
                             generateParticipationType(),
+                            new History(),
                             LocalDateTime.now()
                     )
             );
 
         return participations;
+    }
+
+    /**
+     * Generates some ticket option test items.
+     * @param eventIds The Events that the ticket options are for.
+     * @param venueId The Venue that the ticket options are for.
+     * @return The generated ticket options.
+     */
+    public static Seszt<Ticket.Option> generateTicketOptions(Seszt<UUID> eventIds, UUID venueId) {
+        Seszt<Ticket.Option> options = new Seszt<>();
+
+        for (int i = 0; i < _random.nextInt(10) + 1; i++) {
+            UUID id = UUID.randomUUID();
+
+            options.add(
+                    new Ticket.Option(
+                            id,
+                            eventIds,
+                            venueId,
+                            "Event " + id,
+                            i + (_random.nextBoolean() ? " left" : " right"),
+                            BigDecimal.valueOf(_random.nextDouble(498) + 1),
+                            "DKK",
+                            new History(),
+                            LocalDateTime.now()
+                    )
+            );
+        }
+
+        return options;
+    }
+
+    /**
+     * Generates some ticket test items.
+     * @param options The possible ticket options to be made from.
+     * @param participants The participants that can own a ticket, also multiple.
+     * @param eventId The Event the tickets are for.
+     * @return The generated tickets.
+     */
+    public static Seszt<Ticket> generateTickets(
+            Seszt<Ticket.Option> options,
+            Seszt<Participant> participants,
+            UUID eventId
+    ) {
+        Seszt<Ticket> tickets = new Seszt<>();
+
+        for (int i = 0; i < _random.nextInt() + 100; i++)
+            tickets.add(
+                    options.get(
+                            _random.nextInt(options.size())
+                    ).toTicket(
+                            participants.get(_random.nextInt(participants.size())).get_primaryId(),
+                            eventId
+                    )
+            );
+
+        return tickets;
     }
 
     /**
@@ -169,22 +234,25 @@ public abstract class ItemGenerator extends TestCollections {
      * @param model The model that receives the Bulletin.
      * @return The generated Bulletins.
      */
-    public Seszt<Bulletin> generateBulletins(Model model) {
-        Seszt<Bulletin> bulletins = new Seszt<>();
+    public Seszt<Post> generateBulletins(Model model) {
+        Seszt<Post> posts = new Seszt<>();
 
-        for (int i = 0; i < bulletins.size(); i++)
-            bulletins.add(
-                new Bulletin(UUID.randomUUID(),
-                generateUser(),
-                model,
-                "Content "+ i,
-                _random.nextBoolean(),
-                generatePlato(),
-                _random.nextBoolean(),
-                LocalDateTime.now())
+        for (int i = 0; i < posts.size(); i++)
+            posts.add(
+                new Post(
+                        UUID.randomUUID(),
+                        generateUser(),
+                        model,
+                        "Content "+ i,
+                        generateNowOrNull(),
+                        generateNowOrNull(),
+                        _random.nextBoolean(),
+                        new History(),
+                        LocalDateTime.now()
+                )
             );
 
-        return bulletins;
+        return posts;
     }
 
     /**
@@ -229,9 +297,10 @@ public abstract class ItemGenerator extends TestCollections {
                     null,
                     members.get(_random.nextInt(members.size())),
                     content.toString(),
+                    generateNowOrNull(),
+                    generateNowOrNull(),
                     _random.nextBoolean(),
-                    generatePlato(),
-                    _random.nextBoolean(),
+                    new History(),
                     LocalDateTime.now()
                 )
             );
@@ -265,6 +334,7 @@ public abstract class ItemGenerator extends TestCollections {
             "Gear " + id,
             fans,
             new Seszt<>(),
+            new History(),
             LocalDateTime.now()
         );
     }
@@ -280,5 +350,13 @@ public abstract class ItemGenerator extends TestCollections {
             ratings.add(_ratings.get(_random.nextInt(_ratings.size())));
 
         return ratings;
+    }
+
+    /**
+     * Generates a random LocalDateTime, either now or null.
+     * @return The generated LocalDateTime.
+     */
+    public static LocalDateTime generateNowOrNull() {
+        return _random.nextBoolean() ? LocalDateTime.now() : null;
     }
 }

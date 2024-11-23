@@ -2,9 +2,7 @@ package laustrup.models.albums;
 
 import laustrup.ModelTester;
 
-import laustrup.models.Album;
-import laustrup.models.Model;
-import laustrup.models.User;
+import laustrup.models.*;
 import laustrup.services.RandomCreatorService;
 import laustrup.utilities.collections.sets.Seszt;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.UUID;
+
+import static laustrup.assertions.Asserter.asserting;
 
 class AlbumItemTests extends ModelTester<Album.Item, Album.Item.DTO> {
 
@@ -72,9 +72,11 @@ class AlbumItemTests extends ModelTester<Album.Item, Album.Item.DTO> {
                             : Album.Item.Kind.MUSIC,
                     new Seszt<>((UUID[]) Arrays.stream(generateTags()).map(Model::get_primaryId).toArray()),
                     _items.get_events().getFirst(),
+                    new History(),
                     LocalDateTime.now()
                 )
             );
+
             int previousSize = arranged.get_tags().size();
             UUID[] tags = Arrays.stream(new User[_random.nextInt(arranged.get_tags().size())]).map(Model::get_primaryId).toList().toArray(new UUID[0]);
             for (int i = 0; i < tags.length; i++)

@@ -1,6 +1,5 @@
 package laustrup.models;
 
-import laustrup.services.DTOService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -45,10 +44,18 @@ public class Rating extends Model {
      * @param appointedId The one receiving the Rating.
      * @param judgeId The one giving the Rating.
      * @param comment A comment that is attached to the Rating.
+     * @param history The Events for this object.
      * @param timestamp Specifies the time the Rating was created.
      */
-    public Rating(int value, UUID appointedId, UUID judgeId, String comment, LocalDateTime timestamp) {
-        super(appointedId, judgeId, appointedId+"-"+judgeId, timestamp);
+    public Rating(
+            int value,
+            UUID appointedId,
+            UUID judgeId,
+            String comment,
+            History history,
+            LocalDateTime timestamp
+    ) {
+        super(appointedId, judgeId, appointedId + "-" + judgeId, history, timestamp);
         _comment = comment;
         _value = set_value(value);
     }
@@ -62,7 +69,7 @@ public class Rating extends Model {
      * @param comment A comment that is attached to the Rating.
      */
     public Rating(int value, UUID appointedId, UUID judgeId, String comment) {
-        this(value, appointedId, judgeId, comment, LocalDateTime.now());
+        this(value, appointedId, judgeId, comment, null,  LocalDateTime.now());
     }
 
     /**

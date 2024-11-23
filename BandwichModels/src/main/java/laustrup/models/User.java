@@ -3,17 +3,13 @@ package laustrup.models;
 import laustrup.models.users.ContactInfo;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.models.chats.ChatRoom;
-import laustrup.models.chats.messages.Bulletin;
-
+import laustrup.models.chats.messages.Post;
 import laustrup.utilities.collections.sets.Seszt;
-import laustrup.utilities.console.Printer;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDateTime;
-import java.util.InputMismatchException;
 import java.util.UUID;
 
 /**
@@ -85,20 +81,19 @@ public abstract class User extends Model {
     /**
      * Messages by other Users.
      */
-    protected Liszt<Bulletin> _bulletins;
-
-    /**
-     * Describes what a User is permitted to.
-     */
-    @Getter
-    protected static Authority _authority;
+    protected Liszt<Post> _posts;
 
     /**
      * Will translate a transport object of this object into a construct of this object.
      * @param user The transport object to be transformed.
      */
     public User(UserDTO user) {
-        super(user.getPrimaryId(),user.getUsername() + "-" + user.getPrimaryId(),user.getTimestamp());
+        super(
+                user.getPrimaryId(),
+                user.getUsername() + "-" + user.getPrimaryId(),
+                user.getHistory(),
+                user.getTimestamp()
+        );
         _username = user.getUsername();
         _firstName = user.getFirstName();
         _lastName = user.getLastName();
@@ -123,11 +118,9 @@ public abstract class User extends Model {
 
         _subscription = new Subscription(user.getSubscription());
 
-        _bulletins = new Liszt<>();
-        for (Bulletin.DTO bulletin : user.getBulletins())
-            _bulletins.add(new Bulletin(bulletin));
-
-        _authority = Authority.valueOf(user.getAuthority().toString());
+        _posts = new Liszt<>();
+        for (Post.DTO bulletin : user.getBulletins())
+            _posts.add(new Post(bulletin));
     }
 
     /**
@@ -143,8 +136,8 @@ public abstract class User extends Model {
      * @param events Events that this User joins or hosts.
      * @param chatRooms Rooms that Users can communicate in.
      * @param subscription Defines the details of this User's subscription.
-     * @param bulletins Messages that can be written publicly on dashboard.
-     * @param authority What is this User permitted to.
+     * @param posts Messages that can be written publicly on dashboard.
+     * @param history The Events for this object.
      * @param timestamp The time this User was created.
      */
     public User(
@@ -159,12 +152,16 @@ public abstract class User extends Model {
             Seszt<Event> events,
             Seszt<ChatRoom> chatRooms,
             Subscription subscription,
-            Liszt<Bulletin> bulletins,
-            Authority authority,
+            Liszt<Post> posts,
+            History history,
             LocalDateTime timestamp
     ) {
-        _primaryId = id;
-        _title = username + "-" + id;
+        super(
+                id,
+                username + "-" + id,
+                history,
+                timestamp
+        );
         _username = username;
         _firstName = firstName;
         _lastName = lastName;
@@ -175,9 +172,7 @@ public abstract class User extends Model {
         _events = events;
         _chatRooms = chatRooms;
         _subscription = subscription;
-        _bulletins = bulletins;
-        _authority = authority;
-        _timestamp = timestamp;
+        _posts = posts;
     }
 
     /**
@@ -191,8 +186,8 @@ public abstract class User extends Model {
      * @param events Events that this User joins or hosts.
      * @param chatRooms Rooms that Users can communicate in.
      * @param subscription Defines the details of this User's subscription.
-     * @param bulletins Messages that can be written publicly on dashboard.
-     * @param authority What is this User permitted to.
+     * @param posts Messages that can be written publicly on dashboard.
+     * @param history The Events for this object.
      * @param timestamp The time this User was created.
      */
     public User(
@@ -205,12 +200,16 @@ public abstract class User extends Model {
             Seszt<Event> events,
             Seszt<ChatRoom> chatRooms,
             Subscription subscription,
-            Liszt<Bulletin> bulletins,
-            Authority authority,
+            Liszt<Post> posts,
+            History history,
             LocalDateTime timestamp
     ) {
-        _primaryId = id;
-        _title = username + "-" + id;
+        super(
+                id,
+                username + "-" + id,
+                history,
+                timestamp
+        );
         _username = username;
         _contactInfo = contactInfo;
         _description = description;
@@ -219,9 +218,7 @@ public abstract class User extends Model {
         _events = events;
         _chatRooms = chatRooms;
         _subscription = subscription;
-        _bulletins = bulletins;
-        _authority = authority;
-        _timestamp = timestamp;
+        _posts = posts;
     }
 
     /**
@@ -231,15 +228,13 @@ public abstract class User extends Model {
      * @param lastName The real last name of this User.
      * @param description A description to inform other Users of this User.
      * @param subscription Defines the details of this User's subscription.
-     * @param authority What is this User permitted to.
      */
     public User(
             String username,
             String firstName,
             String lastName,
             String description,
-            Subscription subscription,
-            Authority authority
+            Subscription subscription
     ) {
         _username = username;
         _firstName = firstName;
@@ -250,10 +245,9 @@ public abstract class User extends Model {
         _ratings = new Liszt<>();
         _events = new Seszt<>();
         _chatRooms = new Seszt<>();
-        _bulletins = new Liszt<>();
+        _posts = new Liszt<>();
 
         _subscription = subscription;
-        _authority = authority;
 
         _timestamp = LocalDateTime.now();
     }
@@ -263,9 +257,12 @@ public abstract class User extends Model {
      * @param username The name that this User identifies by.
      * @param description A description to inform other Users of this User.
      * @param subscription Defines the details of this User's subscription.
-     * @param authority What is this User permitted to.
      */
-    public User(String username, String description, Subscription subscription, Authority authority) {
+    public User(
+            String username,
+            String description,
+            Subscription subscription
+    ) {
         _username = username;
         _description = description;
 
@@ -273,10 +270,9 @@ public abstract class User extends Model {
         _ratings = new Liszt<>();
         _events = new Seszt<>();
         _chatRooms = new Seszt<>();
-        _bulletins = new Liszt<>();
+        _posts = new Liszt<>();
 
         _subscription = subscription;
-        _authority = authority;
 
         _timestamp = LocalDateTime.now();
     }
@@ -379,13 +375,6 @@ public abstract class User extends Model {
         return _ratings;
     }
 
-    public enum Authority {
-        VENUE,
-        ARTIST,
-        BAND,
-        PARTICIPANT
-    }
-
     /**
      * Defines the kind of subscription a user is having.
      * Only Artists and Bands can have a paying subscription.
@@ -394,57 +383,10 @@ public abstract class User extends Model {
     public static class Subscription extends Model {
 
         /**
-         * An enum that contains different kinds of types, that this Subscription can be.
-         * Will also determine the price.
-         */
-        @Getter
-        private Type _type;
-
-        /**
          * An enum that determines what kind of status, the situation of the Subscription is in.
          */
         @Getter @Setter
         private Status _status;
-
-        /**
-         * How much the User should pay per month.
-         */
-        private double _price;
-
-
-        /**
-         * Checks if there is a free trial offer or the User is either a Band or Artist,
-         * since they are the only paying Users.
-         * Also calculates the Offer effect with the price.
-         *
-         * @return The price per month of the User as a double, since it is multiplied with the Offer effect.
-         */
-        public double get_price() {
-            if (_authority != null &&
-                (
-                    (
-                        _authority == Authority.BAND
-                        || _authority == Authority.ARTIST
-                    ) &&
-                    (
-                        _offer != null
-                            && (
-                                _offer.get_type() != Offer.Type.FREE_TRIAL
-                                    && !isOfferExpired()
-                            )
-                    )
-                )
-            )
-                return isOfferExpired() ? _price : _price * _offer.get_effect();
-            else
-                return 0;
-        }
-
-        /**
-         * An object class that specifies the offer if any, that this Subscription has.
-         */
-        @Getter @Setter
-        private Offer _offer;
 
         /**
          * Will translate a transport object of this object into a construct of this object.
@@ -452,88 +394,35 @@ public abstract class User extends Model {
          */
         public Subscription(DTO subscription) {
             super(subscription);
-            _type = define(Type.valueOf(subscription.getType().toString()));
             _status = Status.valueOf(subscription.getStatus().toString());
-            _offer = new Offer(subscription.getOffer());
         }
 
         /**
          * A constructor with all fields.
          * @param id The id the defines this specific Subscription, is the same as the User of this Subscription.
-         * @param type An enum that contains different kinds of types, that this Subscription can be.
-         *             Will also determine the price.
          * @param status An enum that determines what kind of status, the situation of the Subscription is in.
-         * @param offer An object class that specifies the offer if any, that this Subscription has.
          * @param timestamp The time this object was created.
          */
         public Subscription(
                 UUID id,
-                Type type,
                 Status status,
-                Offer offer,
                 LocalDateTime timestamp
         ) {
             _primaryId = id;
             _title = "Subscription: " + id;
-            _type = define(type);
             _status = status;
-            _offer = offer;
             _timestamp = timestamp;
         }
 
         /**
          * For creating a new Subscription.
          * Timestamp will be now.
-         * @param type An enum that contains different kinds of types, that this Subscription can be.
-         *             Will also determine the price.
          * @param status An enum that determines what kind of status, the situation of the Subscription is in.
-         * @param offer An object class that specifies the offer if any, that this Subscription has.
          */
-        public Subscription(Type type, Status status, Offer offer) {
+        public Subscription(Status status) {
             _title = "New-Subscription";
-            _type = define(type);
             _status = status;
-            _offer = offer;
             _timestamp = LocalDateTime.now();
-        }
-
-        /**
-         * Uses the defineType() method to set the type and also the price from the new type value.
-         * @param type An enum of a SubscriptionType, that is wished to be set.
-         * @return The SubscriptionType of this Subscription.
-         */
-        public Type set_type(Type type) {
-            return define(type);
-        }
-
-        /**
-         * Sets the type of this Subscription and also determines the price for that type of Subscription.
-         * @param type An enum of a type of Subscription, that is wished to be set.
-         * @return This Subscription's type as the enum.
-         */
-        private Subscription.Type define(Subscription.Type type) {
-            _type = type;
-
-            if (_authority != null) {
-                _price = switch (_type) {
-                    case PREMIUM_BAND -> _authority.equals(Authority.BAND) ? 100 : 0;
-                    case PREMIUM_ARTIST -> _authority.equals(Authority.ARTIST) ? 60 : 0;
-                    default -> _price = 0;
-                };
-            }
-
-            return _type;
-        }
-
-        /**
-         * Determines whether the date that this offer's date has been reached or not.
-         * Counts from LocalDateTime.now.
-         * @return True if the moment now is after the date that the offer of this Subscription will expire, otherwise false.
-         */
-        public boolean isOfferExpired() {
-            if (_offer == null || _offer.get_expires() == null)
-                return true;
-            return LocalDateTime.now().isAfter(_offer.get_expires());
         }
 
         @Override
@@ -543,29 +432,14 @@ public abstract class User extends Model {
                     new String[] {
                             Model.Fields._primaryId,
                             Fields._status,
-                            Fields._type,
-                            Fields._price,
                             Model.Fields._timestamp
                     },
                     new String[] {
                             String.valueOf(get_primaryId()),
                             get_status() != null ? get_status().name() : null,
-                            get_type() != null ? get_type().name() : null,
-                            String.valueOf(get_price()),
                             String.valueOf(get_timestamp())
                     }
             );
-        }
-
-        /**
-         * The Data Transfer Object.
-         * Is meant to be used as having common fields and be the body of Requests and Responses.
-         * Doesn't have any logic.
-         */
-        public enum Type {
-            FREEMIUM,
-            PREMIUM_BAND,
-            PREMIUM_ARTIST
         }
 
         /**
@@ -577,129 +451,6 @@ public abstract class User extends Model {
             DISACTIVATED,
             CLOSED
         }
-
-        /**
-         * This offer determines, if the price of a Subscription should be changed through its attributes.
-         */
-        @ToString
-        @FieldNameConstants
-        public static class Offer {
-
-            /**
-             * Determines when this offer is no longer valid.
-             */
-            @Getter
-            private LocalDateTime _expires;
-
-            /**
-             * An enum that defines, which kind of offer this class is.
-             */
-            @Getter
-            private Type _type;
-
-            /**
-             * This attribute will be multiplied with the price of the Subscription.
-             * It must be between 0 -> 1, seen as percentages, where 1 = 100%
-             */
-            private double _effect;
-
-            /**
-             * Will translate a transport object of this object into a construct of this object.
-             * @param offer The transport object to be transformed.
-             */
-            public Offer(DTO offer) {
-                _expires = offer.getExpires();
-                _type = Type.valueOf(offer.getType().toString());
-                try {
-                    set_effect(offer.getEffect());
-                } catch (InputMismatchException e) {
-                    Printer.print("Couldn't create effect to subscription offer...", e);
-                }
-            }
-            public Offer(LocalDateTime expires, Type type, double effect) {
-                _expires = expires;
-                _type = type;
-                try {
-                    set_effect(effect);
-                } catch (InputMismatchException e) {
-                    Printer.print("Couldn't create effect to subscription offer...", e);
-                }
-            }
-
-            /**
-             * Checks if the type of the offer is a sale offer.
-             * @return If it ain't a sale offer, it returns 1,
-             * otherwise the effect, that is between 0 -> 1.
-             */
-            public double get_effect() {
-                if (_type == Type.SALE)
-                    return _effect;
-
-                return 1;
-            }
-
-            /**
-             * Checks if effect is between 0 -> 1, in that case it will set the effect value.
-             * @param effect The double value that is wished to be set.
-             * @return If no exception is thrown, it will return the effect value.
-             * @throws InputMismatchException Will be thrown, if the effect value is not between 0 -> 1.
-             */
-            public double set_effect(double effect) throws InputMismatchException {
-                if (effect >= 0 && effect <= 1)
-                    _effect = effect;
-                else
-                    throw new InputMismatchException();
-
-                return effect;
-            }
-
-            /**
-             * An enum of the different values a SubscriptionOffer can be of.
-             */
-            public enum Type {
-                FREE_TRIAL,
-                SALE
-            }
-
-            /**
-             * The Data Transfer Object.
-             * Is meant to be used as having common fields and be the body of Requests and Responses.
-             * Doesn't have any logic.
-             */
-            @Getter @Setter
-            public static class DTO {
-
-                /**
-                 * Determines when this offer is no longer valid.
-                 */
-                private LocalDateTime expires;
-
-                /**
-                 * An enum that defines, which kind of offer this class is.
-                 */
-                private DTO.Type type;
-
-                /**
-                 * This attribute will be multiplied with the price of the Subscription.
-                 * It must be between 0 -> 1, seen as percentages, where 1 = 100%
-                 */
-                private double effect;
-
-                public DTO(Offer offer) {
-                    expires = offer.get_expires();
-                    type = DTO.Type.valueOf(offer.get_type().toString());
-                    effect = offer.get_effect();
-                }
-                /**
-                 * An enum of the different values a SubscriptionOffer can be of.
-                 */
-                public enum Type {
-                    FREE_TRIAL,
-                    SALE
-                }
-            }
-        }
-
 
         /**
          * The Data Transfer Object.
@@ -715,50 +466,13 @@ public abstract class User extends Model {
             private UserDTO user;
 
             /**
-             * An enum that contains different kinds of types, that this Subscription can be.
-             * Will also determine the price.
-             */
-            private DTO.Type type;
-
-            /**
              * An enum that determines what kind of status, the situation of the Subscription is in.
              */
-            private DTO.Status status;
-
-            /**
-             * How much the User should pay per month.
-             */
-            private int price;
-
-            /**
-             * An object class that specifies the offer if any, that this Subscription has.
-             */
-            private Offer.DTO offer;
+            private Subscription.Status status;
 
             public DTO(Subscription subscription) {
                 super(subscription);
-                type = DTO.Type.valueOf(subscription.get_type().toString());
-                status = DTO.Status.valueOf(subscription.get_status().toString());
-                offer = new Offer.DTO(subscription.get_offer());
-            }
-
-            /**
-             * An enum that can be of different types, determining the type of Subscription.
-             */
-            public enum Type {
-                FREEMIUM,
-                PREMIUM_BAND,
-                PREMIUM_ARTIST
-            }
-
-            /**
-             * An enum that defines Status that a Subscription is currently in.
-             */
-            public enum Status {
-                ACCEPTED,
-                BLOCKED,
-                DISACTIVATED,
-                CLOSED
+                status = Subscription.Status.valueOf(subscription.get_status().toString());
             }
         }
     }
@@ -770,7 +484,7 @@ public abstract class User extends Model {
      * Doesn't have any logic.
      */
     @Getter @Setter
-    public static class UserDTO extends ModelDTO {
+    public abstract static class UserDTO extends ModelDTO {
 
         /**
          * The title of the user, that the user uses to use as a title for the profile.
@@ -842,9 +556,7 @@ public abstract class User extends Model {
         /**
          * Messages by other Users.
          */
-        protected Bulletin.DTO[] bulletins;
-
-        protected Authority authority;
+        protected Post.DTO[] bulletins;
 
         public UserDTO(User user) {
             super(user);
@@ -874,11 +586,9 @@ public abstract class User extends Model {
 
             subscription = new Subscription.DTO(user.get_subscription());
 
-            bulletins = new Bulletin.DTO[user.get_bulletins().size()];
+            bulletins = new Post.DTO[user.get_posts().size()];
             for (int i = 0; i < bulletins.length; i++)
-                bulletins[i] = new Bulletin.DTO(user.get_bulletins().get(i));
-
-            authority = Authority.valueOf(user.get_authority().name());
+                bulletins[i] = new Post.DTO(user.get_posts().get(i));
         }
 
         public enum Authority {

@@ -1,12 +1,9 @@
 package laustrup.items;
 
-import laustrup.models.Rating;
-import laustrup.models.Album;
+import laustrup.models.*;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.chats.messages.Post;
 import laustrup.models.users.ContactInfo;
 import laustrup.models.users.Performer;
 import laustrup.models.users.Artist;
@@ -228,6 +225,7 @@ public class TestItems extends ItemGenerator {
                         "Album title",
                         generateAlbumItems(),
                         null,
+                        new History(),
                         LocalDateTime.now()
                     )
             );
@@ -265,6 +263,7 @@ public class TestItems extends ItemGenerator {
                     appointed.get_primaryId(),
                     judge.get_primaryId(),
                     value > 2 ? "Good" : "Bad",
+                    new History(),
                     LocalDateTime.now()
             );
             _ratings.add(rating);
@@ -299,19 +298,12 @@ public class TestItems extends ItemGenerator {
                     new Seszt<>(),
                     new User.Subscription(
                             id,
-                            User.Subscription.Type.FREEMIUM,
                             User.Subscription.Status.ACCEPTED,
-                            new User.Subscription.Offer(
-                                    TimeService.generateRandom(),
-                                    _random.nextBoolean()
-                                            ? User.Subscription.Offer.Type.SALE
-                                            : User.Subscription.Offer.Type.FREE_TRIAL,
-                                    1
-                            ),
                             LocalDateTime.now()
                     ),
                     new Liszt<>(),
                     new Seszt<>(),
+                    new History(),
                     LocalDateTime.now()
                 )
             );
@@ -351,6 +343,7 @@ public class TestItems extends ItemGenerator {
                     new Seszt<>(),
                     new Seszt<>(),
                     new Liszt<>(),
+                    new History(),
                     LocalDateTime.now()
                 )
             );
@@ -408,29 +401,13 @@ public class TestItems extends ItemGenerator {
      * Creates som indexes for Subscriptions.
      */
     public User.Subscription setupSubscription(UUID id) {
-        User.Subscription.Type type = _random.nextBoolean()
-                ? User.Subscription.Type.PREMIUM_ARTIST
-                : User.Subscription.Type.PREMIUM_BAND
-        ;
-        type = _random.nextBoolean()
-                ? type
-                : User.Subscription.Type.FREEMIUM
-        ;
         LocalDateTime timestamp = TimeService.generateRandom();
 
         return new User.Subscription(
                 id == null
                         ? UUID.randomUUID()
                         : id,
-                type,
                 User.Subscription.Status.ACCEPTED,
-                new User.Subscription.Offer(
-                        timestamp,
-                        _random.nextBoolean()
-                                ? User.Subscription.Offer.Type.SALE
-                                : User.Subscription.Offer.Type.FREE_TRIAL,
-                        _random.nextDouble(1)
-                ),
                 timestamp
         );
     }
@@ -459,6 +436,7 @@ public class TestItems extends ItemGenerator {
                             new Liszt<>(),
                             _random.nextInt(101),
                             new Liszt<>(),
+                            new History(),
                             LocalDateTime.now()
                     )
             );
@@ -476,6 +454,8 @@ public class TestItems extends ItemGenerator {
             int gigAmount = _random.nextInt(5) + 1,
                 gigSize = _random.nextInt(35) + 11;
             LocalDateTime startOfLatestGig = TimeService.generateRandom();
+            Venue venue = _venues.get(_random.nextInt(_venues.size()));
+            Seszt<Ticket.Option> ticketOptions = generateTicketOptions(new Seszt<>(id), venue.get_primaryId());
 
             _events.add(
                 new Event(
@@ -484,19 +464,20 @@ public class TestItems extends ItemGenerator {
                         "Event description " + id,
                         startOfLatestGig.minusMinutes(gigAmount*gigAmount).minusHours(5),
                         generatePlato(),
-                        generatePlato(),
-                        generatePlato(),
-                        generatePlato(),
+                        generateNowOrNull(),
+                        generateNowOrNull(),
+                        generateNowOrNull(),
                         "Location " + id,
-                        _random.nextDouble(498) + 1,
-                        "https://www.Billetlugen.dk/"+id,
+                        ticketOptions,
+                        generateTickets(ticketOptions, _participants, id),
                         _contactInfo.get(_random.nextInt(_contactInfo.size())),
                         generateGigs(null, startOfLatestGig, gigAmount, gigSize),
-                        _venues.get(_random.nextInt(_venues.size())),
+                        venue,
                         new Liszt<>(),
                         new Seszt<>(),
                         new Seszt<>(),
                         new Seszt<>(new Album[]{_albums.get(_random.nextInt(_albums.size()))}),
+                        new History(),
                         LocalDateTime.now()
                 )
             );
@@ -504,8 +485,8 @@ public class TestItems extends ItemGenerator {
             for (Event.Gig gig : _events.Get(i).get_gigs())
                 _events.Get(i).add(generateRequests(gig.get_act(), _events.Get(i)));
 
-            for (Bulletin bulletin : generateBulletins(_events.Get(i)))
-                _events.Get(i).add(bulletin);
+            for (Post post : generateBulletins(_events.Get(i)))
+                _events.Get(i).add(post);
 
             for (Event.Participation participation : generateParticipations(_events.Get(i)))
                 _events.Get(i).add(participation);
@@ -566,7 +547,16 @@ public class TestItems extends ItemGenerator {
                 members.add(user);
             }
 
-            _chatRooms.add(new ChatRoom(id, "Chatroom "+id, generateMails(members), members, LocalDateTime.now()));
+            _chatRooms.add(
+                    new ChatRoom(
+                            id,
+                            "Chatroom " + id,
+                            generateMails(members),
+                            members,
+                            new History(),
+                            LocalDateTime.now()
+                    )
+            );
         }
     }
 

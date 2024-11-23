@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.regex.Pattern;
 
+import static laustrup.assertions.Asserter.asserting;
+
 class RandomCreatorServiceTests extends ServiceTester {
 
     /** Sets the Service as a RandomCreatorService for testing. */

@@ -25,7 +25,7 @@ public abstract class TestCollections {
     /**
      * Will be used to create values for attributes.
      */
-    protected final Random _random = new Random();
+    protected static final Random _random = new Random();
 
     /**
      * A collection of the generated Participants.

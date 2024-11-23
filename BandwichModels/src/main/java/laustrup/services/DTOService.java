@@ -11,22 +11,10 @@ import laustrup.models.users.Venue;
 import static laustrup.models.User.UserDTO;
 import static laustrup.models.Model.ModelDTO;
 
-/** Mostly used to convert Objects. */
+/**
+ * Mostly used to convert Objects.
+ */
 public class DTOService extends Service {
-
-    /**
-     * Converts from DTO Object.
-     * @param user The Object to be converted.
-     * @return The converted Object.
-     */
-    public static User convert(UserDTO user) {
-        return user == null ? null : switch (user.getAuthority()) {
-            case VENUE -> new Venue((Venue.DTO) user);
-            case ARTIST -> new Artist((Artist.DTO) user);
-            case BAND -> new Band((Band.DTO) user);
-            case PARTICIPANT -> new Participant((Participant.DTO) user);
-        };
-    }
 
     /**
      * Converts to DTO Object.
@@ -34,11 +22,12 @@ public class DTOService extends Service {
      * @return The converted Object.
      */
     public static UserDTO convert(User user) {
-        return user == null || user.get_authority() == null ? null : switch (user.get_authority()) {
-            case VENUE -> new Venue.DTO(user);
-            case ARTIST -> new Artist.DTO((Artist) user);
-            case BAND -> new Band.DTO((Band) user);
-            case PARTICIPANT -> new Participant.DTO(user);
+        return user == null ? null : switch (user.getClass().getSimpleName()) {
+            case "Venue" -> new Venue.DTO(user);
+            case "Artist" -> new Artist.DTO((Artist) user);
+            case "Band" -> new Band.DTO((Band) user);
+            case "Participant" -> new Participant.DTO(user);
+            default -> throw new IllegalStateException("Unexpected value: " + user.getClass().getSimpleName());
         };
     }
 
@@ -71,34 +60,6 @@ public class DTOService extends Service {
             case "PARTICIPANT" -> new Participant.DTO(((Participant) model));
             case "EVENT" -> new Event.DTO((Event) model);
             default -> null;
-        };
-    }
-
-    /**
-     * Converts from DTO Object.
-     * @param authority The Object to be converted.
-     * @return The converted Object.
-     */
-    public static User.Authority convert(UserDTO.Authority authority) {
-        return authority == null ? null : switch (authority) {
-            case VENUE -> User.Authority.VENUE;
-            case ARTIST -> User.Authority.ARTIST;
-            case BAND -> User.Authority.BAND;
-            case PARTICIPANT -> User.Authority.PARTICIPANT;
-        };
-    }
-
-    /**
-     * Converts to DTO Object.
-     * @param authority The Object to be converted.
-     * @return The converted Object.
-     */
-    public static UserDTO.Authority convert(User.Authority authority) {
-        return authority == null ? null : switch (authority) {
-            case VENUE -> UserDTO.Authority.VENUE;
-            case ARTIST -> UserDTO.Authority.ARTIST;
-            case BAND -> UserDTO.Authority.BAND;
-            case PARTICIPANT -> UserDTO.Authority.PARTICIPANT;
         };
     }
 }

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 
 import java.util.Arrays;
 
+import static laustrup.assertions.Asserter.asserting;
+
 /**
  * A super tester class, that shares abstract methods for models to implement.
  * @param <R> The return type for the Tester super class.

@@ -1,13 +1,9 @@
 package laustrup.models.users;
 
-import laustrup.models.Model;
+import laustrup.models.*;
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.models.Rating;
-import laustrup.models.Album;
 import laustrup.models.chats.ChatRoom;
-import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.chats.messages.Post;
 import laustrup.services.DTOService;
 import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
@@ -38,9 +34,28 @@ public class Participant extends User {
         super(participant);
         _idols = new Seszt<>();
         for (UserDTO idol : participant.getIdols())
-            _idols.add(DTOService.convert(idol));
+            _idols.add((User) DTOService.convert(idol));
     }
 
+    /**
+     * Constructor with all fields.
+     * @param id The primary unique id.
+     * @param username The name that this User identifies by.
+     * @param firstName The real first name of this User.
+     * @param lastName The real last name of this User.
+     * @param description A description to inform other Users of this User.
+     * @param contactInfo An Object that will describe ways to come in contact with this User.
+     * @param albums Any kinds of files that this User has stored.
+     * @param ratings Values given to this User.
+     * @param events Events that this User joins or hosts.
+     * @param chatRooms Rooms that Users can communicate in.
+     * @param subscription Defines the details of this User's subscription.
+     * @param posts Messages that can be written publicly on dashboard.
+     * @param idols These are the Users that the Participant can follow,
+     *              indicating that new content will be shared with the Participant.
+     * @param history The Events for this object.
+     * @param timestamp The time this User was created.
+     */
     public Participant(
             UUID id,
             String username,
@@ -53,8 +68,9 @@ public class Participant extends User {
             Seszt<Event> events,
             Seszt<ChatRoom> chatRooms,
             User.Subscription subscription,
-            Liszt<Bulletin> bulletins,
+            Liszt<Post> posts,
             Seszt<User> idols,
+            History history,
             LocalDateTime timestamp
     ) {
         super(
@@ -69,39 +85,8 @@ public class Participant extends User {
                 events,
                 chatRooms,
                 subscription,
-                bulletins,
-                Authority.PARTICIPANT,
-                timestamp
-        );
-        _idols = idols;
-    }
-
-    public Participant(
-            UUID id,
-            String username,
-            String description,
-            ContactInfo contactInfo,
-            Liszt<Album> albums,
-            Liszt<Rating> ratings,
-            Seszt<Event> events,
-            Seszt<ChatRoom> chatRooms,
-            Subscription subscription,
-            Liszt<Bulletin> bulletins,
-            Seszt<User> idols,
-            LocalDateTime timestamp
-    ) {
-        super(
-                id,
-                username,
-                description,
-                contactInfo,
-                albums,
-                ratings,
-                events,
-                chatRooms,
-                subscription,
-                bulletins,
-                Authority.PARTICIPANT,
+                posts,
+                history,
                 timestamp
         );
         _idols = idols;
@@ -157,6 +142,10 @@ public class Participant extends User {
          */
         private UserDTO[] idols;
 
+        /**
+         * Converts the object to the data transport object.
+         * @param participant The object to be converted.
+         */
         public DTO(Participant participant) {
             super(participant);
             if (idols != null) {
@@ -166,9 +155,13 @@ public class Participant extends User {
             }
         }
 
+        /**
+         * Converts the object to the data transport object.
+         * @param user The object to be converted.
+         */
         public DTO(User user) {
             super(user);
-            if (user.get_authority() == User.Authority.PARTICIPANT) {
+            if (user.getClass() == Participant.class) {
                 idols = new UserDTO[((Participant) user).get_idols().size()];
                 for (int i = 0; i < idols.length; i++)
                     idols[i] = DTOService.convert(((Participant) user).get_idols().Get(i+1));

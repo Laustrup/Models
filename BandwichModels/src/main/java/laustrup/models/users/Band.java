@@ -1,13 +1,9 @@
 package laustrup.models.users;
 
-import laustrup.models.Model;
+import laustrup.models.*;
 import laustrup.utilities.collections.lists.Liszt;
-import laustrup.models.Rating;
-import laustrup.models.Album;
 import laustrup.models.chats.ChatRoom;
-import laustrup.models.chats.messages.Bulletin;
-import laustrup.models.Event;
-import laustrup.models.User;
+import laustrup.models.chats.messages.Post;
 import laustrup.utilities.collections.sets.Seszt;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,16 +13,16 @@ import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.UUID;
 
-/** Extends performer and contains Artists as members */
+/**
+ * Extends performer and contains Artists as members
+ */
 @Getter @FieldNameConstants
 public class Band extends Performer {
 
-    /** Contains all the Artists, that are members of this band. */
+    /**
+     * Contains all the Artists, that are members of this band.
+     */
     private Seszt<Artist> _members;
-
-    /** A description of the gear, that the band possesses and what they require for an Event. */
-    @Setter
-    private String _runner;
 
     /**
      * Will translate a transport object of this object into a construct of this object.
@@ -42,8 +38,6 @@ public class Band extends Performer {
         _members = new Seszt<>();
         for (Artist.DTO member : band.getMembers())
             _members.add(new Artist(member));
-
-        _runner = band.getRunner();
     }
 
     /**
@@ -59,11 +53,12 @@ public class Band extends Performer {
      * @param gigs Describes all the gigs, that the Performer is a part of an act.
      * @param chatRooms These ChatRooms can be used to communicate with other users.
      * @param subscription The Subscription of this Artist.
-     * @param bulletins Messages by other Users.
+     * @param posts Messages by other Users.
      * @param members Contains all the Artists, that are members of this band.
      * @param runner A description of the gear, that the Artist possesses and what they require for an Event.
      * @param fans All the participants that are following this Performer, is included here.
      * @param idols The people that are following this Object.
+     * @param history The Events for this object.
      * @param timestamp The date and time this ContactInfo was created.
      */
     public Band(
@@ -77,21 +72,39 @@ public class Band extends Performer {
             Seszt<Event.Gig> gigs,
             Seszt<ChatRoom> chatRooms,
             Subscription subscription,
-            Liszt<Bulletin> bulletins,
+            Liszt<Post> posts,
             Seszt<Artist> members,
             String runner,
             Seszt<User> fans,
             Seszt<User> idols,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, username, description, contactInfo, Authority.BAND, albums, ratings, events, gigs, chatRooms,
-                subscription, bulletins, fans, idols, timestamp);
+        super(
+                id,
+                null,
+                null,
+                username,
+                description,
+                contactInfo,
+                albums,
+                ratings,
+                events,
+                gigs,
+                chatRooms,
+                subscription,
+                posts,
+                fans,
+                idols,
+                runner,
+                history,
+                timestamp
+        );
         if (members.isEmpty())
             throw new InputMismatchException("There is no members in this band");
 
         _username = username;
         _members = members;
-        _runner = runner;
     }
 
     /**
@@ -147,14 +160,12 @@ public class Band extends Performer {
                 Model.Fields._primaryId,
                 User.Fields._username,
                 User.Fields._description,
-                Fields._runner,
                 Model.Fields._timestamp
             },
             new String[] {
                 String.valueOf(get_primaryId()),
                 get_username(),
                 get_description(),
-                get_runner(),
                 Model.Fields._timestamp
             }
         );
@@ -168,12 +179,20 @@ public class Band extends Performer {
     @Getter @Setter
     public static class DTO extends PerformerDTO {
 
-        /** Contains all the Artists, that are members of this band. */
+        /**
+         * Contains all the Artists, that are members of this band.
+         */
         private Artist.DTO[] members;
 
-        /** A description of the gear, that the band possesses and what they require for an Event. */
+        /**
+         * A description of the gear, that the band possesses and what they require for an Event.
+         */
         private String runner;
 
+        /**
+         * Converts into this DTO Object.
+         * @param band The Object to be converted.
+         */
         public DTO(Band band) {
             super(band);
             members = new Artist.DTO[band.get_members().size()];

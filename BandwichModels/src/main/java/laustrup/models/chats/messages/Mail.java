@@ -1,10 +1,9 @@
 package laustrup.models.chats.messages;
 
+import laustrup.models.History;
 import laustrup.models.Model;
 import laustrup.models.chats.ChatRoom;
 import laustrup.models.User;
-import laustrup.utilities.parameters.Plato;
-
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
 
@@ -41,6 +40,7 @@ public class Mail extends Message {
      * @param isEdited A Plato object, that will be true if the Message has been edited.
      *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
      * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     * @param history The Events for this object.
      * @param timestamp Specifies the time this entity was created.
      */
     public Mail(
@@ -48,12 +48,13 @@ public class Mail extends Message {
             ChatRoom chatRoom,
             User author,
             String content,
-            boolean isSent,
-            Plato isEdited,
+            LocalDateTime isSent,
+            LocalDateTime isEdited,
             boolean isPublic,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, author, content, isSent, isEdited, isPublic, timestamp);
+        super(id, author, content, isSent, isEdited, isPublic, history, timestamp);
         _chatRoom = chatRoom;
     }
 
@@ -69,7 +70,7 @@ public class Mail extends Message {
             User author,
             String content
     ) {
-        super(author, content, false, new Plato(false), false);
+        super(author, content, null, null, false);
         _chatRoom = chatRoom;
     }
 

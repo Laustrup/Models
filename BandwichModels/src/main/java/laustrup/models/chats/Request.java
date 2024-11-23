@@ -1,11 +1,10 @@
 package laustrup.models.chats;
 
+import laustrup.models.History;
 import laustrup.models.Model;
 import laustrup.models.Event;
 import laustrup.models.User;
-import laustrup.utilities.parameters.Plato;
 import laustrup.services.DTOService;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -32,19 +31,34 @@ public class Request extends Model {
 
     /**
      * The value that indicates if the request for the Event has been approved.
+     * From the first date that isn't null, this has been approved.
      */
     @Setter
-    private Plato _approved;
+    private LocalDateTime _approved;
 
     /**
-     * Will set the approved to true.
+     * Will set the approved to now and therefore approve from now on.
+     * In case that it is already approved, nothing will happen.
      */
-    public void approve() { _approved.set_argument(true); }
+    public void approve() {
+        if (_approved == null)
+            _approved = LocalDateTime.now();
+    }
 
     /**
-     * Will set the approved to false.
+     * Will tell if the Request is approved, by whether the time is approved was null.
+     * @return True if the approved is null.
      */
-    public void deny() { _approved.set_argument(false); }
+    public boolean isApproved() {
+        return _approved != null;
+    }
+
+    /**
+     * Will set the approved to null and therefore not approved.
+     */
+    public void deny() {
+        _approved = null;
+    }
 
     /**
      * This message will be shown for the user, in order to inform of the request.
@@ -58,9 +72,9 @@ public class Request extends Model {
      */
     public Request(DTO request) {
         super(request);
-        _user = DTOService.convert(request.getUser());
+        _user = (User) DTOService.convert(request.getUser());
         _event = new Event(request.getEvent());
-        _approved = new Plato(request.getApproved());
+        _approved = request.getApproved();
         _message = request.getMessage();
     }
 
@@ -70,14 +84,23 @@ public class Request extends Model {
      * @param event The Event that is hosting the Gig.
      * @param approved Defines if the Request have been approved.
      * @param message Details added about the Request, is optional.
+     * @param history The Events for this object.
      * @param timestamp The date and time the Request was made.
      */
-    public Request(User user, Event event, Plato approved, String message, LocalDateTime timestamp) {
+    public Request(
+            User user,
+            Event event,
+            LocalDateTime approved,
+            String message,
+            History history,
+            LocalDateTime timestamp
+    ) {
         super(
             user != null ? user.get_primaryId() : null,
             event != null ? event.get_primaryId() : null,
             user != null && event != null
                 ? "Request of " + user.get_username() + " to " + event.get_title() : "Empty Request",
+            history,
             timestamp
         );
 
@@ -96,19 +119,16 @@ public class Request extends Model {
      * @param event The Event that is hosting the Gig.
      */
     public Request(User user, Event event) {
-        this(
-            user,
-            event,
-            new Plato(false),
-            user != null && event != null
-                ? """
-                    This request wishes @user to perform at @event
-                    """
-                    .replace("@user", user.get_username())
-                    .replace("@event", event.get_title())
-                : "This Request has no user or event assigned",
-            LocalDateTime.now()
+        super(
+                user.get_primaryId(),
+                event.get_primaryId(),
+                "Request of " + user.get_username() + " to " + event.get_title()
         );
+        _message = """
+                This request wishes @user to perform at @event
+                """
+                .replace("@user", user.get_username())
+                .replace("@event", event.get_title());
     }
 
     @Override
@@ -124,7 +144,7 @@ public class Request extends Model {
             new String[]{
                 String.valueOf(_primaryId),
                 String.valueOf(_secondaryId),
-                _approved != null ? _approved.get_argument().toString() : null,
+                _approved != null ? _approved.toString() : null,
                 String.valueOf(_timestamp)
             }
         );
@@ -141,7 +161,7 @@ public class Request extends Model {
         private Event.DTO event;
 
         /** The value that indicates if the request for the Event has been approved. */
-        private Plato.Argument approved;
+        private LocalDateTime approved;
 
         /** This message will be shown for the user, in order to inform of the request. */
         private String message;
@@ -154,7 +174,7 @@ public class Request extends Model {
             super(request);
             user = DTOService.convert(request.get_user());
             event = new Event.DTO(request.get_event());
-            approved = request.get_approved().get_argument();
+            approved = request.get_approved();
             message = request.get_message();
         }
     }

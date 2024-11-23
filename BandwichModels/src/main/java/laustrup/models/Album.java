@@ -59,6 +59,7 @@ public class Album extends Model {
      * @param title The title of the Album.
      * @param items The items contained on this Album.
      * @param authorId The creator of the Album.
+     * @param history The Events for this object.
      * @param timestamp The date this Album was created.
      */
     public Album(
@@ -66,9 +67,10 @@ public class Album extends Model {
             String title,
             Seszt<Item> items,
             UUID authorId,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, title, timestamp);
+        super(id, title, history, timestamp);
         _items = items;
         _authorId = authorId;
     }
@@ -254,10 +256,19 @@ public class Album extends Model {
          * @param kind Determines if this is music or an image.
          * @param tags The people joined at this item.
          * @param event The Event that is joined at this item.
+         * @param history The Events for this object.
          * @param timestamp The date this item is posted.
          */
-        public Item(String title, String endpoint, Kind kind, Seszt<UUID> tags, Event event, LocalDateTime timestamp) {
-            super(title, timestamp);
+        public Item(
+                String title,
+                String endpoint,
+                Kind kind,
+                Seszt<UUID> tags,
+                Event event,
+                History history,
+                LocalDateTime timestamp
+        ) {
+            super(title, history, timestamp);
             _endpoint = endpoint;
             _kind = kind;
             _tags = tags;
@@ -389,7 +400,9 @@ public class Album extends Model {
     @Getter
     public static class DTO extends ModelDTO {
 
-        /** These endpoints are being used for getting the image/music file. */
+        /**
+         * These endpoints are being used for getting the image/music file.
+         */
         private Item.DTO[] items;
 
         /**

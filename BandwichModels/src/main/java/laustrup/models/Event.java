@@ -1,26 +1,23 @@
 package laustrup.models;
 
 import laustrup.models.users.Participant;
+import laustrup.services.DTOService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
 import laustrup.utilities.console.Printer;
 import laustrup.utilities.parameters.Plato;
 import laustrup.models.chats.Request;
-import laustrup.models.chats.messages.Bulletin;
+import laustrup.models.chats.messages.Post;
 import laustrup.models.users.ContactInfo;
 import laustrup.models.users.Performer;
 import laustrup.models.users.Venue;
-import laustrup.services.DTOService;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.InputMismatchException;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static laustrup.services.ObjectService.ifExists;
 
@@ -50,10 +47,10 @@ public class Event extends Model {
     private LocalDateTime _end;
 
     /**
-     * The amount of time it will take the gigs in total.
+     * The amount of time it will take the gigs in total in milliseconds.
      * Is being calculated automatically.
      */
-    private long _length;
+    private long _duration;
 
     /**
      * The description of the Event, that can be edited by Performers or Venue
@@ -69,20 +66,23 @@ public class Event extends Model {
 
     /**
      * If this is a public Event, other Users can view and interact with it.
+     * It is public if it is not null, otherwise it has the time that it became public.
      */
-    private Plato _public;
+    private LocalDateTime _public;
 
     /**
      * Will be true, if this Event is cancelled.
      * Can only be cancelled by the Venue.
+     * It is cancelled if it is not null, otherwise it has the time that it became cancelled.
      */
-    private Plato _cancelled;
+    private LocalDateTime _cancelled;
 
     /**
      * This is marked if there is no more tickets to sell.
+     * It is sold out if it is not null, otherwise it has the time that it became sold out.
      */
     @Setter
-    private Plato _soldOut;
+    private LocalDateTime _soldOut;
 
     /**
      * This is the address or place, whether the Event will be held.
@@ -91,42 +91,14 @@ public class Event extends Model {
     private String _location;
 
     /**
-     * Sets the location.
-     * In case that the input is null or empty, it will use the location of the Venue.
-     * @param location The new location value.
-     * @return The location value.
+     * The options that are available for tickets to be bought or reserved.
      */
-    public String set_location(String location) {
-        _location = location == null || location.isEmpty()
-            ? (
-                _venue != null
-                    ? (
-                        _venue.get_location() != null
-                            ? _venue.get_location()
-                            : null
-                    )
-                    : null
-            )
-            : location;
-
-        return _location;
-    }
+    private Seszt<Ticket.Option> _ticketOptions;
 
     /**
-     * The cost of a ticket.
-     * Can be multiple prices for tickets, but this is just meant as the cheapest.
+     * The tickets that have been bought or reserved.
      */
-    @Setter
-    private double _price;
-
-    /**
-     * A link for where the tickets can be sold.
-     * This might be altered later on,
-     * since it is wished to be sold through Bandwich.
-     * If the field isn't touched, it will use the Venue's location.
-     */
-    @Setter
-    private String _ticketsURL;
+    private Seszt<Ticket> _tickets;
 
     /**
      * Different information of contacting.
@@ -158,7 +130,7 @@ public class Event extends Model {
     /**
      * Post from different people, that will mention contents.
      */
-    private Seszt<Bulletin> _bulletins;
+    private Seszt<Post> _posts;
 
     /**
      * An Album of images, that can be used to promote this Event.
@@ -191,7 +163,7 @@ public class Event extends Model {
             _start = event.getOpenDoors() != null ? event.getOpenDoors() : null;
             _openDoors = _start;
             _end = event.getEnd() != null ? event.getEnd() : (event.getOpenDoors() != null ? event.getOpenDoors() : null);
-            _length = _start != null && _end != null ? Duration.between(_start,_end).toMinutes() : 0;
+            _duration = _start != null && _end != null ? Duration.between(_start,_end).toMinutes() : 0;
         }
 
         if (_start != null && _end != null)
@@ -201,13 +173,19 @@ public class Event extends Model {
                 throw new InputMismatchException();
 
         _voluntary = new Plato(event.getIsVoluntary());
-        _public = new Plato(event.getIsPublic());
-        _cancelled = new Plato(event.getIsCancelled());
-        _soldOut = new Plato(event.getIsSoldOut());
-        _price = event.getPrice();
-        _ticketsURL = event.getTicketsURL();
+        _public = event.getIsPublic();
+        _cancelled = event.getIsCancelled();
+        _soldOut = event.getIsSoldOut();
+        _ticketOptions = new Seszt<>();
+        for (Ticket.Option.DTO option : event.getTicketOptions())
+            _ticketOptions.add(new Ticket.Option(option));
+
+        _tickets = new Seszt<>();
+        for (Ticket.DTO ticket : event.getTickets())
+            _tickets.add(new Ticket(ticket));
+
         _contactInfo = (ContactInfo) ifExists(event.getContactInfo(), e -> new ContactInfo(event.getContactInfo()));
-        _venue = (Venue) DTOService.convert(event.getVenue());
+        _venue = new Venue(event.getVenue());
 
         set_location(event.getLocation());
 
@@ -223,10 +201,10 @@ public class Event extends Model {
                 _participations.add(new Participation(participation));
         });
 
-        ifExists(event.getBulletins(), () -> {
-            _bulletins = new Seszt<>();
-            for (Bulletin.DTO bulletin : event.getBulletins())
-                _bulletins.add(new Bulletin(bulletin));
+        ifExists(event.getPosts(), () -> {
+            _posts = new Seszt<>();
+            for (Post.DTO bulletin : event.getPosts())
+                _posts.add(new Post(bulletin));
         });
 
         ifExists(event.getAlbums(), () -> {
@@ -249,15 +227,16 @@ public class Event extends Model {
      * @param isCancelled If true this Event is cancelled.
      * @param isSoldOut Determines the state of the sale of this Event.
      * @param location Where this Event is being held.
-     * @param price The price it costs for participants to participate.
-     * @param ticketsURL Where people can buy tickets for this Event.
+     * @param ticketOptions The options that are available for tickets to be bought or reserved.
+     * @param tickets The tickets that have been bought or reserved.
      * @param contactInfo The information of how to contact the people in charge of this Event.
      * @param gigs The shows that are being held in this Event.
      * @param venue The Venue responsible for arranging this Event.
      * @param requests The Requests between the members of the Gigs and this Event.
      * @param participations Who are joining this Event.
-     * @param bulletins Messages that are put up on this Event.
+     * @param posts Messages that are put up on this Event.
      * @param albums Images or Music promoting this Event.
+     * @param history The Events for this object.
      * @param timestamp The date and time this Event was created.
      * @throws InputMismatchException Will be thrown, if the times don't fit each other correctly.
      */
@@ -267,22 +246,23 @@ public class Event extends Model {
             String description,
             LocalDateTime openDoors,
             Plato isVoluntary,
-            Plato isPublic,
-            Plato isCancelled,
-            Plato isSoldOut,
+            LocalDateTime isPublic,
+            LocalDateTime isCancelled,
+            LocalDateTime isSoldOut,
             String location,
-            double price,
-            String ticketsURL,
+            Seszt<Ticket.Option> ticketOptions,
+            Seszt<Ticket> tickets,
             ContactInfo contactInfo,
             Liszt<Gig> gigs,
             Venue venue,
             Liszt<Request> requests,
             Seszt<Participation> participations,
-            Seszt<Bulletin> bulletins,
+            Seszt<Post> posts,
             Seszt<Album> albums,
+            History history,
             LocalDateTime timestamp
     ) throws InputMismatchException {
-        super(id, title == null || title.isEmpty() ? "Untitled event" : title, timestamp);
+        super(id, title == null || title.isEmpty() ? "Untitled event" : title, history, timestamp);
 
         _description = description;
         _gigs = gigs;
@@ -308,8 +288,8 @@ public class Event extends Model {
         _public = isPublic;
         _cancelled = isCancelled;
         _soldOut = isSoldOut;
-        _price = price;
-        _ticketsURL = ticketsURL;
+        _ticketOptions = ticketOptions;
+        _tickets = tickets;
         _contactInfo = contactInfo;
         _venue = venue;
 
@@ -320,7 +300,7 @@ public class Event extends Model {
             : requests
         ;
         _participations = participations;
-        _bulletins = bulletins;
+        _posts = posts;
         _albums = albums;
     }
 
@@ -333,8 +313,7 @@ public class Event extends Model {
      * @param isVoluntary Determines whether this Event's workers are paid employees.
      * @param isPublic The visibility of this Event.
      * @param location Where this Event is being held.
-     * @param price The price it costs for participants to participate.
-     * @param ticketsURL Where people can buy tickets for this Event.
+     * @param ticketOptions The options that are available for tickets to be bought or reserved.
      * @param contactInfo The information of how to contact the people in charge of this Event.
      * @param gigs The shows that are being held in this Event.
      * @param venue The Venue responsible for arranging this Event.
@@ -345,10 +324,9 @@ public class Event extends Model {
             String description,
             LocalDateTime openDoors,
             Plato isVoluntary,
-            Plato isPublic,
+            LocalDateTime isPublic,
             String location,
-            double price,
-            String ticketsURL,
+            Seszt<Ticket.Option> ticketOptions,
             ContactInfo contactInfo,
             Liszt<Gig> gigs,
             Venue venue
@@ -360,11 +338,11 @@ public class Event extends Model {
             openDoors,
             isVoluntary,
             isPublic,
-            new Plato(false),
-            new Plato(false),
+            null,
+            null,
             location,
-            price,
-            ticketsURL,
+            ticketOptions,
+            null,
             contactInfo,
             gigs,
             venue,
@@ -372,8 +350,61 @@ public class Event extends Model {
             new Seszt<>(),
             new Seszt<>(),
             new Seszt<>(),
+            null,
             LocalDateTime.now()
         );
+    }
+
+    /**
+     * Calculates the duration into minute format.
+     * @return The calculated duration in minute format.
+     */
+    public double durationInMinutes() {
+        return (double) (_duration / 10000)/60;
+    }
+
+    /**
+     * Checks if it is public in the case that there is a time it became public.
+     * @return True if there is a time recorded that it became public.
+     */
+    public boolean isPublic() {
+        return _public != null;
+    }
+
+    /**
+     * Checks if it is cancelled in the case that there is a time it became cancelled.
+     * @return True if there is a time recorded that it became cancelled.
+     */
+    public boolean isCancelled() {
+        return _cancelled != null;
+    }
+
+    /**
+     * Checks if it is sold out in the case that there is a time it became sold out.
+     * @return True if there is a time recorded that it became sold out.
+     */
+    public boolean isSoldOut() {
+        return _soldOut != null;
+    }
+
+    /**
+     * Sets the location.
+     * In case that the input is null or empty, it will use the location of the Venue.
+     * @param location The new location value.
+     * @return The location value.
+     */
+    public String set_location(String location) {
+        _location = location == null || location.isEmpty()
+                ? (
+                _venue != null
+                        ? (
+                        _venue.get_location() != null
+                                ? _venue.get_location()
+                                : null
+                        ) : null
+                ) : location;
+
+        return _location;
     }
 
     /**
@@ -591,7 +622,7 @@ public class Event extends Model {
 
         for (Request local : _requests) {
             if (local.get_primaryId().equals(request.get_primaryId())) {
-                local.set_approved(new Plato(true));
+                local.set_approved(LocalDateTime.now());
                 return _requests;
             }
         }
@@ -605,9 +636,9 @@ public class Event extends Model {
      */
     public boolean venueHasApproved() {
         for (Request request : _requests)
-            if (request.get_user().getClass() == Venue.class && request.get_approved().get_truth())
-                return true;
 
+            if (request.get_user().getClass() == Venue.class && request.isApproved())
+                return true;
         return false;
     }
 
@@ -627,7 +658,7 @@ public class Event extends Model {
             }
         }
 
-        _public.set_argument(false);
+        _public = null;
         _venue = venue;
         _requests.add(new Request(venue, this));
 
@@ -639,9 +670,11 @@ public class Event extends Model {
      * @param venue Will check if this Venue has the same id as the Venue of this Event.
      * @return The isCancelled Plato value.
      */
-    public Plato changeCancelledStatus(Venue venue) {
+    public LocalDateTime changeCancelledStatus(Venue venue) {
         if (venue.get_primaryId() == _venue.get_primaryId())
-            _cancelled.set_argument(!_cancelled.get_truth());
+            _cancelled = _cancelled == null
+                    ? null
+                    : LocalDateTime.now();
 
         return _cancelled;
     }
@@ -667,11 +700,11 @@ public class Event extends Model {
 
     /**
      * Adds the given Bulletin to bulletins of this Event.
-     * @param bulletin A specific Bulletin, that is wished to be added.
+     * @param post A specific Bulletin, that is wished to be added.
      * @return All the Bulletins of this Event.
      */
-    public Seszt<Bulletin> add(Bulletin bulletin) {
-        return _bulletins.Add(bulletin);
+    public Seszt<Post> add(Post post) {
+        return _posts.Add(post);
     }
 
     /**
@@ -685,12 +718,12 @@ public class Event extends Model {
 
     /**
      * Removes the given Bulletin from bulletins of current Event.
-     * @param bulletin Determines a specific bulletin, that is wished to be removed.
+     * @param post Determines a specific bulletin, that is wished to be removed.
      * @return All the bulletins of the current Event.
      */
-    public Seszt<Bulletin> remove(Bulletin bulletin) {
-        _bulletins.remove(bulletin);
-        return _bulletins;
+    public Seszt<Post> remove(Post post) {
+        _posts.remove(post);
+        return _posts;
     }
 
     /**
@@ -711,16 +744,16 @@ public class Event extends Model {
 
     /**
      * Sets a Bulletin, by comparing the two ids.
-     * @param bulletin The Bulletin that is wished to be set.
+     * @param post The Bulletin that is wished to be set.
      * @return If the Bulletin is set successfully, it will return the Bulletin, else it will return null.
      */
-    public Bulletin set(Bulletin bulletin) {
-        for (int i = 1; i <= _bulletins.size(); i++) {
-            Bulletin localBulletin = _bulletins.Get(i);
+    public Post set(Post post) {
+        for (int i = 1; i <= _posts.size(); i++) {
+            Post localPost = _posts.Get(i);
 
-            if (localBulletin.get_primaryId() == bulletin.get_primaryId()) {
-                _bulletins.Set(i, bulletin);
-                return _bulletins.Get(i);
+            if (localPost.get_primaryId() == post.get_primaryId()) {
+                _posts.Set(i, post);
+                return _posts.Get(i);
             }
         }
 
@@ -809,10 +842,10 @@ public class Event extends Model {
                         if (gig.get_end().isAfter(_end)) _end = gig.get_end();
                     }
 
-                _length = Duration.between(_start, _end).toMillis();
+                _duration = Duration.between(_start, _end).toMillis();
             }
 
-        return _length;
+        return _duration;
     }
 
     @Override
@@ -823,14 +856,12 @@ public class Event extends Model {
                 Model.Fields._primaryId,
                 Model.Fields._title,
                 Fields._description,
-                Fields._price,
                 Model.Fields._timestamp
             },
             new String[]{
                 String.valueOf(_primaryId),
                 _title,
                 _description,
-                String.valueOf(_price),
                 String.valueOf(_timestamp)
             }
         );
@@ -869,23 +900,31 @@ public class Event extends Model {
          */
         private long length;
 
-        /** The description of the Event, that can be edited by Performers or Venue */
+        /**
+         * The description of the Event, that can be edited by Performers or Venue
+         * */
         private String description;
 
-        /** This Event is paid or voluntary. */
+        /**
+         * This Event is paid or voluntary.
+         */
         private Plato.Argument isVoluntary;
 
-        /** If this is a public Event, other Users can view and interact with it. */
-        private Plato.Argument isPublic;
+        /**
+         * If this is a public Event, other Users can view and interact with it.
+         */
+        private LocalDateTime isPublic;
 
         /**
          * Will be true, if this Event is cancelled.
          * Can only be cancelled by the Venue.
          */
-        private Plato.Argument isCancelled;
+        private LocalDateTime isCancelled;
 
-        /** This is marked if there is no more tickets to sell. */
-        private Plato.Argument isSoldOut;
+        /**
+         * This is marked if there is no more tickets to sell.
+         */
+        private LocalDateTime isSoldOut;
 
         /**
          * This is the address or place, whether the Event will be held.
@@ -894,18 +933,14 @@ public class Event extends Model {
         private String location;
 
         /**
-         * The cost of a ticket.
-         * Can be multiple prices for tickets, but this is just meant as the cheapest.
+         * The options that are available for tickets to be bought or reserved.
          */
-        private double price;
+        private Seszt<Ticket.Option.DTO> ticketOptions;
 
         /**
-         * A link for where the tickets can be sold.
-         * This might be altered later on,
-         * since it is wished to be sold through Bandwich.
-         * If the field isn't touched, it will use the Venue's location.
+         * The tickets that have been bought or reserved.
          */
-        private String ticketsURL;
+        private Seszt<Ticket.DTO> tickets;
 
         /** Different information of contacting. */
         private ContactInfo.DTO contactInfo;
@@ -921,7 +956,9 @@ public class Event extends Model {
          */
         private Venue.DTO venue;
 
-        /** These requests are needed to make sure, everyone wants to be a part of the Event. */
+        /**
+         * These requests are needed to make sure, everyone wants to be a part of the Event.
+         */
         private Request.DTO[] requests;
 
         /**
@@ -930,10 +967,14 @@ public class Event extends Model {
          */
         private Participation.DTO[] participations;
 
-        /** Post from different people, that will mention contents. */
-        private Bulletin.DTO[] bulletins;
+        /**
+         * Post from different people, that will mention contents.
+         */
+        private Post.DTO[] posts;
 
-        /** An Album of images, that can be used to promote this Event. */
+        /**
+         * An Album of images, that can be used to promote this Event.
+         */
         private Album.DTO[] albums;
 
         /**
@@ -953,16 +994,23 @@ public class Event extends Model {
             openDoors = event.get_openDoors();
             start = event.get_start();
             end = event.get_end();
-            length = event.get_length();
+            length = event.get_duration();
 
             isVoluntary = event.get_voluntary() != null ? event.get_voluntary().get_argument() : null;
-            isPublic = event.get_public() != null ? event.get_public().get_argument() : null;
-            isCancelled = event.get_cancelled() != null ? event.get_cancelled().get_argument() : null;
-            isSoldOut = event.get_soldOut() != null ? event.get_soldOut().get_argument() : null;
-            price = event.get_price();
-            ticketsURL = event.get_ticketsURL();
+            isPublic = event.get_public() != null ? event.get_public() : null;
+            isCancelled = event.get_cancelled() != null ? event.get_cancelled() : null;
+            isSoldOut = event.get_soldOut() != null ? event.get_soldOut() : null;
+
+            ticketOptions = new Seszt<>();
+            for (Ticket.Option option : event.get_ticketOptions())
+                ticketOptions.add(new Ticket.Option.DTO(option));
+
+            tickets = new Seszt<>();
+            for (Ticket ticket : event.get_tickets())
+                tickets.add(new Ticket.DTO(ticket));
+
             contactInfo = event.get_contactInfo() != null ? new ContactInfo.DTO(event.get_contactInfo()) : null;
-            venue = (Venue.DTO) DTOService.convert(event.get_venue());
+            venue = new Venue.DTO(event.get_venue());
 
             location = event.get_location();
 
@@ -976,10 +1024,10 @@ public class Event extends Model {
                 for (int i = 0; i < participations.length; i++)
                     participations[i] = new Participation.DTO(event.get_participations().Get(i+1));
             }
-            if (event.get_bulletins() != null) {
-                bulletins = new Bulletin.DTO[event.get_bulletins().size()];
-                for (int i = 0; i < bulletins.length; i++)
-                    bulletins[i] = new Bulletin.DTO(event.get_bulletins().Get(i+1));
+            if (event.get_posts() != null) {
+                posts = new Post.DTO[event.get_posts().size()];
+                for (int i = 0; i < posts.length; i++)
+                    posts[i] = new Post.DTO(event.get_posts().Get(i+1));
             }
             if (event.get_albums() != null) {
                 albums = new Album.DTO[event.get_albums().size()];
@@ -1047,10 +1095,19 @@ public class Event extends Model {
          * @param act This act is of a Gig and can both be assigned as artists or bands.
          * @param start The start of the Gig, where the act will begin.
          * @param end The end of the Gig, where the act will end.
+         * @param history The Events for this object.
          * @param timestamp The time this Object was created.
          */
-        public Gig(UUID id, Event event, Seszt<Performer> act, LocalDateTime start, LocalDateTime end, LocalDateTime timestamp) {
-            super(id, "Gig:" + id, timestamp);
+        public Gig(
+                UUID id,
+                Event event,
+                Seszt<Performer> act,
+                LocalDateTime start,
+                LocalDateTime end,
+                History history,
+                LocalDateTime timestamp
+        ) {
+            super(id, "Gig:" + id, history, timestamp);
             _event = event;
             _act = act;
             _start = start;
@@ -1066,7 +1123,7 @@ public class Event extends Model {
          * @param end The end of the Gig, where the act will end.
          */
         public Gig(Event event, Seszt<Performer> act, LocalDateTime start, LocalDateTime end) {
-            this(null, event, act, start, end, LocalDateTime.now());
+            this(null, event, act, start, end, null, LocalDateTime.now());
         }
 
         /**
@@ -1187,13 +1244,16 @@ public class Event extends Model {
          * @param participant The Participant of the participation.
          * @param type The type of which participant is participating in the participation.
          */
-        public Participation(UUID id, Participant participant, Type type, LocalDateTime timestamp) {
+        public Participation(UUID id, Participant participant, Type type, History history, LocalDateTime timestamp) {
             super(
                     id,
                     participant.get_primaryId(),
                     """
                     Participation of participant @participantId and Event @eventId
-                    """.replace("@participantId", participant.get_primaryId().toString()),
+                    """
+                            .replace("@participantId", participant.get_primaryId().toString())
+                            .replace("@eventId", id.toString()),
+                    history,
                     timestamp
             );
             _participant = participant;

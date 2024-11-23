@@ -6,7 +6,9 @@ import laustrup.quality_assurance.Tester;
 
 import org.junit.jupiter.api.Test;
 
-import static laustrup.quality_assurance.inheritances.aaa.assertions.AssertionFailer.failing;
+import static laustrup.assertions.AssertionFailer.failing;
+import static org.junit.platform.commons.function.Try.success;
+
 
 public class ItemTester extends Tester<Object> {
 
@@ -25,7 +27,7 @@ public class ItemTester extends Tester<Object> {
                                 if (m.get_bands().contains(band))
                                     throw new StackOverflowError();
             } catch (StackOverflowError e) {
-                failing("Bands and Artists will create a stackOverflow...",e);
+                failing("Bands and Artists will create a stackOverflow...", e);
             } catch (Exception e) {
                 failing("Exception found in testing for stackOverflow of Artists and Band", e);
             }
@@ -41,7 +43,7 @@ public class ItemTester extends Tester<Object> {
                 act(this::resetItems);
 
                 if (!compare(before,_items))
-                    success("Items are reset without any errors!\n \n\tItems are:\n \n"+_items.toString());
+                    success("Items are reset without any errors!\n \n\tItems are:\n \n" + _items.toString());
                 else
                     failing("Items are not reset...");
             } catch (Exception e) {

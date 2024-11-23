@@ -1,10 +1,9 @@
 package laustrup.models.chats.messages;
 
+import laustrup.models.History;
 import laustrup.models.Model;
 import laustrup.models.User;
 import laustrup.services.DTOService;
-import laustrup.utilities.parameters.Plato;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -33,16 +32,15 @@ public abstract class Message extends Model {
     protected String _content;
 
     /**
-     * True if the Message is sent.
+     * If null it has not been sent, otherwise it has at the time it has.
      */
     @Setter
-    protected boolean _sent;
+    protected LocalDateTime _sent;
 
     /**
-     * A Plato object, that will be true if the Message has been edited.
-     * Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+     * Can be null in case that it have never been edited, otherwise it will be the time that it was edited.
      */
-    protected Plato _edited;
+    protected LocalDateTime _edited;
 
     /**
      * Can be switched between both true and false, if true the message is public for every User.
@@ -56,10 +54,10 @@ public abstract class Message extends Model {
      */
     public Message(DTO message) {
         super(message);
-        _author = DTOService.convert(message.getAuthor());
+        _author = (User) DTOService.convert(message.getAuthor());
         _content = message.getContent();
-        _sent = message.isSent();
-        _edited = new Plato(message.getIsEdited());
+        _sent = message.getSent();
+        _edited = message.getIsEdited();
         _public = message.isPublic();
     }
 
@@ -72,18 +70,20 @@ public abstract class Message extends Model {
      * @param isEdited A Plato object, that will be true if the Message has been edited.
      *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
      * @param isPublic Can be switched between both true and false, if true the message is public for every User.
+     * @param history The Events for this object.
      * @param timestamp Specifies the time this entity was created.
      */
     public Message(
             UUID id,
             User author,
             String content,
-            boolean isSent,
-            Plato isEdited,
+            LocalDateTime isSent,
+            LocalDateTime isEdited,
             boolean isPublic,
+            History history,
             LocalDateTime timestamp
     ) {
-        super(id, "Message-"+id,timestamp);
+        super(id, "Message-"+id, history, timestamp);
         _author = author;
         _content = content;
         _sent = isSent;
@@ -101,7 +101,7 @@ public abstract class Message extends Model {
      *                 Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
      * @param isPublic Can be switched between both true and false, if true the message is public for every User.
      */
-    public Message(User author, String content, boolean isSent, Plato isEdited, boolean isPublic) {
+    public Message(User author, String content, LocalDateTime isSent, LocalDateTime isEdited, boolean isPublic) {
         super(null, "New Message");
         _author = author;
         _content = content;
@@ -111,12 +111,19 @@ public abstract class Message extends Model {
     }
 
     /**
-     * Will set the sent attribute to true.
-     * @return The sent attribute.
+     * Will tell if the Message is sent, by whether the time is sent was null.
+     * @return True if sent is null.
      */
-    public boolean doSend() {
-        _sent = true;
-        return _sent;
+    public boolean isSent() {
+        return _sent != null;
+    }
+
+    /**
+     * Simply checks if the date it has been edited is null.
+     * @return True if it has never been edited.
+     */
+    public boolean isEdited() {
+        return _sent == null;
     }
 
     /**
@@ -126,8 +133,8 @@ public abstract class Message extends Model {
      */
     public String edit(String content) {
         _content = content;
-        if (_sent && !_edited.get_truth())
-            _edited.set_argument(true);
+        if (_sent != null)
+            _edited = LocalDateTime.now();
 
         return _content;
     }
@@ -136,7 +143,7 @@ public abstract class Message extends Model {
      * An abstract class that contains common attributes for Messages.
      */
     @Getter
-    protected static class DTO extends ModelDTO {
+    protected abstract static class DTO extends ModelDTO {
 
         /**
          * The User that wrote the Message.
@@ -149,15 +156,14 @@ public abstract class Message extends Model {
         protected String content;
 
         /**
-         * True if the Message is sent.
+         * If null it has not been sent, otherwise it has at the time it has.
          */
-        protected boolean isSent;
+        protected LocalDateTime sent;
 
         /**
-         * A Plato object, that will be true if the Message has been edited.
-         * Undefined if it hasn't been yet and not sent, but false if it is sent and also not edited.
+         * Can be null in case that it have never been edited, otherwise it will be the time that it was edited.
          */
-        protected Plato.Argument isEdited;
+        protected LocalDateTime isEdited;
 
         /**
          * Can be switched between both true and false, if true the message is public for every User.
@@ -172,8 +178,8 @@ public abstract class Message extends Model {
             super(message);
             this.author = DTOService.convert(message.get_author());
             this.content = message.get_content();
-            this.isSent = message.is_sent();
-            this.isEdited = message.get_edited().get_argument();
+            this.sent = message.get_sent();
+            this.isEdited = message.get_edited();
             this.isPublic = message.is_public();
         }
     }

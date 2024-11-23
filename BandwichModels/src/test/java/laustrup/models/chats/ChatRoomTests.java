@@ -1,6 +1,7 @@
 package laustrup.models.chats;
 
 import laustrup.ModelTester;
+import laustrup.models.History;
 import laustrup.models.chats.messages.Mail;
 import laustrup.models.User;
 import laustrup.models.users.Artist;
@@ -9,12 +10,13 @@ import laustrup.services.RandomCreatorService;
 import laustrup.services.TimeService;
 import laustrup.utilities.collections.lists.Liszt;
 import laustrup.utilities.collections.sets.Seszt;
-import laustrup.utilities.parameters.Plato;
 
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static laustrup.assertions.Asserter.asserting;
 
 class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
     @Override @Test
@@ -67,6 +69,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
                     isNull ? null : "",
                     new Liszt<>(),
                     _items.get_chatRooms().get(_random.nextInt(_items.get_chatRooms().size())).get_chatters(),
+                    new History(),
                     TimeService.generateRandom()
                 )
             );
@@ -76,7 +79,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
             asserting(expected, chatRoom.get_title());
 
             User newChatter = _items.generateUser();
-            while (chatRoom.chatterExists(newChatter))
+            while (chatRoom.exists(newChatter))
                 newChatter = _items.generateUser();
 
             chatRoom.add(newChatter);
@@ -169,7 +172,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
      * @param chatRoom The arranged ChatRoom to test add.
      */
     private void canAddArtist(ChatRoom chatRoom) {
-        User[] chatters = generateChatters(User.Authority.ARTIST);
+        User[] chatters = generateChatters(false);
 
         test(() -> {
             arrange(() -> chatRoom);
@@ -187,7 +190,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
      * @param chatRoom The arranged ChatRoom to test add.
      */
     private void canAddBand(ChatRoom chatRoom) {
-        User[] users = generateChatters(User.Authority.BAND);
+        User[] users = generateChatters(true);
         Band[] bands = new Band[users.length];
         for (int i = 0; i < users.length; i++)
             bands[i] = (Band) users[i];
@@ -199,7 +202,7 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
             Seszt<Artist> newMembers = new Seszt<>();
             for (Band band : bands)
                 for (Artist artist : band.get_members())
-                    if (!chatRoom.chatterExists(artist))
+                    if (!chatRoom.exists(artist))
                         newMembers.add(artist);
 
             act(() -> chatRoom.add(bands));
@@ -230,25 +233,33 @@ class ChatRoomTests extends ModelTester<ChatRoom, ChatRoom.DTO> {
      */
     private Mail generateMail(ChatRoom chatRoom, User author) {
         return new Mail(
-                UUID.randomUUID(), chatRoom, author,
-                RandomCreatorService.generateString(false,_random.nextInt(9)+1),
-                false, new Plato(false), _random.nextBoolean(), LocalDateTime.now()
+                UUID.randomUUID(),
+                chatRoom,
+                author,
+                RandomCreatorService.generateString(false,_random.nextInt(9) + 1),
+                _random.nextBoolean()
+                        ? LocalDateTime.now()
+                        : null,
+                _random.nextBoolean()
+                        ? LocalDateTime.now()
+                        : null,
+                _random.nextBoolean(),
+                new History(),
+                LocalDateTime.now()
         );
     }
 
     /**
      * Will generate some Users as chatters of a ChatRoom.
-     * @param authority The authority the Chatters should have.
-     * @return The generated User.
+     * @param isBand Decides whether the chatters are a Band or not.
+     * @return The generated Users.
      */
-    private User[] generateChatters(User.Authority authority) {
-        User[] chatters = new User[_random.nextInt(9)+1];
+    private User[] generateChatters(boolean isBand) {
+        User[] chatters = new User[_random.nextInt(9) + 1];
         for (int i = 0; i < chatters.length; i++) {
-            User chatter = authority != User.Authority.BAND
-                    ? _items.generateUser()
-                    : _items.get_bands().get(_random.nextInt(_items.get_bands().size()));
-            while (!chatter.get_authority().toString().equals(authority.toString()))
-                chatter = _items.generateUser();
+            User chatter = isBand
+                    ? _items.get_bands().get(_random.nextInt(_items.get_bands().size()))
+                    : _items.generateUser();
 
             chatters[i] = chatter;
         }
